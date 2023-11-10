@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import path from 'path';
 
 export default defineConfig({
   server: {
@@ -9,6 +10,10 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/auction/, '')
       }
     }
-  }
-  // ... other Vite config options
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
 });
