@@ -1,5 +1,5 @@
 {
-  "name": "auction",
+  "name": "auction-service",
   "version": "1.0.0",
   "description": "auction service",
   "type": "module",
