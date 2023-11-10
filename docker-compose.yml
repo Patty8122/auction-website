@@ -1,0 +1,34 @@
+version: "3"
+services:
+  vite-client:
+    build:
+      context: ./vite-client
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - AUCTION_URL=http://auction:3001/
+      - VITE_SERVER_URL=http://localhost:3001/
+    container_name: vite-client
+    depends_on:
+      auction:
+        condition: service_started
+    volumes:
+      - ./vite-client:/usr/src/app
+      - client_node_modules:/usr/src/app/node_modules
+    stop_signal: SIGKILL
+
+  auction:
+    build: ./auction
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+    volumes:
+      - ./auction:/usr/src/app
+      - auction_node_modules:/usr/src/app/node_modules
+    stop_signal: SIGKILL
+
+volumes:
+  client_node_modules:
+  auction_node_modules:
