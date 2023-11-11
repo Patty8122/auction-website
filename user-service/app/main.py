@@ -4,5 +4,5 @@ app = FastAPI()
 
 @app.get("/test")
 def read_test():
-    return {"message": "Test endpoint reached!"}
+    return {"message": "User service reached!"}
 

@@ -8,7 +8,7 @@ const app = express();
 app.use(express.json());
 
 app.get('/test', (req, res) => {
-	res.send('Test endpoint reached!');
+	res.send('Auction service reached!');
 });
 
 // Start the server

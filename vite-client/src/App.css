@@ -11,7 +11,13 @@
   margin-bottom: 20px;
 }
 
-.test-page button {
+.service-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.service-container button {
   background-color: #61dafb;
   border: none;
   padding: 10px 20px;
@@ -19,14 +25,16 @@
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.2s;
+  margin-right: 10px;
 }
 
-.test-page button:hover {
+.service-container button:hover {
   background-color: #21a1f1;
 }
 
-.test-page .response {
-  margin-top: 20px;
+.service-container .response {
   padding: 10px;
   border-radius: 5px;
+  background-color: #f1f1f1;
+  color: #333;
 }

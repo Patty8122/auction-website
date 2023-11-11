@@ -8,10 +8,12 @@ services:
     environment:
       - PORT=3000
       - AUCTION_URL=http://auction-service:3001/
-      - VITE_SERVER_URL=http://localhost:3001/
+      - USER_URL=http://user-service:3002/
     container_name: vite-client
     depends_on:
       auction-service:
+        condition: service_started
+      user-service:
         condition: service_started
     volumes:
       - ./vite-client:/usr/src/app
@@ -32,11 +34,11 @@ services:
   user-service:
     build: ./user-service
     ports:
-      - "3002:80"
+      - "3002:3002"
     environment:
-      - PORT=80
+      - PORT=3002
     volumes:
-      - ./user-service:/app
+      - ./user-service:/usr/src/app
     stop_signal: SIGKILL
 
 volumes:

@@ -1,5 +1,5 @@
 # topics-software
-The repository for the Topics in Software auction site project
+The repository for the Topics in Software auction site project.
 
 ## Overview
 This project is set up using Docker Compose to simplify the development and deployment process.
@@ -10,9 +10,13 @@ This project is set up using Docker Compose to simplify the development and depl
 - **Description**: This is the front-end client of the application, built with Vite. It interacts with the auction service.
 - **Port**: The service is exposed on port 3000.
 
-### auction
+### auction-service
 - **Description**: The auction service backend.
 - **Port**: The service runs on port 3001.
+
+### user-service
+- **Description**: The user management service backend.
+- **Port**: The service runs on port 3002.
 
 ## Running the Project
 

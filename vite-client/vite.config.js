@@ -8,7 +8,12 @@ export default defineConfig({
         target: process.env.AUCTION_URL,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/auction/, '')
-      }
+      },
+      '/user': {
+        target: process.env.USER_URL,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/user/, '')
+      },
     }
   },
   resolve: {
