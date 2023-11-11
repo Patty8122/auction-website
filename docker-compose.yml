@@ -29,6 +29,16 @@ services:
       - auction_node_modules:/usr/src/app/node_modules
     stop_signal: SIGKILL
 
+  user-service:
+    build: ./user-service
+    ports:
+      - "3002:80"
+    environment:
+      - PORT=80
+    volumes:
+      - ./user-service:/app
+    stop_signal: SIGKILL
+
 volumes:
   client_node_modules:
   auction_node_modules:

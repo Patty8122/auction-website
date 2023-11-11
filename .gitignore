@@ -37,3 +37,6 @@ server/.env
 
 temp/*
 nginx/certs/*
+
+# Python
+.venv/
