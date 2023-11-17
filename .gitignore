@@ -40,3 +40,4 @@ nginx/certs/*
 
 # Python
 .venv/
+__pycache__/

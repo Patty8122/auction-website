@@ -1,4 +1,4 @@
-FROM node:20-bullseye-slim
+FROM node:bookworm-slim
 
 # Set up the working directory
 WORKDIR /usr/src/app
