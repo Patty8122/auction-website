@@ -1,11 +1,9 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import { Pool } from 'pg';
+import pg from 'pg';
 
-const pool = new Pool({
-	connectionString: process.env.DATABASE_URL,
-});
-
+const { Pool } = pg;
+const pool = new Pool();
 const query = (text, params) => pool.query(text, params);
 
 dotenv.config();

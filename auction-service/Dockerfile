@@ -9,6 +9,8 @@ COPY package*.json ./
 # Install Node.js dependencies
 RUN npm install
 
+RUN npm run migrate:up
+
 # Get the port from the env (with default value 3001)
 ENV PORT=3001
 

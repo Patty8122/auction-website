@@ -41,7 +41,11 @@ services:
       - "3001:3001"
     environment:
       - PORT=3001
-      - DATABASE_URL=postgresql://postgres:postgres@auction-db:3003/auctiondb
+      - PGHOST=auction-db
+      - PGPORT=3003
+      - PGDATABASE=auctiondb
+      - PGUSER=username
+      - PGPASSWORD=password
     volumes:
       - ./auction-service:/usr/src/app
       - auction_node_modules:/usr/src/app/node_modules
