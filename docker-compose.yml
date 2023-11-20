@@ -20,44 +20,44 @@ services:
       - client_node_modules:/usr/src/app/node_modules
     stop_signal: SIGKILL
 
-  auction-db:
-    build: ./auction-db
+  db-service:
+    build: ./db-service
     environment:
-      - PGPORT=3003
-      - POSTGRES_DB=auctiondb
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - PGPORT=3004
     volumes:
-      - auction_db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
+      - ./db-service:/usr/src/app
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 2s
       timeout: 5s
       retries: 5
 
+  db-gateway-service:
+    build: ./db-gateway-service
+    environment:
+      - PORT=3003
+      - PGHOST=db-service
+      - PGPORT=3004
+      - PGDATABASE=auctiondb
+      - PGUSER=postgres
+      - PGPASSWORD=postgres
+    depends_on:
+      - db-service
+
   auction-service:
     build: ./auction-service
-    ports:
-      - "3001:3001"
     environment:
       - PORT=3001
-      - PGHOST=auction-db
-      - PGPORT=3003
-      - PGDATABASE=auctiondb
-      - PGUSER=username
-      - PGPASSWORD=password
     volumes:
       - ./auction-service:/usr/src/app
       - auction_node_modules:/usr/src/app/node_modules
     stop_signal: SIGKILL
-    depends_on:
-      auction-db:
-        condition: service_healthy
 
   user-service:
     build: ./user-service
-    ports:
-      - "3002:3002"
     environment:
       - PORT=3002
     volumes:
@@ -67,4 +67,4 @@ services:
 volumes:
   client_node_modules:
   auction_node_modules:
-  auction_db_data:
+  db_data:
