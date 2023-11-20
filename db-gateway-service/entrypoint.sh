@@ -7,12 +7,12 @@ run_migrations() {
     local migration_dir=$2
 
     export DATABASE_URL="postgresql://${PGUSER}:${PGPASSWORD}@${PGHOST}:${PGPORT}/$db"
-    ./node_modules/.bin/node-pg-migrate up -m /migrations/$migration_dir
+    ./node_modules/.bin/node-pg-migrate up -m ./migrations/$migration_dir
 }
 
 # Run migrations for each database
-run_migrations "auctiondb" "auction"
-#run_migrations "userdb" "user"
-#run_migrations "itemdb" "item"
+run_migrations "auctiondb" "auctions"
+#run_migrations "userdb" "users"
+#run_migrations "itemdb" "items"
 
 exec npm start

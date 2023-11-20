@@ -21,14 +21,13 @@ services:
     stop_signal: SIGKILL
 
   db-service:
-    build: ./db-service
+    image: postgres:16-bookworm
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - PGPORT=3004
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./db-service:/usr/src/app
+      - ./init-db:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 2s
@@ -40,12 +39,11 @@ services:
     environment:
       - PORT=3003
       - PGHOST=db-service
-      - PGPORT=3004
-      - PGDATABASE=auctiondb
       - PGUSER=postgres
       - PGPASSWORD=postgres
     depends_on:
-      - db-service
+      db-service:
+        condition: service_healthy
 
   auction-service:
     build: ./auction-service

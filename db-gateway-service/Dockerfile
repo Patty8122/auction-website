@@ -3,8 +3,12 @@ FROM node:bookworm-slim
 # Set up the working directory
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json for Node.js dependencies
+# Copy node dependencies
 COPY package*.json ./
+
+COPY src ./src
+
+COPY migrations ./migrations
 
 # Copy ent
 COPY entrypoint.sh .
