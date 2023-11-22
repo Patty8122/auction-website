@@ -20,40 +20,47 @@ services:
       - client_node_modules:/usr/src/app/node_modules
     stop_signal: SIGKILL
 
-  auction-db:
-    build: ./auction-db
+  db-service:
+    image: postgres:16-bookworm
     environment:
-      - PGPORT=3003
-      - POSTGRES_DB=auctiondb
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - auction_db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 2s
       timeout: 5s
       retries: 5
 
+  db-gateway-service:
+    build: ./db-gateway-service
+    environment:
+      - PORT=3003
+      - PGHOST=db-service
+      - PGUSER=postgres
+      - PGPASSWORD=postgres
+      - AUCTION_DB=auctiondb
+    depends_on:
+      db-service:
+        condition: service_healthy
+
   auction-service:
     build: ./auction-service
-    ports:
-      - "3001:3001"
     environment:
       - PORT=3001
-      - DATABASE_URL=postgresql://postgres:postgres@auction-db:3003/auctiondb
+      - DB_URL=http://db-gateway-service:3003/
     volumes:
       - ./auction-service:/usr/src/app
       - auction_node_modules:/usr/src/app/node_modules
     stop_signal: SIGKILL
     depends_on:
-      auction-db:
-        condition: service_healthy
+      db-gateway-service:
+        condition: service_started
 
   user-service:
     build: ./user-service
-    ports:
-      - "3002:3002"
     environment:
       - PORT=3002
     volumes:
@@ -81,6 +88,7 @@ services:
 volumes:
   client_node_modules:
   auction_node_modules:
+  db_data:
   auction_db_data:
   rabbit_mqdata:
     driver: local
