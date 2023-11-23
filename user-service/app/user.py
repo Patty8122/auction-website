@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod, abstractproperty
 # from client_helper import *
 import requests
 import psycopg2
-from flaskr.model.user import User
+# from flaskr.model.user import User
 from psycopg2.extras import RealDictCursor
 
 
@@ -39,65 +39,65 @@ class User(ABC):
 
 
 class Customer(User):
-    '''
-    Represents a customer who can perform all functions except for user management, but only on themselves
-    '''
-
-    '''
-    Represents a customer who can perform all functions except for user management, but only on themselves
-    '''
-
-    def __init__(self, user_id: int, name: str, status: int, email: str, seller_rating: str, user_name: str):
+    def __init__(self, user_id: int, name: str, status: int, email: str, seller_rating: str, user_name: str, db_params: dict):
         super().__init__(user_id, name, status, email, seller_rating, user_name)
+        self.db_params = db_params
+        self.cursor, self.conn = self.get_db()
 
-    def create_user(self, name: str, status: int, email: str, seller_rating: str, user_name: str, user_password: str, cursor):
-        # Check duplicates
-        existing_users = self.get_user_by_username(user_name, cursor)
+    def get_db(self):
+        conn = psycopg2.connect(**self.db_params)
+        cursor = conn.cursor()
+        return cursor, conn
+
+    def create_user(self, name: str, status: int, email: str, seller_rating: str, user_name: str, user_password: str, user_type: str):
+        existing_users = self.get_user(user_name, user_password)
         if existing_users:
             raise Exception("The user name already exists. Please try a different one.")
 
         insert_query = f"""
-            INSERT INTO {table_name} (name, status, email, seller_rating, user_name, user_password)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO {table_name} (name, status, email, seller_rating, user_name, user_password, user_type)
+            VALUES (%s, %s, %s, %s, %s, %s. %s)
             RETURNING id
         """
-        cursor.execute(insert_query, (name, status, email, seller_rating, user_name, user_password))
-        user_id = cursor.fetchone()['id']
+        self.cursor.execute(insert_query, (name, status, email, seller_rating, user_name, user_password, user_type))
+        user_id = self.cursor.fetchone()[0]
 
         return user_id
 
-    def get_user_by_id(self, user_id, cursor) -> User:
+    def get_user_by_id(self, user_id):
         select_query = f"SELECT * FROM {table_name} WHERE id = %s"
-        cursor.execute(select_query, (user_id,))
-        existing_user = cursor.fetchone()
+        self.cursor.execute(select_query, (user_id,))
+        existing_user = self.cursor.fetchone()
 
         if not existing_user:
             raise Exception("This user does not exist.")
 
-        return User(existing_user['id'], existing_user['name'], existing_user['status'],
-                    existing_user['email'], existing_user['seller_rating'], existing_user['user_name'])
+        return User(existing_user[0], existing_user[1], existing_user[2],
+                    existing_user[3], existing_user[4], existing_user[5])
 
-    def get_user(self, user_name, user_password, cursor) -> User:
+    # def get_user_by_username(self, user_name):
+    #     select_query = f"SELECT * FROM {table_name} WHERE user_name = %s"
+    #     self.cursor.execute(select_query, (user_name,))
+    #     return self.cursor.fetchall()
+
+    def get_user(self, user_name, user_password):
         select_query = f"SELECT * FROM {table_name} WHERE user_name = %s AND user_password = %s"
-        cursor.execute(select_query, (user_name, user_password))
-        existing_user = cursor.fetchone()
+        self.cursor.execute(select_query, (user_name, user_password))
+        existing_user = self.cursor.fetchone()
 
         if not existing_user:
             raise Exception("The user name or password is not correct")
 
-        return User(existing_user['id'], existing_user['name'], existing_user['status'],
-                    existing_user['email'], existing_user['seller_rating'], existing_user['user_name'])
+        return User(existing_user[0], existing_user[1], existing_user[2],
+                    existing_user[3], existing_user[4], existing_user[5])
 
-    def update_user(self, user_id: int, name: str, status: int, email: str, seller_rating: str, user_name: str, user_password: str, cursor) -> None:
-        existing_user = self.get_user(user_name, user_password, cursor)
+    def update_user(self, user_id: int, name: str, status: int, email: str, seller_rating: str, user_name: str, user_password: str):
+        existing_user = self.get_user_by_id(user_id)
         if not existing_user:
-            raise Exception("This user does not exits")
+            raise Exception("This user does not exist")
         if existing_user:
-            # Check if the existing user is blocked
-            if existing_user[0]['status'] == -1:
+            if existing_user.status == -1:
                 raise Exception("Blocked users cannot be updated.")
-            
-        
 
         update_query = f"""
             UPDATE {table_name} SET
@@ -105,41 +105,39 @@ class Customer(User):
             user_name = %s, user_password = %s
             WHERE id = %s
         """
-        cursor.execute(update_query, (name, status, email, seller_rating, user_name, user_password, user_id))
+        self.cursor.execute(update_query, (name, status, email, seller_rating, user_name, user_password, user_id))
 
-    def delete_user(self, user_id: int, cursor) -> None:
+    def delete_user(self, user_id: int):
         delete_query = f"DELETE FROM {table_name} WHERE id = %s"
-        cursor.execute(delete_query, (user_id,))
+        self.cursor.execute(delete_query, (user_id,))
 
-    def suspend_user(self, user_id: int, cursor) -> None:
+    def suspend_user(self, user_id: int):
         update_query = f"UPDATE {table_name} SET status = 0 WHERE id = %s"
-        cursor.execute(update_query, (user_id,))
-
-    # def get_all_users(self, cursor) -> list:
-    #     select_all_query = f"SELECT * FROM {table_name}"
-    #     cursor.execute(select_all_query)
-    #     return cursor.fetchall()
-        
-
-    
+        self.cursor.execute(update_query, (user_id,))
 
 
-class Admin():
-    '''
-    Represents an admin who can do user management
-    '''
-
-    def __init__(self, user_id: int, name: str, status: int, email: str, seller_rating: str, user_name: str):
+class Admin(User):
+    def __init__(self, user_id: int, name: str, status: int, email: str, seller_rating: str, user_name: str, db_params: dict):
         super().__init__(user_id, name, status, email, seller_rating, user_name)
+        self.db_params = db_params
+        self.cursor, self.conn = self.get_db()
 
+    def get_db(self):
+        conn = psycopg2.connect(**self.db_params)
+        cursor = conn.cursor()
+        return cursor, conn
 
-    
+    def remove_and_block_user(self, user_id):
+        existing_user = self.get_user_by_id(user_id)
+        if not existing_user:
+            raise Exception("User does not exist")
+        if existing_user.status == -1:
+            raise Exception("User is already blocked")
 
-    def remove_and_block_user(self, user_id, cursor):
-     
         remove_and_block_query = f"UPDATE {table_name} SET status = -1 WHERE id = %s"
-        cursor.execute(remove_and_block_query, (user_id,))
-        
+        self.cursor.execute(remove_and_block_query, (user_id,))
+
+
 
     # def stop_auction_early(self, auction_id):
     #     # Logic to stop an auction early

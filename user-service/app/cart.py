@@ -1,7 +1,7 @@
+# cart.py
+
 from datetime import datetime
 import psycopg2
-import requests
-from flaskr.model.user import User
 from psycopg2.extras import RealDictCursor
 
 table_name: str = "cart"
@@ -12,6 +12,7 @@ db_params_cart = {
     "user": "your_username",
     "password": "your_password"
 }
+
 class Cart:
     def __init__(self, cart_id: int, user_id: str, create_time: datetime, checkout_time: datetime):
         self.cart_id = cart_id
@@ -29,9 +30,14 @@ class Cart:
 
 
 class CartManagement:
-    def __init__(self, cursor, conn):
-        self.cursor = cursor
-        self.conn = conn
+    def __init__(self, db_params):
+        self.db_params = db_params
+        self.cursor, self.conn = self.get_db()
+
+    def get_db(self):
+        conn = psycopg2.connect(**self.db_params)
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        return cursor, conn
 
     def get_current_cart(self, user_id):
         query = "SELECT * FROM cart WHERE user_id = %s ORDER BY create_at DESC LIMIT 1"

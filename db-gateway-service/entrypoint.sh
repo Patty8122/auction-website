@@ -13,5 +13,6 @@ run_migrations() {
 # Run migrations for each database
 run_migrations "auctiondb" "auctions"
 run_migrations "itemdb" "items"
+run_migrations "usersdb" "users"
 
 exec npm start
