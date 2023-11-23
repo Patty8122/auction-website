@@ -20,6 +20,16 @@ services:
       - client_node_modules:/usr/src/app/node_modules
     stop_signal: SIGKILL
 
+  ui-service:
+    build: ./ui-service
+    environment:
+      - PORT=3001
+    ports:
+      - 3001:3001
+    volumes:
+      - ./ui-service:/usr/src/app
+    stop_signal: SIGKILL
+
   db-service:
     image: postgres:16-bookworm
     environment:
@@ -34,35 +44,23 @@ services:
       timeout: 5s
       retries: 5
 
-  db-gateway-service:
-    build: ./db-gateway-service
-    environment:
-      - PORT=3003
-      - PGHOST=db-service
-      - PGUSER=postgres
-      - PGPASSWORD=postgres
-      - AUCTION_DB=auctiondb
-    depends_on:
-      db-service:
-        condition: service_healthy
-
   auction-service:
     build: ./auction-service
     environment:
-      - PORT=3001
+      - PORT=3003
       - DB_URL=http://db-gateway-service:3003/
     volumes:
       - ./auction-service:/usr/src/app
       - auction_node_modules:/usr/src/app/node_modules
     stop_signal: SIGKILL
-    depends_on:
-      db-gateway-service:
-        condition: service_started
+    # depends_on:
+    #   db-gateway-service:
+    #     condition: service_started
 
   user-service:
     build: ./user-service
-    environment:
-      - PORT=3002
+    ports:
+      - 3002:3002
     volumes:
       - ./user-service:/usr/src/app
     stop_signal: SIGKILL
