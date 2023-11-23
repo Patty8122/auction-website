@@ -13,13 +13,13 @@ db_params = {
 create_users_table_query = """
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    user_name VARCHAR(255) NOT NULL,
     status INT NOT NULL,
     email VARCHAR(255) NOT NULL,
-    seller_rating VARCHAR(255) NOT NULL,
-    user_name VARCHAR(255) NOT NULL,
+    seller_rating INT NOT NULL,
     user_password VARCHAR(255) NOT NULL,
-    user_type VARCHAR(255) NOT NULL
+    user_type VARCHAR(255) DEFAULT 'customer' NOT NULL,
+    active INT NOT NULL
 );
 """
 
@@ -27,11 +27,24 @@ CREATE TABLE IF NOT EXISTS users (
 create_cart_table_query = """
 CREATE TABLE IF NOT EXISTS cart (
     cart_id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL,
+    user_id INT REFERENCES users(user_id) UNIQUE NOT NULL,
     create_time TIMESTAMP NOT NULL,
     checkout_time TIMESTAMP
 );
 """
+
+# SQL query to create the cart_item table
+create_cart_item_table_query = """
+CREATE TABLE IF NOT EXISTS cart_item (
+    cart_item_id SERIAL PRIMARY KEY,
+    cart_id INT REFERENCES cart(cart_id) NOT NULL,
+    item_id INT NOT NULL,
+    quantity INT NOT NULL
+);
+"""
+
+
+
 
 # SQL query to create the watchlist table
 create_watchlist_table_query = """
