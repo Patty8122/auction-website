@@ -1,0 +1,48 @@
+USE itemdb;
+
+CREATE TABLE categories (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    category VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE items (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    description VARCHAR(240) DEFAULT '',
+    shipping_cost INTEGER NOT NULL DEFAULT 0,
+    category_id INTEGER REFERENCES categories(id),
+    initial_bid_price DECIMAL NOT NULL,
+    final_bid_price DECIMAL,
+    buyer_id INTEGER,
+    photo_url1 VARCHAR,
+    photo_url2 VARCHAR,
+    photo_url3 VARCHAR,
+    photo_url4 VARCHAR,
+    photo_url5 VARCHAR
+);
+
+
+
+CREATE TABLE auctions (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    item_id INTEGER REFERENCES items(id),
+    seller_id INTEGER,
+    start_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    end_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    status VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE bids (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    item_id INTEGER REFERENCES items(id),
+    bidder_id INTEGER,
+    bid_price DECIMAL NOT NULL
+);
+

@@ -9,11 +9,14 @@ services:
       - PORT=3000
       - AUCTION_URL=http://auction-service:3001/
       - USER_URL=http://user-service:3002/
+      - ITEM_URL=http://item-service:3004/
     container_name: vite-client
     depends_on:
       auction-service:
         condition: service_started
       user-service:
+        condition: service_started
+      item-service:
         condition: service_started
     volumes:
       - ./vite-client:/usr/src/app
@@ -21,10 +24,15 @@ services:
     stop_signal: SIGKILL
 
   db-service:
+    container_name: pg_container
     image: postgres:16-bookworm
+    restart: always
+    ports:
+      - "5432:5432"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./init-db:/docker-entrypoint-initdb.d
@@ -34,30 +42,36 @@ services:
       timeout: 5s
       retries: 5
 
-  db-gateway-service:
-    build: ./db-gateway-service
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
     environment:
-      - PORT=3003
-      - PGHOST=db-service
-      - PGUSER=postgres
-      - PGPASSWORD=postgres
-      - AUCTION_DB=auctiondb
-    depends_on:
-      db-service:
-        condition: service_healthy
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
 
   auction-service:
     build: ./auction-service
     environment:
       - PORT=3001
-      - DB_URL=http://db-gateway-service:3003/
+      - DB_URL=http://db-service:5432
     volumes:
       - ./auction-service:/usr/src/app
       - auction_node_modules:/usr/src/app/node_modules
     stop_signal: SIGKILL
-    depends_on:
-      db-gateway-service:
-        condition: service_started
+
+  item-service:
+    build: ./item-service
+    environment:
+      - PORT=3004
+      - DB_URL=http://db-service:5432
+    volumes:
+      - ./item-service:/usr/src/app
+    stop_signal: SIGKILL
+
+
 
   user-service:
     build: ./user-service
