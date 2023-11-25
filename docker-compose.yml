@@ -48,10 +48,14 @@ services:
     build: ./auction-service
     environment:
       - PORT=3003
-      - DB_URL=http://db-gateway-service:3003/
+      - DB_URL=postgresql://postgres:postgres@db-service:5432/auctiondb
+      - DATABASE_URL=postgresql://postgres:postgres@db-service:5432/auctiondb
+
     volumes:
       - ./auction-service:/usr/src/app
       - auction_node_modules:/usr/src/app/node_modules
+    ports:
+      - 3003:3003
     stop_signal: SIGKILL
     # depends_on:
     #   db-gateway-service:
@@ -66,15 +70,16 @@ services:
     stop_signal: SIGKILL
 
   # Reference: https://github.com/deepshig/rabbitmq-docker
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: rabbit_mq
-    ports:
-        - '5672:5672'
-        - '15672:15672'
-    volumes:
-      - rabbit_mqdata:/usr/share/rabbitmq/data
+  # rabbitmq:
+  #   image: rabbitmq:3-management-alpine
+  #   container_name: rabbit_mq
+  #   ports:
+  #       - '5672:5672'
+  #       - '15672:15672'
+  #   volumes:
+  #     - rabbit_mqdata:/usr/share/rabbitmq/data
 
+<<<<<<< HEAD
   email-service:
     build: ./email-service
     environment:
@@ -106,6 +111,15 @@ services:
       - mongodb_service
     ports:
       - "2000:2000"
+=======
+  # email-service:
+  #   build: ./email-service
+  #   environment:
+  #     - AMQP_URL=amqp://rabbit_mq?connection_attempts=10&retry_delay=10
+  #   stop_signal: SIGKILL
+  #   depends_on:
+  #     - rabbitmq
+>>>>>>> main
 
 volumes:
   client_node_modules:
