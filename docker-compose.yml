@@ -66,22 +66,22 @@ services:
     stop_signal: SIGKILL
 
   # Reference: https://github.com/deepshig/rabbitmq-docker
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: rabbit_mq
-    ports:
-        - '5672:5672'
-        - '15672:15672'
-    volumes:
-      - rabbit_mqdata:/usr/share/rabbitmq/data
+  # rabbitmq:
+  #   image: rabbitmq:3-management-alpine
+  #   container_name: rabbit_mq
+  #   ports:
+  #       - '5672:5672'
+  #       - '15672:15672'
+  #   volumes:
+  #     - rabbit_mqdata:/usr/share/rabbitmq/data
 
-  email-service:
-    build: ./email-service
-    environment:
-      - AMQP_URL=amqp://rabbit_mq?connection_attempts=10&retry_delay=10
-    stop_signal: SIGKILL
-    depends_on:
-      - rabbitmq
+  # email-service:
+  #   build: ./email-service
+  #   environment:
+  #     - AMQP_URL=amqp://rabbit_mq?connection_attempts=10&retry_delay=10
+  #   stop_signal: SIGKILL
+  #   depends_on:
+  #     - rabbitmq
 
 volumes:
   client_node_modules:
