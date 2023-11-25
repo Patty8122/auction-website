@@ -5,12 +5,12 @@ module.exports.up = function(pgm) {
             primaryKey: true
         },
         created_at: {
-            type: 'timestamp with time zone',
+            type: 'timestamp without time zone',
             notNull: true,
             default: pgm.func('CURRENT_TIMESTAMP')
         },
         updated_at: {
-            type: 'timestamp with time zone',
+            type: 'timestamp without time zone',
             notNull: true,
             default: pgm.func('CURRENT_TIMESTAMP')
         },
@@ -22,11 +22,11 @@ module.exports.up = function(pgm) {
             type: 'integer'
         },
         start_time: {
-            type: 'timestamp with time zone',
+            type: 'timestamp without time zone',
             notNull: true
         },
         end_time: {
-            type: 'timestamp with time zone',
+            type: 'timestamp without time zone',
             notNull: true
         },
         starting_price: {

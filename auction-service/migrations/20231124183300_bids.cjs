@@ -19,7 +19,7 @@ module.exports.up = function (pgm) {
             notNull: true
         },
         bid_time: {
-            type: 'timestamp with time zone',
+            type: 'timestamp without time zone',
             default: pgm.func('CURRENT_TIMESTAMP')
         }
     });
