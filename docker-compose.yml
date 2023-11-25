@@ -41,6 +41,20 @@ services:
       interval: 2s
       timeout: 5s
       retries: 5
+    stop_signal: SIGKILL
+    com
+    # command:
+    #   - bash
+    #   - -c
+    #   - |
+    #     until pg_isready -U postgres; do
+    #       echo "Waiting for postgres to start..."
+    #       sleep 1;
+    #     done;
+    #     # run migrations
+    #     psql -U postgres -d itemdb -a -f /docker-entrypoint-initdb.d/create-dbs.sql
+    #     psql -U postgres -d itemdb -a -f /docker-entrypoint-initdb.d/create-items-table.sql
+    # stop_signal: SIGKILL
 
   pgadmin:
     container_name: pgadmin4_container
@@ -51,6 +65,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: root
     ports:
       - "5050:80"
+    stop_signal: SIGKILL
 
   auction-service:
     build: ./auction-service
@@ -70,8 +85,6 @@ services:
     volumes:
       - ./item-service:/usr/src/app
     stop_signal: SIGKILL
-
-
 
   user-service:
     build: ./user-service
