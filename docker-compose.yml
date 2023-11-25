@@ -79,6 +79,39 @@ services:
   #   volumes:
   #     - rabbit_mqdata:/usr/share/rabbitmq/data
 
+<<<<<<< HEAD
+  email-service:
+    build: ./email-service
+    environment:
+      - AMQP_URL=amqp://rabbit_mq?connection_attempts=10&retry_delay=10
+    stop_signal: SIGKILL
+    depends_on:
+      - rabbitmq
+  
+  mongodb_service:
+    image: mongo:latest
+    container_name: mongodb_service
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: log_db
+    volumes:
+      - mongodb_data:/data/db
+  
+  logging-service:
+    build: ./logging-service
+    environment:
+      - AMQP_URL=amqp://rabbit_mq?connection_attempts=10&retry_delay=10
+      - MONGODB_HOST=mongodb_service
+      - MONGODB_PORT=27017
+    depends_on:
+      - rabbitmq
+      - mongodb_service
+    ports:
+      - "2000:2000"
+=======
   # email-service:
   #   build: ./email-service
   #   environment:
@@ -86,6 +119,7 @@ services:
   #   stop_signal: SIGKILL
   #   depends_on:
   #     - rabbitmq
+>>>>>>> main
 
 volumes:
   client_node_modules:
@@ -94,3 +128,4 @@ volumes:
   auction_db_data:
   rabbit_mqdata:
     driver: local
+  mongodb_data:
