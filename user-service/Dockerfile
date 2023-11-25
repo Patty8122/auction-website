@@ -1,6 +1,10 @@
 # Use an official Python runtime as a parent image
 FROM python:3.10-slim-bullseye
 
+RUN apt-get update \
+    && apt-get -y install libpq-dev gcc \
+    && pip install psycopg2
+
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
