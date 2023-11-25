@@ -36,8 +36,19 @@ module.exports.up = function(pgm) {
         status: {
             type: 'varchar(20)',
             notNull: true
+        },
+        current_bid: {
+            type: 'numeric',
+            notNull: true,
+            default: 0
+        },
+        bid_increment: {
+            type: 'numeric',
+            notNull: true,
+            default: 5 // Default minimum bid increment
         }
     });
+
 };
 
 module.exports.down = function(pgm) {
