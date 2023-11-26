@@ -2,7 +2,20 @@ from fastapi import FastAPI, HTTPException
 from contextlib import asynccontextmanager
 from app.user import Customer
 from app.cart import CartManagement
+from pydantic import BaseModel
 import psycopg2
+
+
+# Define Pydantic models
+class CreateUserRequest(BaseModel):
+    username: str
+    email: str
+    password: str
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
