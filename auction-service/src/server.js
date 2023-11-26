@@ -8,7 +8,7 @@ import { fetchAuctionData } from './auctionMiddleware.js';
 
 dotenv.config();
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3003;
 const app = express();
 app.use(express.json());
 

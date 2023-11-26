@@ -86,7 +86,8 @@ services:
       - PORT=3003
       - DB_URL=postgresql://postgres:postgres@db-service:5432/auctiondb
       - DATABASE_URL=postgresql://postgres:postgres@db-service:5432/auctiondb
-
+    ports:
+      - 3003:3003
     volumes:
       - ./auction-service:/usr/src/app
       - auction_node_modules:/usr/src/app/node_modules
