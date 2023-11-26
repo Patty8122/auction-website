@@ -100,12 +100,13 @@ async def create_category(category: models.CategoryIn, db: Session = Depends(get
 async def get_category(category_id: int, db: Session = Depends(get_db)):
     stmt = select(Category).where(Category.id == category_id)
 
-    db_category = db.execute(stmt)
+    db_category = db.execute(stmt).scalar()
 
-    if db_category.scalar() is None:
+
+    if db_category is None:
         raise HTTPException(status_code = 404, detail="Category not found")
     
-    return db_category.scalar()
+    return db_category
 
 
 from typing import Union
@@ -162,7 +163,7 @@ def get_items_by_category(category_id: int, db: Session = Depends(get_db)):
     items = items.scalars().all()
     print(items)
 
-    # return items
+    return items
 
 @app.get("/items/seller/{seller_id}", response_model=List[models.Item], status_code=200)
 def get_items(seller_id: int, db: Session = Depends(get_db)):
@@ -171,59 +172,49 @@ def get_items(seller_id: int, db: Session = Depends(get_db)):
     return items
 
 
-
-"""
-
-@app.get("/items/price", response_model=models.Item, status_code=200)
-def get_items_with_price_range(db: Session, min_price: float, max_price: float, skip: int = 0, limit: int = 100):
-    if min_price == None and max_price == None:
-        raise HTTPException(status_code = 400, detail="Min price and max price cannot be null")
+@app.get("/items/price", response_model=Union[List[models.Item], None], status_code=200)
+def get_items_with_price_range(min_price: float, max_price: float, db: Session = Depends(get_db)):
+    # if min_price == None and max_price == None:
+    #     raise HTTPException(status_code = 400, detail="Min price and max price cannot be null")
     
-    if min_price > max_price:
-        raise HTTPException(status_code = 400, detail="Min price cannot be greater than max price")
+    # if min_price > max_price:
+    #     raise HTTPException(status_code = 400, detail="Min price cannot be greater than max price")
     
-    if min_price < 0 or max_price < 0:
-        raise HTTPException(status_code = 400, detail="Price cannot be negative")
+    # if min_price < 0 or max_price < 0:
+    #     raise HTTPException(status_code = 400, detail="Price cannot be negative")
 
-    if min_price == None:
-        return db.query(models.Item).filter(models.Item.intial_bid_price <= max_price).offset(skip).limit(limit).all()
+    # if min_price == None:
+    #     db_items = db.query(Item).filter(Item.initial_bid_price <= max_price).scalars().all()
+    #     print(" min price is none db_items: ", db_items)
+    #     return db_items
     
-    if max_price == None:
-        return db.query(models.Item).filter(models.Item.intial_bid_price >= min_price).offset(skip).limit(limit).all()
+    # if max_price == None:
+    #     db_items = db.query(Item).filter(Item.initial_bid_price >= min_price).scalars().all()
+    #     print(" max price is none db_items: ", db_items)
+    #     return db_items
     
-    return db.query(models.Item).filter(models.Item.intial_bid_price >= min_price, models.Item.intial_bid_price <= max_price).offset(skip).limit(limit).all()
 
+    # print(" min price: ", min_price, " max price: ", max_price)
+    # db_items = db.query(Item).filter(Item.initial_bid_price >= min_price, Item.initial_bid_price <= max_price).scalars().all()
+    # print(" db_items: ", db_items)
+    # return db_items
+    print(" min price: ", min_price, " max price: ", max_price)
+    return 
 
-@app.put("/items", response_model=models.Item, status_code=200)
-def update_item(db: Session, item_id: int, item_with_new_values: models.Item, user_id: int):
-    # does user own item?
-    db_item = db.query(models.Item).filter(models.Item.id == item_id).first()
-
-    if db_item is None:
-        raise HTTPException(status_code = 400, detail="Item does not exist")
-    
-    if db_item.seller_id != user_id or db_item.seller_id != 0: # 0 is admin
-        raise HTTPException(status_code = 400, detail="User does not own item")
-    
-    # update item
-    db_item = models.Item(
-        **item_with_new_values.model_dump(exclude={"category"}))
-
-    # commit changes
-    db.commit()
-    db.refresh(db_item)
-
-    return db_item
 
 @app.delete("/items", status_code=200)
-def delete_item(db: Session, item_id: int, user_id: int):
+def delete_item(item_id: int, user_id: int, db: Session = Depends(get_db)):
     # does user own item?
-    db_item = db.query(models.Item).filter(models.Item.id == item_id).first()
+    db_item = db.query(Item).filter(Item.id == item_id).first()
+
+
+    print("db_item: ", db_item)
 
     if db_item is None:
         raise HTTPException(status_code = 400, detail="Item does not exist")
     
-    if db_item.seller_id != user_id or db_item.seller_id != 0: # 0 is admin
+    if db_item.seller_id != user_id and db_item.seller_id != 1: # 1 is admin
+        print("db_item.seller_id: ", db_item.seller_id, " user_id: ", user_id)
         raise HTTPException(status_code = 400, detail="User does not own item")
             
     # delete item
@@ -233,4 +224,24 @@ def delete_item(db: Session, item_id: int, user_id: int):
 
 
 
-"""
+@app.put("/items", response_model=models.Item, status_code=200)
+def update_item(item_id: int, item_with_new_values: models.Item, user_id: int, db: Session = Depends(get_db)):
+    # does user own item?
+    db_item = db.query(Item).filter(Item.id == item_id).first()
+
+    if db_item is None:
+        raise HTTPException(status_code = 400, detail="Item does not exist")
+    
+    if db_item.seller_id != user_id and db_item.seller_id != 1: # 0 is admin
+        raise HTTPException(status_code = 400, detail="User does not own item")
+    
+    # update item
+    db_item = models.Item(**item_with_new_values.model_dump())
+
+    # commit changes
+    db.commit()
+    db.refresh(db_item)
+
+    return db_item
+
+

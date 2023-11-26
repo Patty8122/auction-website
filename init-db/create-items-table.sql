@@ -2,7 +2,7 @@
 CREATE TABLE categories (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    category VARCHAR(20) NOT NULL
+    category VARCHAR(240) NOT NULL
 );
 
 CREATE TABLE items (

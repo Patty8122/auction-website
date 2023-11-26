@@ -16,7 +16,7 @@ class ItemIn(BaseModel):
     category_id: int
     initial_bid_price: float
     final_bid_price: Optional[float] = None
-    # seller_id: int
+    seller_id: Optional[int] = None
     buyer_id: Optional[int] = None
     photo_url1: Optional[str] = None
     photo_url2: Optional[str] = None
