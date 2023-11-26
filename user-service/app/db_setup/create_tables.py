@@ -17,11 +17,11 @@ def create_tables():
     create_users_table_query = """
     CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
-        user_name VARCHAR(255) UNIQUE NOT NULL,
+        username VARCHAR(255) UNIQUE NOT NULL,
         status INT NOT NULL,
         email VARCHAR(255) NOT NULL,
         seller_rating INT NOT NULL,
-        user_password VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL,
         user_type VARCHAR(255) DEFAULT 'customer' NOT NULL,
         active INT NOT NULL
     );

@@ -1,7 +1,5 @@
 # Classes to handle user roles
-from abc import ABC, abstractmethod, abstractproperty
-# from client_helper import *
-import requests
+from abc import ABC, abstractmethod
 import psycopg2
 # from flaskr.model.user import User
 from psycopg2.extras import RealDictCursor
@@ -24,10 +22,10 @@ class User(ABC):
     Abstract class representing any associated user
     '''
     @ abstractmethod
-    def __init__(self, user_id: str, user_name : str, status: int,
+    def __init__(self, user_id: str, username : str, status: int,
                  email: str, seller_rating: int, user_type: str):
         self.user_id = user_id
-        self.user_name = user_name
+        self.username = username
         self.status = status
         self.email = email
         self.seller_rating = seller_rating
@@ -38,12 +36,12 @@ class User(ABC):
         cursor = conn.cursor()
         return cursor, conn
 
-    def login(self, user_name: str, user_password: str):
+    def login(self, username: str, password: str):
         cursor, conn = self.get_db()
 
         # Check if the user credentials are valid
-        select_query = f"SELECT * FROM {table_name} WHERE user_name = %s AND user_password = %s"
-        cursor.execute(select_query, (user_name, user_password))
+        select_query = f"SELECT * FROM {table_name} WHERE username = %s AND password = %s"
+        cursor.execute(select_query, (username, password))
         existing_user = cursor.fetchone()
 
         if not existing_user:
@@ -60,7 +58,7 @@ class User(ABC):
         cursor.execute(update_status_query, (existing_user[0],))
         conn.commit()
 
-        return {"user_id":existing_user[0], "user_name" :existing_user[1], "status": existing_user[2],
+        return {"user_id":existing_user[0], "username" :existing_user[1], "status": existing_user[2],
                     "email" : existing_user[3], "seller_ rating" : existing_user[4], "user_type" : existing_user[6]}
     
     def logout(self, user_id: int):
@@ -74,20 +72,20 @@ class User(ABC):
 
 class Customer(User):
     def __init__(self):
-        super().__init__(user_id=None, user_name=None, status=None, email=None, seller_rating=None, user_type=None)
+        super().__init__(user_id=None, username=None, status=None, email=None, seller_rating=None, user_type=None)
         self.cursor, self.conn = self.get_db()
 
-    def create_user(self, user_name: str, email: str, user_password: str):
-        existing_users = self.get_user(user_name)
+    def create_user(self, username: str, email: str, password: str):
+        existing_users = self.get_user(username)
         if existing_users:
             raise Exception("The user name already exists. Please try a different one.")
 
         insert_query = f"""
-            INSERT INTO {table_name} (user_name, status, email, seller_rating, user_password, user_type, active)
+            INSERT INTO {table_name} (username, status, email, seller_rating, password, user_type, active)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
             RETURNING user_id
         """
-        self.cursor.execute(insert_query, (user_name, 1, email, 5, user_password, "customer", 0))
+        self.cursor.execute(insert_query, (username, 1, email, 5, password, "customer", 0))
         user_id = self.cursor.fetchone()[0]
         self.conn.commit()
 
@@ -102,20 +100,20 @@ class Customer(User):
             print("Not an existing user")
             return
 
-        return {"user_id":existing_user[0], "user_name" :existing_user[1], "status": existing_user[2],
+        return {"user_id":existing_user[0], "username" :existing_user[1], "status": existing_user[2],
                     "email" : existing_user[3], "seller_ rating" : existing_user[4], "user_type" : existing_user[6]}
     
 
-    def get_user(self, user_name):
-        select_query = f"SELECT * FROM {table_name} WHERE user_name = %s"
-        self.cursor.execute(select_query, (user_name,))
+    def get_user(self, username):
+        select_query = f"SELECT * FROM {table_name} WHERE username = %s"
+        self.cursor.execute(select_query, (username,))
         existing_user = self.cursor.fetchone()
 
         if not existing_user:
             print("Not an existing user")
             return
         print(existing_user)
-        return {"user_id":existing_user[0], "user_name" :existing_user[1], "status": existing_user[2],
+        return {"user_id":existing_user[0], "username" :existing_user[1], "status": existing_user[2],
                     "email" : existing_user[3], "seller_ rating" : existing_user[4], "user_type" : existing_user[6]}
     # make it optional
     def update_user(self, user_id: int, status: int = None, email: str = None, seller_rating: str = None):
@@ -152,10 +150,10 @@ class Customer(User):
         self.cursor.execute(update_query, (user_id,))
         self.conn.commit()
 
-    def login(self, user_name: str, user_password: str):
+    def login(self, username: str, password: str):
         # Your login implementation for Customer
         # Make sure to call the base class (User) login method to handle common logic
-        user_info = super().login(user_name, user_password)
+        user_info = super().login(username, password)
 
         # Additional logic specific to Customer login
         # ...
@@ -173,7 +171,7 @@ class Customer(User):
 
 class Admin(User):
     def __init__(self):
-        super().__init__(user_id=None, user_name=None, status=None, email=None, seller_rating=None, user_type=None)
+        super().__init__(user_id=None, username=None, status=None, email=None, seller_rating=None, user_type=None)
         self.cursor, self.conn = self.get_db()
     # def get_db(self):
     #     conn = psycopg2.connect(**self.db_params)
@@ -191,10 +189,10 @@ class Admin(User):
         self.cursor.execute(remove_and_block_query, (user_id,))
         self.conn.commit()
 
-    def login(self, user_name: str, user_password: str):
+    def login(self, username: str, password: str):
         # Your login implementation for Customer
         # Make sure to call the base class (User) login method to handle common logic
-        user_info = super().login(user_name, user_password)
+        user_info = super().login(username, password)
 
         # Additional logic specific to Customer login
         # ...

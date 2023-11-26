@@ -1,22 +1,39 @@
 module.exports.up = function(pgm) {
+    console.log('Executing up migration...');
+    // inside that database, create a table called items
+
+    pgm.createTable('categories',
+        {
+            id: {
+                type: 'serial',
+                primaryKey: true
+            },
+            created_at: {
+                type: 'timestamp without time zone',
+                default: pgm.func('CURRENT_TIMESTAMP')
+            },
+            category: {
+                type: 'varchar(240)',
+                notNull: true
+            }
+        }
+    );
+
     pgm.createTable('items', {
         id: {
             type: 'serial',
             primaryKey: true
         },
         created_at: {
-            type: 'timestamp with time zone',
-            notNull: true,
+            type: 'timestamp without time zone',
             default: pgm.func('CURRENT_TIMESTAMP')
         },
         updated_at: {
-            type: 'timestamp with time zone',
-            notNull: true,
+            type: 'timestamp without time zone',
             default: pgm.func('CURRENT_TIMESTAMP')
         },
         quantity: {
             type: 'integer',
-            notNull: true,
             default: 1
         },
         description: {
@@ -24,12 +41,20 @@ module.exports.up = function(pgm) {
             default: ''
         },
         shipping_cost: {
-            type: 'integer',
-            notNull: true,
+            type: 'decimal',
             default: 0
         },
         category_id: {
-            type: 'integer'
+            type: 'integer',
+            foreignKey: {
+                name: 'category_id_fk',
+                table: 'categories',
+                mapping: 'id',
+                rules: {
+                    onDelete: 'CASCADE',
+                    onUpdate: 'RESTRICT'
+                }
+            }
         },
         initial_bid_price: {
             type: 'decimal',
@@ -37,6 +62,9 @@ module.exports.up = function(pgm) {
         },
         final_bid_price: {
             type: 'decimal'
+        },
+        seller_id: {
+            type: 'integer'
         },
         buyer_id: {
             type: 'integer'
