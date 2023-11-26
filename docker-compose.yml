@@ -23,6 +23,19 @@ services:
       - client_node_modules:/usr/src/app/node_modules
     stop_signal: SIGKILL
 
+  ui-service:
+    build: ./ui-service
+    environment:
+      - PORT=3001
+    ports:
+      - 3001:3001
+    volumes:
+      - ./ui-service:/usr/src/app
+    stop_signal: SIGKILL
+    depends_on:
+      db-service:
+        condition: service_started
+
   db-service:
     container_name: pg_container
     image: postgres:16-bookworm
@@ -76,26 +89,22 @@ services:
   auction-service:
     build: ./auction-service
     environment:
-      - PORT=3001
-      - DB_URL=http://db-service:5432
+      - PORT=3003
+      - DB_URL=postgresql://postgres:postgres@db-service:5432/auctiondb
+      - DATABASE_URL=postgresql://postgres:postgres@db-service:5432/auctiondb
+
     volumes:
       - ./auction-service:/usr/src/app
       - auction_node_modules:/usr/src/app/node_modules
     stop_signal: SIGKILL
-
-  item-service:
-    build: ./item-service
-    environment:
-      - PORT=3004
-      - DB_URL=http://db-service:5432
-    volumes:
-      - ./item-service:/usr/src/app
-    stop_signal: SIGKILL
+    # depends_on:
+    #   db-gateway-service:
+    #     condition: service_started
 
   user-service:
     build: ./user-service
-    environment:
-      - PORT=3002
+    ports:
+      - 3002:3002
     volumes:
       - ./user-service:/usr/src/app
     stop_signal: SIGKILL
@@ -117,6 +126,30 @@ services:
     stop_signal: SIGKILL
     depends_on:
       - rabbitmq
+  
+  mongodb_service:
+    image: mongo:latest
+    container_name: mongodb_service
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: log_db
+    volumes:
+      - mongodb_data:/data/db
+  
+  logging-service:
+    build: ./logging-service
+    environment:
+      - AMQP_URL=amqp://rabbit_mq?connection_attempts=10&retry_delay=10
+      - MONGODB_HOST=mongodb_service
+      - MONGODB_PORT=27017
+    depends_on:
+      - rabbitmq
+      - mongodb_service
+    ports:
+      - "2000:2000"
 
 volumes:
   client_node_modules:
@@ -125,3 +158,4 @@ volumes:
   auction_db_data:
   rabbit_mqdata:
     driver: local
+  mongodb_data:

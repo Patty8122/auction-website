@@ -1,10 +1,6 @@
 # Use an official Python runtime as a parent image
 FROM python:3.10-slim-bullseye
 
-RUN apt-get update \
-    && apt-get -y install libpq-dev gcc \
-    && pip install psycopg2
-
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
@@ -16,10 +12,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the content of the local src directory to the working directory
 COPY ./app ./app
-
-ENV PORT=3002
-
-EXPOSE $PORT
 
 # Specify the command to run on container start
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port $PORT"]
