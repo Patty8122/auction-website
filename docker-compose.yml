@@ -29,6 +29,9 @@ services:
     volumes:
       - ./ui-service:/usr/src/app
     stop_signal: SIGKILL
+    depends_on:
+      db-service:
+        condition: service_started
 
   db-service:
     image: postgres:16-bookworm

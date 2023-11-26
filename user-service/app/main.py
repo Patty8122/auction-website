@@ -1,11 +1,8 @@
-from fastapi import FastAPI, Depends, HTTPException
-# from db_setup.create_tables import create_tables
+from fastapi import FastAPI, HTTPException
 from contextlib import asynccontextmanager
-# from fastapi.security import OAuth2PasswordBearer
-from app.user import Customer, Admin, User
+from app.user import Customer
 from app.cart import CartManagement
 import psycopg2
-from psycopg2.extras import RealDictCursor
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,9 +19,9 @@ def read_test():
     return {"message": "User service reached!"}
 
 @app.post("/create_user/")
-def create_user(user_name: str, email: str, user_password: str):
+def create_user(username: str, email: str, password: str):
     customer = Customer()
-    user_id = customer.create_user(user_name=user_name, email=email, user_password=user_password)
+    user_id = customer.create_user(username=username, email=email, password=password)
     return {"user_id": user_id}
     
 @app.get("/get_user/{user_id}")
@@ -80,10 +77,10 @@ async def remove_item_from_cart(user_id: int, item_id: int):
         raise HTTPException(status_code=500, detail=str(e))
 
 # Login Endpoint
-@app.post("/login/{user_id}")
-def login(user_name: str, user_password: str):
+@app.post("/login/")
+def login(username: str, password: str):
     user = Customer()
-    user_info = user.login(user_name=user_name, user_password=user_password)
+    user_info = user.login(username=username, password=password)
     return {"user_info": user_info}
 
 # Logout Endpoint
@@ -102,7 +99,7 @@ def create_tables():
         "database": "userdb",
         "user": "postgres",
         "password": "postgres",
-        "port": 5432  # Add the port here
+        "port": 5432
     }
 
 
@@ -110,11 +107,11 @@ def create_tables():
     create_users_table_query = """
     CREATE TABLE IF NOT EXISTS users (
         user_id SERIAL PRIMARY KEY,
-        user_name VARCHAR(255) UNIQUE NOT NULL,
+        username VARCHAR(255) UNIQUE NOT NULL,
         status INT NOT NULL,
         email VARCHAR(255) NOT NULL,
         seller_rating INT NOT NULL,
-        user_password VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL,
         user_type VARCHAR(255) DEFAULT 'customer' NOT NULL,
         active INT DEFAULT 0 NOT NULL
     );
