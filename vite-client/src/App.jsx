@@ -6,18 +6,6 @@ import LoginPage from './LoginPage';
 import HomePage from "./HomePage";
 
 function App() {
-  const [responseAuction, setResponseAuction] = useState('');
-  const [responseUser, setResponseUser] = useState('');
-
-  const fetchTestAuction = async () => {
-    const response = await auctionService.getTest(); // Fixed to auctionService
-    setResponseAuction(response);
-  }
-
-  const fetchTestUser = async () => {
-    const response = await userService.getTest(); // Fixed to userService
-    setResponseUser(response);
-  }
 
   return (
     <>

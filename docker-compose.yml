@@ -7,16 +7,10 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - AUCTION_URL=http://auction-service:3001/
-      - USER_URL=http://user-service:3002/
-      - ITEM_URL=http://item-service:3004/
+      - MEDIATOR_URL=http://ui-service:3001
     container_name: vite-client
     depends_on:
-      auction-service:
-        condition: service_started
-      # user-service:
-      #   condition: service_started
-      item-service:
+      ui-service:
         condition: service_started
     volumes:
       - ./vite-client:/usr/src/app
