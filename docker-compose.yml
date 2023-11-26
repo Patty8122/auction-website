@@ -112,6 +112,9 @@ services:
     volumes:
       - ./user-service:/usr/src/app
     stop_signal: SIGKILL
+    depends_on:
+      db-service:
+        condition: service_started
 
   # Reference: https://github.com/deepshig/rabbitmq-docker
   rabbitmq:
