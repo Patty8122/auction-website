@@ -3,7 +3,7 @@
  */
 const getTest = async () => {
     try {
-      const response = await fetch(`/auction/test`);
+      const response = await fetch(`/api/auction/test`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
