@@ -14,6 +14,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/user/, '')
       },
+      '/item': {
+        target: process.env.ITEM_URL,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/item/, '')
+      },
     }
   },
   resolve: {

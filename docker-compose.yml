@@ -9,11 +9,14 @@ services:
       - PORT=3000
       - AUCTION_URL=http://auction-service:3001/
       - USER_URL=http://user-service:3002/
+      - ITEM_URL=http://item-service:3004/
     container_name: vite-client
     depends_on:
       auction-service:
         condition: service_started
-      user-service:
+      # user-service:
+      #   condition: service_started
+      item-service:
         condition: service_started
     volumes:
       - ./vite-client:/usr/src/app
@@ -34,10 +37,15 @@ services:
         condition: service_started
 
   db-service:
+    container_name: pg_container
     image: postgres:16-bookworm
+    restart: always
+    ports:
+      - "5432:5432"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./init-db:/docker-entrypoint-initdb.d
@@ -46,6 +54,37 @@ services:
       interval: 2s
       timeout: 5s
       retries: 5
+
+
+  
+  migration-service:
+    build: 
+      context: ./migration-service
+    env_file: ./migration-service/.env
+    command: ./run-migrations.sh
+    links:
+      - db-service
+    depends_on:
+      - db-service
+    environment:
+      - DB_HOST=db-service
+    stop_signal: SIGKILL
+    # healthcheck:
+    #   test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 3
+
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
+    stop_signal: SIGKILL
 
   auction-service:
     build: ./auction-service
@@ -57,20 +96,27 @@ services:
     volumes:
       - ./auction-service:/usr/src/app
       - auction_node_modules:/usr/src/app/node_modules
-    ports:
-      - 3003:3003
+    stop_signal: SIGKILL
+
+  item-service:
+    build: ./item-service
+    environment:
+      - PORT=3004
+      - DB_URL=http://db-service:5432
+    volumes:
+      - ./item-service:/usr/src/app
     stop_signal: SIGKILL
     # depends_on:
     #   db-gateway-service:
     #     condition: service_started
 
-  user-service:
-    build: ./user-service
-    ports:
-      - 3002:3002
-    volumes:
-      - ./user-service:/usr/src/app
-    stop_signal: SIGKILL
+  # user-service:
+  #   build: ./user-service
+  #   ports:
+  #     - 3002:3002
+  #   volumes:
+  #     - ./user-service:/usr/src/app
+  #   stop_signal: SIGKILL
 
   # Reference: https://github.com/deepshig/rabbitmq-docker
   rabbitmq:
