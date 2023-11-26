@@ -5,6 +5,7 @@ import requests
 import psycopg2
 # from flaskr.model.user import User
 from psycopg2.extras import RealDictCursor
+from fastapi import HTTPException, status
 
 
 table_name: str = "users"
@@ -47,10 +48,12 @@ class User(ABC):
 
         if not existing_user:
             # raise Exception("Invalid username or password")
-            return "Invalid username or password"
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password")
+    
         
         if existing_user[2] != 1:
-            return "Blocked or susoended user"
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Blocked or suspended user")
+
 
         # Update the user's status to active (1)
         update_status_query = f"UPDATE {table_name} SET active = 1 WHERE user_id = %s"
@@ -101,10 +104,7 @@ class Customer(User):
 
         return {"user_id":existing_user[0], "user_name" :existing_user[1], "status": existing_user[2],
                     "email" : existing_user[3], "seller_ rating" : existing_user[4], "user_type" : existing_user[6]}
-    # def get_user_by_username(self, user_name):
-    #     select_query = f"SELECT * FROM {table_name} WHERE user_name = %s"
-    #     self.cursor.execute(select_query, (user_name,))
-    #     return self.cursor.fetchall()
+    
 
     def get_user(self, user_name):
         select_query = f"SELECT * FROM {table_name} WHERE user_name = %s"

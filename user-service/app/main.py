@@ -4,8 +4,21 @@ from contextlib import asynccontextmanager
 # from fastapi.security import OAuth2PasswordBearer
 from app.user import Customer, Admin, User
 from app.cart import CartManagement
+from pydantic import BaseModel
 import psycopg2
 from psycopg2.extras import RealDictCursor
+
+
+# Define Pydantic models
+class CreateUserRequest(BaseModel):
+    username: str
+    email: str
+    password: str
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
