@@ -72,53 +72,53 @@ services:
       - ./user-service:/usr/src/app
     stop_signal: SIGKILL
 
-  # # Reference: https://github.com/deepshig/rabbitmq-docker
-  # rabbitmq:
-  #   image: rabbitmq:3-management-alpine
-  #   container_name: rabbit_mq
-  #   ports:
-  #       - '5672:5672'
-  #       - '15672:15672'
-  #   volumes:
-  #     - rabbit_mqdata:/usr/share/rabbitmq/data
+  # Reference: https://github.com/deepshig/rabbitmq-docker
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbit_mq
+    ports:
+        - '5672:5672'
+        - '15672:15672'
+    volumes:
+      - rabbit_mqdata:/usr/share/rabbitmq/data
 
-  # email-service:
-  #   build: ./email-service
-  #   environment:
-  #     - AMQP_URL=amqp://rabbit_mq?connection_attempts=10&retry_delay=10
-  #   stop_signal: SIGKILL
-  #   depends_on:
-  #     - rabbitmq
+  email-service:
+    build: ./email-service
+    environment:
+      - AMQP_URL=amqp://rabbit_mq?connection_attempts=10&retry_delay=10
+    stop_signal: SIGKILL
+    depends_on:
+      - rabbitmq
   
-  # mongodb_service:
-  #   image: mongo:latest
-  #   container_name: mongodb_service
-  #   ports:
-  #     - "27017:27017"
-  #   environment:
-  #     MONGO_INITDB_ROOT_USERNAME: root
-  #     MONGO_INITDB_ROOT_PASSWORD: example
-  #     MONGO_INITDB_DATABASE: log_db
-  #   volumes:
-  #     - mongodb_data:/data/db
+  mongodb_service:
+    image: mongo:latest
+    container_name: mongodb_service
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: log_db
+    volumes:
+      - mongodb_data:/data/db
   
-  # logging-service:
-  #   build: ./logging-service
-  #   environment:
-  #     - AMQP_URL=amqp://rabbit_mq?connection_attempts=10&retry_delay=10
-  #     - MONGODB_HOST=mongodb_service
-  #     - MONGODB_PORT=27017
-  #   depends_on:
-  #     - rabbitmq
-  #     - mongodb_service
-  #   ports:
-  #     - "2000:2000"
+  logging-service:
+    build: ./logging-service
+    environment:
+      - AMQP_URL=amqp://rabbit_mq?connection_attempts=10&retry_delay=10
+      - MONGODB_HOST=mongodb_service
+      - MONGODB_PORT=27017
+    depends_on:
+      - rabbitmq
+      - mongodb_service
+    ports:
+      - "2000:2000"
 
 volumes:
   client_node_modules:
   auction_node_modules:
   db_data:
   auction_db_data:
-  # rabbit_mqdata:
-  #   driver: local
-  # mongodb_data:
+  rabbit_mqdata:
+    driver: local
+  mongodb_data:
