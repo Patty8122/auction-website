@@ -9,12 +9,12 @@ const TestPage = () => {
 	const [responseUser, setResponseUser] = useState('');
 
 	const fetchTestAuction = async () => {
-		const response = await auctionService.getTest(); // Fixed to auctionService
+		const response = await auctionService.getTest();
 		setResponseAuction(response);
 	}
 
 	const fetchTestUser = async () => {
-		const response = await userService.getTest(); // Fixed to userService
+		const response = await userService.getTest();
 		setResponseUser(response);
 	}
 
