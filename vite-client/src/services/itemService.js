@@ -3,7 +3,7 @@
  */
 const getTest = async () => {
     try {
-      const response = await fetch(`/item/test`);
+      const response = await fetch(`/api/item/test`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

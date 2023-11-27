@@ -1,36 +1,42 @@
-import { userService } from '@/services/userService';
-import { auctionService } from '@/services/auctionService';
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import useCreateAuction from '@/hooks/auction/useCreateAuction';
 
 const TestPage = () => {
+  const [responseMessage, setResponseMessage] = useState('');
+  const { createAuction, isLoading, error } = useCreateAuction();
 
-	const [responseAuction, setResponseAuction] = useState('');
-	const [responseUser, setResponseUser] = useState('');
+  const createTestAuction = async () => {
+    setResponseMessage('');
 
-	const fetchTestAuction = async () => {
-		const response = await auctionService.getTest();
-		setResponseAuction(response);
-	}
+    try {
+      await createAuction({
+        itemId: 1,
+		sellerId: 1,
+        startDateTime: new Date().toISOString(),
+        endDateTime: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(),
+        startingPrice: 100,
+		bidIncrement: 10,
+      });
+      setResponseMessage('Success: Auction created');
+    } catch (error) {
+      console.error('Error creating test auction:', error);
+      setResponseMessage('Error creating auction');
+    }
+  };
 
-	const fetchTestUser = async () => {
-		const response = await userService.getTest();
-		setResponseUser(response);
-	}
-
-	return (
-		<div className="test-page">
-          <h1>Test Client</h1>
-          <div className="service-container">
-            <button onClick={fetchTestAuction}>Auction Endpoint</button>
-            {responseAuction && <div className="response">{responseAuction}</div>}
-          </div>
-          <div className="service-container">
-            <button onClick={fetchTestUser}>User Endpoint</button>
-            {responseUser && <div className="response">{responseUser}</div>}
-          </div>
-        </div>
-	);
-}
+  return (
+    <div className="test-page">
+      <h1>Test Client</h1>
+      <div className="service-container">
+        <button onClick={createTestAuction} disabled={isLoading}>
+          Create Test Auction
+        </button>
+        {isLoading && <p>Creating auction...</p>}
+        {responseMessage && <div className="response"><pre>{responseMessage}</pre></div>}
+        {error && <div className="error"><pre>Error: {error.message}</pre></div>}
+      </div>
+    </div>
+  );
+};
 
 export default TestPage;
