@@ -3,11 +3,14 @@ from pydantic import BaseModel
 from typing import Optional
 import requests
 import hashlib
+import datetime
 
 app = FastAPI()
 
 USER_SERVICE_URL = "http://user-service:3002"
+AUCTION_SERVICE_BASE_URL = "http://auction-service:3003"
 
+############## USER SERVICE APIs ####################
 class User(BaseModel):
     username: str
     password: str
@@ -69,3 +72,95 @@ async def logout(user_id: int):
         raise HTTPException(status_code=500, detail=str(e))
 
     return {"message": f"Logout successful for user_id : {user_id}"}
+
+############## AUCTION SERVICE APIs ####################
+
+class AuctionCreate(BaseModel):
+    itemId: int
+    startDateTime: str
+    endDateTime: str
+    startingPrice: float
+    sellerId: int
+    bidIncrement: float
+
+class BidCreate(BaseModel):
+    bidAmount: float
+    userId: int
+    
+@app.post("/auctions", response_model=dict)
+async def create_auction(auction: AuctionCreate):
+    url = f"{AUCTION_SERVICE_BASE_URL}/auctions"
+    try:
+        data = auction.model_dump_json()
+        print(f"Data is : {data}")
+        response = requests.post(url, json=auction.model_dump())
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    
+    return response.json()
+
+@app.get("/auctions", response_model=list)
+async def get_auctions():
+    try:
+        url = f"{AUCTION_SERVICE_BASE_URL}/auctions"
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    return response.json()
+
+@app.get("/auctions/{auction_id}", response_model=dict)
+async def get_auction_by_id(auction_id: int):
+    try:
+        url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}"
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    
+    return response.json()
+
+@app.post("/auctions/{auction_id}/bids", response_model=dict)
+async def place_bid(auction_id: int, bid: BidCreate):
+    try:
+        url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/bids"
+        response = requests.post(url, json=bid.model_dump())
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+
+    return response.json()
+
+@app.get("/auctions/{auction_id}/bids", response_model=list)
+async def get_bids(auction_id: int):
+    try:
+        url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/bids"
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+
+    return response.json()
+
+@app.get("/auctions/{auction_id}/current-bid", response_model=list)
+async def get_current_bid(auction_id: int):
+    try:
+        url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/current-bid"
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+
+    return response.json()
+
+@app.get("/auctions/{auction_id}/final-bid", response_model=list)
+async def get_final_bid(auction_id: int):
+    try:
+        url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/final-bid"
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    
+    return response.json()
