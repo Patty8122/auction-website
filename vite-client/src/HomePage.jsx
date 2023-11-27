@@ -58,17 +58,16 @@ const App = () => {
 
   const calculateTimeLeft = (endTime) => {
     const difference = +new Date(endTime) - +new Date();
-    let timeLeft = {};
 
     if (difference > 0) {
-      timeLeft = {
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60)
-      };
+      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((difference / 1000 / 60) % 60);
+      const seconds = Math.floor((difference / 1000) % 60);
+
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 
-    return timeLeft;
+    return "00:00:00";
   };
 
   useEffect(() => {
@@ -137,7 +136,7 @@ const App = () => {
                   auction={item}
                   onPurchase={handlePurchase}
                   onRemove={handleRemoveItem}
-                  timeLeft={item.timeLeft || {}}
+                  timeLeft={item.timeLeft}
                 />
               ))}
             </ul>

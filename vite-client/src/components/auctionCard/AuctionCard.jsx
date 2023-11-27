@@ -38,7 +38,7 @@ const AuctionCard = ({ auction, onPurchase, onRemove, timeLeft }) => {
       <button onClick={handleBidSubmit}>Bid</button>
       <button onClick={() => onPurchase(auction.id)}>Purchase</button>
       <button onClick={() => onRemove(auction.id)}>Remove</button>
-      <p>{timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}</p>
+      <p>{timeLeft}</p>
     </li>
   );
 };
