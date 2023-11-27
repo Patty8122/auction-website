@@ -1,5 +1,8 @@
 import dotenv from 'dotenv';
 import express from 'express';
+import { Server } from 'socket.io';
+import { createServer } from 'http';
+import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import { query } from './db.js';
@@ -11,6 +14,14 @@ dotenv.config();
 const PORT = process.env.PORT || 3003;
 const app = express();
 app.use(express.json());
+
+// socket.io
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+    cors: {
+        origin: '*',
+    },
+});
 
 // Swagger definition
 const swaggerDefinition = {
@@ -301,6 +312,9 @@ app.post('/auctions/:id/bids', fetchAuctionData, validateBid, async (req, res) =
         await query('UPDATE auctions SET current_bid = $1 WHERE id = $2', [bidAmount, auctionId]);
 
         res.status(200).json(bidResult.rows[0]);
+
+        // Emit a bid event to the socket.io server 
+        io.emit('bidUpdate', { auctionId, bidAmount });
     } catch (error) {
         console.error('Error placing bid:', error);
         res.status(500).send('Error placing bid');
@@ -412,9 +426,9 @@ app.get('/auctions/:id/current-bid', async (req, res) => {
         }
 
         const auction = result.rows[0];
-        res.status(200).json({ 
+        res.status(200).json({
             seller_id: auction.seller_id,
-            current_bid: auction.current_bid 
+            current_bid: auction.current_bid
         });
     } catch (error) {
         console.error('Error fetching current bid:', error);
@@ -533,7 +547,7 @@ app.get('/users/:user_id/auctions', async (req, res) => {
             SELECT DISTINCT auctions.* 
             FROM auctions 
             JOIN bids ON auctions.id = bids.auction_id 
-            WHERE bids.user_id = $1`, 
+            WHERE bids.user_id = $1`,
             [user_id]);
 
         if (auctionsResult.rows.length === 0) {
@@ -547,6 +561,11 @@ app.get('/users/:user_id/auctions', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+io.on('connection', (socket) => {
+    console.log('New client connected');
+    socket.on('disconnect', () => console.log('Client disconnected'));
+});
+
+httpServer.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
