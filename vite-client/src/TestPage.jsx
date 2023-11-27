@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import useCreateAuction from '@/hooks/auction/useCreateAuction';
 import useGetAuctions from '@/hooks/auction/useGetAuctions';
+import useGetUserAuctions from '@/hooks/auction/useGetUserAuctions';
 
 const TestPage = () => {
 	const [responseMessage, setResponseMessage] = useState('');
 	const { createAuction } = useCreateAuction();
 	const { getAuctions } = useGetAuctions();
+	const { getUserAuctions } = useGetUserAuctions();
 
 	const createTestAuction = async () => {
 		setResponseMessage('');

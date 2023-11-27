@@ -45,6 +45,19 @@ const getAuctionById = async (id) => {
   }
 };
 
+const getAuctionsByUserId = async (userId) => {
+  try {
+    const response = await fetch(`/api/users/${userId}/auctions`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching auctions for user ${userId}:`, error);
+    throw error;
+  }
+}
+
 const placeBid = async (auctionId, bidData) => {
   try {
     const response = await fetch(`${API_BASE_URL}/${auctionId}/bids`, {
@@ -107,6 +120,7 @@ export const auctionService = {
   getAuctions,
   createAuction,
   getAuctionById,
+  getAuctionsByUserId,
   placeBid,
   getBids,
   getCurrentBid,
