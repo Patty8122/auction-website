@@ -15,5 +15,5 @@ ENV PORT=3001
 # Expose the port for the Node.js server
 # EXPOSE $PORT
 
-# Start the Node.js server
-CMD ["npm", "start"]
+# Define the Docker entry point
+ENTRYPOINT ["./docker-entrypoint.sh"]

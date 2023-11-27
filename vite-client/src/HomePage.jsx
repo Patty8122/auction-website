@@ -1,14 +1,33 @@
-import React, { useState } from 'react';
-import useGetUserAuctions from '@/hooks/auction/useGetUserAuctions';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { auctionService } from '@/services/auctionService';
+import { useUser } from '@/hooks/user/useUser';
 import AuctionCard from '@/components/auctionCard/AuctionCard';
 import './css/HomePage.css';
 
 const App = () => {
-  const [user, setUser] = useState(5);
-  const { userAuctions, isLoading, error } = useGetUserAuctions(user);
+  const { currentUser, logout, isLoading: isUserLoading } = useUser();
+  const [activeAuctions, setActiveAuctions] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchAuctions = async () => {
+      if (currentUser) {
+        try {
+          const auctions = await auctionService.getAuctionsByUserId(currentUser.id);
+          setActiveAuctions(auctions);
+        } catch (error) {
+          console.error('Error fetching auctions:', error);
+          setActiveAuctions([]);
+        }
+      }
+    };
+
+    fetchAuctions();
+  }, [currentUser]);
 
   const handleLogout = () => {
-    console.log('User logged out');
+    logout();
   };
 
   const handleAddItem = (itemName, initialBid) => {
@@ -25,7 +44,7 @@ const App = () => {
     // TODO - Send item id to backend to remove item
   };
 
-    // TODO - Send item id and new bid to backend
+  // TODO - Send item id and new bid to backend
 
   const handlePurchase = (itemId) => {
     console.log(`Item ${itemId} purchased`);
@@ -38,24 +57,39 @@ const App = () => {
       <header>
         <h1>Auction Service</h1>
         <div>
-          <p>Hello, {user}!</p>
-          <button onClick={handleLogout}>Logout</button>
+          {currentUser ? (
+            <>
+              <p>Hello, {currentUser.username}!</p>
+              <button onClick={handleLogout}>Logout</button>
+            </>
+          ) : (
+            <button onClick={() => navigate('/login')}>Login</button>
+          )}
         </div>
       </header>
 
       <section>
         <h2>Active Auctions</h2>
-        <ul>
-          {userAuctions && userAuctions.map((item) => (
-            <AuctionCard
-              key={item.id}
-              auction={item}
-              onPurchase={handlePurchase}
-              onRemove={handleRemoveItem}
-            />
-          ))}
-        </ul>
+        {currentUser ? (
+          activeAuctions && activeAuctions.length > 0 ? (
+            <ul>
+              {activeAuctions.map((item) => (
+                <AuctionCard
+                  key={item.id}
+                  auction={item}
+                  onPurchase={handlePurchase}
+                  onRemove={handleRemoveItem}
+                />
+              ))}
+            </ul>
+          ) : (
+            <p>Once you place a bid, your auctions will show here!</p>
+          )
+        ) : (
+          <p>Sign in to see your auctions!</p>
+        )}
       </section>
+
 
       <section>
         <h2>Add Item</h2>
