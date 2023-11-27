@@ -3,7 +3,7 @@
  */
 const getTest = async () => {
     try {
-      const response = await fetch(`/api/login`);
+      const response = await fetch(`/api/`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
