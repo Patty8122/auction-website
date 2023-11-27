@@ -5,7 +5,7 @@ from typing import Optional, List
 
 from fastapi import Depends, FastAPI, HTTPException
 
-from . import models, crud
+from . import models
 
 from sqlalchemy import DateTime, Float, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
@@ -174,32 +174,29 @@ def get_items(seller_id: int, db: Session = Depends(get_db)):
 
 @app.get("/items/price", response_model=Union[List[models.Item], None], status_code=200)
 def get_items_with_price_range(min_price: float, max_price: float, db: Session = Depends(get_db)):
-    # if min_price == None and max_price == None:
-    #     raise HTTPException(status_code = 400, detail="Min price and max price cannot be null")
+    if min_price == None and max_price == None:
+        raise HTTPException(status_code = 400, detail="Min price and max price cannot be null")
     
-    # if min_price > max_price:
-    #     raise HTTPException(status_code = 400, detail="Min price cannot be greater than max price")
+    if min_price > max_price:
+        raise HTTPException(status_code = 400, detail="Min price cannot be greater than max price")
     
-    # if min_price < 0 or max_price < 0:
-    #     raise HTTPException(status_code = 400, detail="Price cannot be negative")
+    if min_price < 0 or max_price < 0:
+        raise HTTPException(status_code = 400, detail="Price cannot be negative")
 
-    # if min_price == None:
-    #     db_items = db.query(Item).filter(Item.initial_bid_price <= max_price).scalars().all()
-    #     print(" min price is none db_items: ", db_items)
-    #     return db_items
+    if min_price == None:
+        db_items = db.query(Item).filter(Item.initial_bid_price <= max_price).scalars().all()
+        print(" min price is none db_items: ", db_items)
+        return db_items
     
-    # if max_price == None:
-    #     db_items = db.query(Item).filter(Item.initial_bid_price >= min_price).scalars().all()
-    #     print(" max price is none db_items: ", db_items)
-    #     return db_items
+    if max_price == None:
+        db_items = db.query(Item).filter(Item.initial_bid_price >= min_price).scalars().all()
+        print(" max price is none db_items: ", db_items)
+        return db_items
     
-
-    # print(" min price: ", min_price, " max price: ", max_price)
-    # db_items = db.query(Item).filter(Item.initial_bid_price >= min_price, Item.initial_bid_price <= max_price).scalars().all()
-    # print(" db_items: ", db_items)
-    # return db_items
     print(" min price: ", min_price, " max price: ", max_price)
-    return 
+    db_items = db.query(Item).filter(Item.initial_bid_price >= min_price, Item.initial_bid_price <= max_price).scalars().all()
+    print(" db_items: ", db_items)
+    return db_items
 
 
 @app.delete("/items", status_code=200)
@@ -243,5 +240,21 @@ def update_item(item_id: int, item_with_new_values: models.Item, user_id: int, d
     db.refresh(db_item)
 
     return db_item
+
+
+@app.post("/items/search", response_model=List[models.Item], status_code=200)
+def search_items(search_term: str, db: Session = Depends(get_db)):
+    # find items with search term looking at description
+    stmt = select(Item).where(Item.category.contains(search_term))
+    items = db.execute(stmt).scalars().all()
+
+    if items is None:
+        # search term is a description
+        stmt = select(Item).where(Item.description.contains(search_term))
+        items = db.execute(stmt).scalars().all()
+        return items
+    
+    return items
+    
 
 

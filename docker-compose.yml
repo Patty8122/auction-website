@@ -100,6 +100,8 @@ services:
       - DB_URL=http://db-service:5432
     volumes:
       - ./item-service:/usr/src/app
+    ports:
+      - 3004:3004
     stop_signal: SIGKILL
     # depends_on:
     #   db-gateway-service:
