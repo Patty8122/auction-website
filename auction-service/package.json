@@ -8,6 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrate": "node-pg-migrate up",
     "migrate:down": "node-pg-migrate down",
+    "test-data": "node src/init-test-data.js",
     "start": "node src/server.js"
   },
   "author": "",
