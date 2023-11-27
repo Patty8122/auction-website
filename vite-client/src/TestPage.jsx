@@ -7,7 +7,6 @@ const TestPage = () => {
 	const [responseMessage, setResponseMessage] = useState('');
 	const { createAuction } = useCreateAuction();
 	const { getAuctions } = useGetAuctions();
-	const { getUserAuctions } = useGetUserAuctions();
 
 	const createTestAuction = async () => {
 		setResponseMessage('');

@@ -92,6 +92,9 @@ services:
       - ./auction-service:/usr/src/app
       - auction_node_modules:/usr/src/app/node_modules
     stop_signal: SIGKILL
+    depends_on:
+      db-service:
+        condition: service_started
 
   item-service:
     build: ./item-service

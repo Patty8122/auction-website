@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import io from 'socket.io-client';
 import { auctionService } from '@/services/auctionService';
 import { useUser } from '@/hooks/user/useUser';
 import AuctionCard from '@/components/auctionCard/AuctionCard';
@@ -25,6 +26,63 @@ const App = () => {
 
     fetchAuctions();
   }, [currentUser]);
+
+  useEffect(() => {
+    const socket = io('http://localhost:3003');
+
+    /*
+    socket.on('connect', () => {
+      console.log('Socket connected');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Socket disconnected');
+    });
+    */
+
+    socket.on('bidUpdate', (data) => {
+      let { auctionId, bidAmount } = data;
+      auctionId = parseInt(auctionId, 10);
+
+      setActiveAuctions(currentAuctions =>
+        currentAuctions.map(auction =>
+          auction.id === auctionId ? { ...auction, current_bid: bidAmount } : auction
+        )
+      );
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  const calculateTimeLeft = (endTime) => {
+    const difference = +new Date(endTime) - +new Date();
+    let timeLeft = {};
+
+    if (difference > 0) {
+      timeLeft = {
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60)
+      };
+    }
+
+    return timeLeft;
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveAuctions(currentAuctions =>
+        currentAuctions.map(auction => ({
+          ...auction,
+          timeLeft: calculateTimeLeft(auction.end_time)
+        }))
+      );
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [activeAuctions]);
 
   const handleLogout = () => {
     logout();
@@ -79,6 +137,7 @@ const App = () => {
                   auction={item}
                   onPurchase={handlePurchase}
                   onRemove={handleRemoveItem}
+                  timeLeft={item.timeLeft || {}}
                 />
               ))}
             </ul>

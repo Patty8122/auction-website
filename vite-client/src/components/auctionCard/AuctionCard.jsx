@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import usePlaceBid from '@/hooks/auction/usePlaceBid';
 
-const AuctionCard = ({ auction, onPurchase, onRemove }) => {
+const AuctionCard = ({ auction, onPurchase, onRemove, timeLeft }) => {
   const [bidAmount, setBidAmount] = useState('');
   const { placeBid } = usePlaceBid();
 
@@ -38,6 +38,7 @@ const AuctionCard = ({ auction, onPurchase, onRemove }) => {
       <button onClick={handleBidSubmit}>Bid</button>
       <button onClick={() => onPurchase(auction.id)}>Purchase</button>
       <button onClick={() => onRemove(auction.id)}>Remove</button>
+      <p>{timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}</p>
     </li>
   );
 };
