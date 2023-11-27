@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import UserProvider from "./hooks/user/useUser";
 import './App.css';
 import TestPage from './TestPage';
 import LoginPage from './LoginPage';
@@ -8,7 +9,7 @@ import HomePage from "./HomePage";
 function App() {
 
   return (
-    <>
+    <UserProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<TestPage />} />
@@ -16,8 +17,7 @@ function App() {
           <Route path="/home" element={<HomePage />} />
         </Routes>
       </BrowserRouter>
-    
-    </>
+    </UserProvider>
   );
 }
 

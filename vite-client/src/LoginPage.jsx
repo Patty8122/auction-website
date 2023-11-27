@@ -1,35 +1,74 @@
-// Import necessary React modules
 import React, { useState } from 'react';
-import './css/LoginPage.css'; 
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '@/hooks/user/useUser';
+import './css/LoginPage.css';
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  /*
+   * isLogin: true if the user is logging in, false if the user is signing up
+   * username: the username entered by the user
+   * password: the password entered by the user
+   * error: error message to display to the user
+   */
   const [isLogin, setIsLogin] = useState(true);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const { login, register } = useUser();
+  const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setError('');
 
-    // TODO: Send email and password to backend and change the page
+    if (isLogin) {
+      // Login logic
+      try {
+        await login(username, password);
 
-    console.log('Email:', email);
-    console.log('Password:', password);
+        // Success
+        navigate('/home');
+      } catch (err) {
+        setError(err.message || 'Failed to login');
+      }
+    } else {
+      // Sign-up logic
+      try {
+        await register(username, password, email);
 
-    setEmail('');
-    setPassword('');
+        // Success
+        navigate('/home');
+      } catch (err) {
+        setError(err.message || 'Failed to register');
+      }
+    }
   };
 
   return (
     <div className="login-container">
       <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
       <form onSubmit={handleSubmit}>
-        <label>Email:</label>
+        <label>Username:</label>
         <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           required
         />
+
+
+        {!isLogin &&
+          <>
+            <label>Email:</label>
+            <input
+              type="text"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </>
+        }
 
         <label>Password:</label>
         <input
@@ -39,18 +78,15 @@ const LoginPage = () => {
           required
         />
 
+
         <button type="button" onClick={() => setIsLogin(!isLogin)}>
           {isLogin ? 'Switch to Sign Up' : 'Switch to Login'}
         </button>
 
         <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
-
-        {isLogin && (
-          <button type="button" onClick={() => console.log('Logging in as admin')}>
-            Login as Admin
-          </button>
-        )}
       </form>
+
+      {error && <div className="error-message">{error}</div>}
     </div>
   );
 };
