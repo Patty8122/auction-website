@@ -30,60 +30,83 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/test")
 def read_test():
     return {"message": "User service reached!"}
-
 @app.post("/create_user/")
 def create_user(username: str, email: str, password: str):
     customer = Customer()
-    user_id = customer.create_user(username=username, email=email, password=password)
-    return {"user_id": user_id}
-    
+    try:
+        user_id = customer.create_user(username=username, email=email, password=password)
+        return {"user_id": user_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/get_user/{user_id}")
 def get_user(user_id: int):
-    customer= Customer()
-    user_info = customer.get_user_by_id(user_id)
-    return user_info
+    customer = Customer()
+    try:
+        user_info = customer.get_user_by_id(user_id)
+        return user_info
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.put("/update_user/{user_id}")
 def update_user(user_id: int, status: int = None, email: str = None, seller_rating: str = None):
-    customer= Customer()
-    customer.update_user(user_id, status=status, email=email, seller_rating=seller_rating)
-    return {"message": "User updated successfully"}
+    customer = Customer()
+    try:
+        customer.update_user(user_id, status=status, email=email, seller_rating=seller_rating)
+        return {"message": "User updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.put("/suspend_user/{user_id}")
 def suspend_user(user_id: int):
-    customer= Customer()
-    customer.suspend_user(user_id)
-    return {"message": "User suspended successfully"}
+    customer = Customer()
+    try:
+        customer.suspend_user(user_id)
+        return {"message": "User suspended successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.delete("/delete_user/{user_id}")
 def delete_user(user_id: int):
-    customer= Customer()
-    customer.delete_user(user_id)
-    return {"message": "User deleted successfully"}
+    customer = Customer()
+    try:
+        customer.delete_user(user_id)
+        return {"message": "User deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/create_cart/{user_id}")
 def create_cart(user_id: int):
     cart_management = CartManagement()
-    cart_id = cart_management.create_cart(user_id)
-    return {"cart_id": cart_id}
+    try:
+        cart_id = cart_management.create_cart(user_id)
+        return {"cart_id": cart_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/add_item_to_cart/{cart_id}")
 def add_item_to_cart(cart_id: int, item_id: int, quantity: int):
     cart_management = CartManagement()
-    cart_management.add_item_to_cart(cart_id, item_id, quantity)
-    return {"message": "Item added to cart successfully"}
+    try:
+        cart_management.add_item_to_cart(cart_id, item_id, quantity)
+        return {"message": "Item added to cart successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/get_cart_items/{cart_id}")
 def get_cart_items(cart_id: int):
     cart_management = CartManagement()
-    items = cart_management.get_items_from_cart(cart_id)
-    return {"items": items}
+    try:
+        items = cart_management.get_items_from_cart(cart_id)
+        return {"items": items}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.delete("/remove_item_from_cart/{user_id}/{item_id}")
 async def remove_item_from_cart(user_id: int, item_id: int):
     cart_management = CartManagement()
     try:
-        cart_id  = cart_management.get_current_cart(user_id)
+        cart_id = cart_management.get_current_cart(user_id)
         cart_management.remove_item_from_cart(cart_id, item_id)
         return {"message": "Item removed from cart successfully"}
     except Exception as e:
@@ -93,16 +116,21 @@ async def remove_item_from_cart(user_id: int, item_id: int):
 @app.post("/login/")
 def login(username: str, password: str):
     user = Customer()
-    user_info = user.login(username=username, password=password)
-    return {"user_info": user_info}
+    try:
+        user_info = user.login(username=username, password=password)
+        return {"user_info": user_info}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Logout Endpoint
 @app.post("/logout/{user_id}")
 def logout(user_id: int):
     user = Customer()
-    user.logout(user_id)
-    return {"message": "User logged out successfully"}
-
+    try:
+        user.logout(user_id)
+        return {"message": "User logged out successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 def create_tables():
