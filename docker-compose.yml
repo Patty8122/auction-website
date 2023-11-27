@@ -105,13 +105,16 @@ services:
     #   db-gateway-service:
     #     condition: service_started
 
-  # user-service:
-  #   build: ./user-service
-  #   ports:
-  #     - 3002:3002
-  #   volumes:
-  #     - ./user-service:/usr/src/app
-  #   stop_signal: SIGKILL
+  user-service:
+    build: ./user-service
+    ports:
+      - 3002:3002
+    volumes:
+      - ./user-service:/usr/src/app
+    stop_signal: SIGKILL
+    depends_on:
+      db-service:
+        condition: service_started
 
   # Reference: https://github.com/deepshig/rabbitmq-docker
   rabbitmq:
