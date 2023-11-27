@@ -49,26 +49,6 @@ services:
       timeout: 5s
       retries: 5
 
-
-  
-  migration-service:
-    build: 
-      context: ./migration-service
-    env_file: ./migration-service/.env
-    command: ./run-migrations.sh
-    links:
-      - db-service
-    depends_on:
-      - db-service
-    environment:
-      - DB_HOST=db-service
-    stop_signal: SIGKILL
-    # healthcheck:
-    #   test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 3
-
   pgadmin:
     container_name: pgadmin4_container
     image: dpage/pgadmin4
