@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from typing import Optional, List
+from typing import Union
 
 from fastapi import Depends, FastAPI, HTTPException
 
@@ -15,9 +16,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import select
 
 
-
 #################### DATABASE ####################
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@pg_container/itemdb"
+SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@db-service:5432/itemdb"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
@@ -109,18 +109,9 @@ async def get_category(category_id: int, db: Session = Depends(get_db)):
     return db_category
 
 
-from typing import Union
 
 @app.post("/items", response_model=Union[models.Item, None], status_code=201)
 def create_item_user(item: models.ItemIn, user_id: int, db: Session = Depends(get_db)):
-    # check if user is a valid user
-    # stmt = select(models.User).where(models.User.id == user_id)
-    # user = db.execute(stmt).scalar()
-    # if user is None:
-    #     raise HTTPException(status_code = 404, detail="User not found")
-
-    # do not include category in item
-
     item_with_new_values = Item(
         **item.model_dump()
     )
@@ -172,6 +163,28 @@ def get_items(seller_id: int, db: Session = Depends(get_db)):
     return items
 
 
+
+
+@app.delete("/items", status_code=200)
+def delete_item(item_id: int, user_id: int, db: Session = Depends(get_db)):
+    # does user own item?
+    db_item = db.query(Item).filter(Item.id == item_id).first()
+
+
+    print("db_item: ", db_item)
+
+    if db_item is None:
+        raise HTTPException(status_code = 400, detail="Item does not exist")
+    
+    if db_item.seller_id != user_id and db_item.seller_id != 1: # 1 is admin
+        print("db_item.seller_id: ", db_item.seller_id, " user_id: ", user_id)
+        raise HTTPException(status_code = 400, detail="User does not own item")
+            
+    # delete item
+    db.delete(db_item)
+    db.commit()
+    return
+
 @app.get("/items/price", response_model=Union[List[models.Item], None], status_code=200)
 def get_items_with_price_range(min_price: float, max_price: float, db: Session = Depends(get_db)):
     if min_price == None and max_price == None:
@@ -197,28 +210,6 @@ def get_items_with_price_range(min_price: float, max_price: float, db: Session =
     db_items = db.query(Item).filter(Item.initial_bid_price >= min_price, Item.initial_bid_price <= max_price).scalars().all()
     print(" db_items: ", db_items)
     return db_items
-
-
-@app.delete("/items", status_code=200)
-def delete_item(item_id: int, user_id: int, db: Session = Depends(get_db)):
-    # does user own item?
-    db_item = db.query(Item).filter(Item.id == item_id).first()
-
-
-    print("db_item: ", db_item)
-
-    if db_item is None:
-        raise HTTPException(status_code = 400, detail="Item does not exist")
-    
-    if db_item.seller_id != user_id and db_item.seller_id != 1: # 1 is admin
-        print("db_item.seller_id: ", db_item.seller_id, " user_id: ", user_id)
-        raise HTTPException(status_code = 400, detail="User does not own item")
-            
-    # delete item
-    db.delete(db_item)
-    db.commit()
-    return
-
 
 
 @app.put("/items", response_model=models.Item, status_code=200)

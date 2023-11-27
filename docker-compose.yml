@@ -31,7 +31,7 @@ services:
         condition: service_started
 
   db-service:
-    container_name: pg_container
+    container_name: db-service
     image: postgres:16-bookworm
     restart: always
     ports:
@@ -97,15 +97,17 @@ services:
     build: ./item-service
     environment:
       - PORT=3004
-      - DB_URL=http://db-service:5432
+      - DATABASE_URL=postgresql://postgres:postgres@db-service:5432/itemdb
     volumes:
       - ./item-service:/usr/src/app
     ports:
       - 3004:3004
     stop_signal: SIGKILL
-    # depends_on:
-    #   db-gateway-service:
-    #     condition: service_started
+    restart: always
+    command: ./entrypoint.sh
+    depends_on:
+      db-service:
+        condition: service_started
 
   user-service:
     build: ./user-service
