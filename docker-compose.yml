@@ -87,7 +87,7 @@ services:
       - 3004:3004
     stop_signal: SIGKILL
     # restart: always
-    command: ./entrypoint.sh
+    command: sh entrypoint.sh
     depends_on:
       db-service:
         condition: service_started
