@@ -1,39 +1,65 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { UserContext } from './UserContext';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import { userService } from '../../services/userService';
 
-export const UserProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
+export const UserContext = createContext();
 
-  // Check if user is logged in by looking for user_id in sessionStorage
+const UserProvider = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     const userId = sessionStorage.getItem('user_id');
-    if (userId) {
-      setCurrentUser({ id: userId });
+    const username = sessionStorage.getItem('username');
+    if (userId && username) {
+      setCurrentUser({ id: userId, username: username });
     }
+    setIsLoading(false);
   }, []);
 
   const login = async (username, password) => {
-    const data = await userService.login(username, password);
-    setCurrentUser({ user_id: data.user_id, username: data.username });
+    try {
+      const user_info = await userService.login(username, password);
+      if (user_info) {
+        sessionStorage.setItem('user_id', user_info.user_id);
+        sessionStorage.setItem('username', user_info.username);
+        setCurrentUser({ id: user_info.user_id, username: user_info.username });
+      }
+    } catch (error) {
+      console.error("Login failed: ", error.message);
+      // Handle login error
+    }
   };
 
   const logout = async () => {
-    await userService.logout();
-    setCurrentUser(null);
+    try {
+      await userService.logout();
+      sessionStorage.removeItem('user_id');
+      sessionStorage.removeItem('username');
+      setCurrentUser(null);
+    } catch (error) {
+      console.error("Logout failed: ", error.message);
+      // Handle logout error
+    }
   };
 
   const register = async (username, password, email) => {
-    const data = await userService.createUser(username, password, email);
-    setCurrentUser({ user_id: data.user_id, username: data.username, email: data.email });
+    try {
+      await userService.createUser(username, password, email);
+      // No need to set current user here since createUser calls login
+    } catch (error) {
+      console.error("Registration failed: ", error.message);
+      // Handle registration error
+    }
   };
 
   return (
-    <UserContext.Provider value={{ currentUser, login, logout, register }}>
+    <UserContext.Provider value={{ currentUser, isLoading, login, logout, register }}>
       {children}
     </UserContext.Provider>
   );
 };
+
+export default UserProvider;
 
 export const useUser = () => {
   const context = useContext(UserContext);

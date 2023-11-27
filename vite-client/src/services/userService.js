@@ -13,11 +13,15 @@ const login = async (username, password) => {
     }
 
     const data = await response.json();
-    if (data && data.user_id) {
-      sessionStorage.setItem('user_id', data.user_id);
-      sessionStorage.setItem('username', data.username);
+    const user_info = data.user_info.user_info;
+    console.log(user_info);
+    console.log(user_info.user_id);
+    console.log(user_info.username);
+    if (user_info) {
+      sessionStorage.setItem('user_id', user_info.user_id);
+      sessionStorage.setItem('username', user_info.username);
     }
-    return data;
+    return user_info;
   } catch (error) {
     throw new Error(error.message);
   }
@@ -35,6 +39,7 @@ const logout = async () => {
 
       const data = await response.json();
       sessionStorage.removeItem('user_id');
+      sessionStorage.removeItem('username');
       return data;
     } catch (error) {
       throw new Error(error.message);
@@ -55,7 +60,12 @@ const createUser = async (username, password, email) => {
       throw new Error('Registration failed');
     }
 
-    return await response.json();
+    const data = await response.json();
+    if (data && data.user_id) {
+      // Log the user in after successful registration
+      return await login(username, password);
+    }
+    return data;
   } catch (error) {
     throw new Error(error.message);
   }

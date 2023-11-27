@@ -23,10 +23,11 @@ async def create_user(user: User):
         user.password = hashlib.md5(user.password.encode()).hexdigest()
         response = requests.post(f"{USER_SERVICE_URL}/create_user", params=user.model_dump())
         response.raise_for_status()
+        user_id = response.json()
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-    return {"message": f"User with username : {user.username} has been created"}
+    return {"message": f"User with username : {user.username} has been created", "user_id": user_id}
 
 # Endpoint to delete a user
 @app.delete("/delete_user/{user_id}")
@@ -57,10 +58,11 @@ async def login(user: User):
         user.password = hashlib.md5(user.password.encode()).hexdigest()
         response = requests.post(f"{USER_SERVICE_URL}/login/", params=user.model_dump())
         response.raise_for_status()
+        user_info = response.json()
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-    return {"message": f"Login successful for user: {user.username}"}
+    return {"message": f"Login successful for user: {user.username}", "user_info": user_info}
 
 # Endpoint to simulate user logout
 @app.post("/logout/{user_id}")
@@ -172,6 +174,7 @@ async def get_auctions_by_user(user_id: int):
         response = requests.get(url)
         response.raise_for_status()
     except requests.RequestException as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(response.content))
     
     return response.json()

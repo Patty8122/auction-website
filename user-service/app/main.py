@@ -37,6 +37,7 @@ def create_user(username: str, email: str, password: str):
         user_id = customer.create_user(username=username, email=email, password=password)
         return {"user_id": user_id}
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/get_user/{user_id}")
@@ -120,6 +121,7 @@ def login(username: str, password: str):
         user_info = user.login(username=username, password=password)
         return {"user_info": user_info}
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 # Logout Endpoint
@@ -130,6 +132,7 @@ def logout(user_id: int):
         user.logout(user_id)
         return {"message": "User logged out successfully"}
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 

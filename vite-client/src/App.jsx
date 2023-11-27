@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import { UserProvider } from "./hooks/user/useUser";
+import UserProvider from "./hooks/user/useUser";
 import './App.css';
 import TestPage from './TestPage';
 import LoginPage from './LoginPage';
