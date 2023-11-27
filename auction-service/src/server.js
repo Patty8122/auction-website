@@ -480,6 +480,73 @@ app.get('/auctions/:id/final-bid', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /users/{user_id}/auctions:
+ *   get:
+ *     summary: Get auctions by user ID
+ *     description: Retrieve a list of auctions in which a specific user has placed at least one bid.
+ *     tags:
+ *       - Auctions
+ *     parameters:
+ *       - in: path
+ *         name: user_id
+ *         required: true
+ *         description: Unique identifier of the user
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of auctions retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                     description: Unique identifier of the auction.
+ *                   title:
+ *                     type: string
+ *                     description: Title of the auction.
+ *                   startTime:
+ *                     type: string
+ *                     format: date-time
+ *                     description: Start time of the auction.
+ *                   endTime:
+ *                     type: string
+ *                     format: date-time
+ *                     description: End time of the auction.
+ *       404:
+ *         description: No auctions found for this user.
+ *       500:
+ *         description: Error retrieving auctions.
+ */
+app.get('/users/:user_id/auctions', async (req, res) => {
+    const user_id = req.params.user_id;
+
+    try {
+        // Join auctions and bids to find auctions where the user has placed a bid
+        const auctionsResult = await query(`
+            SELECT DISTINCT auctions.* 
+            FROM auctions 
+            JOIN bids ON auctions.id = bids.auction_id 
+            WHERE bids.user_id = $1`, 
+            [user_id]);
+
+        if (auctionsResult.rows.length === 0) {
+            return res.status(404).send('No auctions found for this user');
+        }
+
+        res.json(auctionsResult.rows);
+    } catch (error) {
+        console.error('Error retrieving auctions for user:', error);
+        res.status(500).send('Error retrieving auctions');
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

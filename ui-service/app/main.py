@@ -164,3 +164,14 @@ async def get_final_bid(auction_id: int):
         raise HTTPException(status_code=500, detail=str(response.content))
     
     return response.json()
+
+@app.get("/users/{user_id}/auctions", response_model=list)
+async def get_auctions_by_user(user_id: int):
+    try:
+        url = f"{AUCTION_SERVICE_BASE_URL}/users/{user_id}/auctions"
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    
+    return response.json()
