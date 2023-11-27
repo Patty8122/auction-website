@@ -103,7 +103,7 @@ services:
     ports:
       - 3004:3004
     stop_signal: SIGKILL
-    restart: always
+    # restart: always
     command: ./entrypoint.sh
     depends_on:
       db-service:
