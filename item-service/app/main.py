@@ -183,7 +183,7 @@ def delete_item(item_id: int, user_id: int, db: Session = Depends(get_db)):
     # delete item
     db.delete(db_item)
     db.commit()
-    return
+    return f"Deleted Item with id : {item_id} by User with id : {user_id} Successfully!"
 
 @app.get("/items/price", response_model=Union[List[models.Item], None], status_code=200)
 def get_items_with_price_range(min_price: float, max_price: float, db: Session = Depends(get_db)):
