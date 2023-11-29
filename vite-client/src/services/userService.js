@@ -71,8 +71,74 @@ const createUser = async (username, password, email) => {
   }
 };
 
+const suspendUser = async (user_id) => {
+  try {
+    const response = await fetch(`${API_URL}/suspend_user/${user_id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Suspension failed');
+    }
+
+    const data = await response.json();
+    // if (data && data.user_id) {
+    //   // Log the user in after successful registration
+    //   return await login(username, password);
+    // }
+    return data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const updateUser = async (user_id, status = null, email = null, seller_rating = null) => {
+  try {
+    const response = await fetch(`${API_URL}/update_user/${user_id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, email, seller_rating}),
+    });
+
+    if (!response.ok) {
+      throw new Error('Suspension failed');
+    }
+
+    const data = await response.json();
+    // if (data && data.user_id) {
+    //   // Log the user in after successful registration
+    //   return await login(username, password);
+    // }
+    return data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const deleteUser = async (user_id) => {
+  try {
+    const response = await fetch(`${API_URL}/delete_user/${user_id}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('Deletion failed');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 export const userService = {
   login,
   logout,
   createUser,
+  suspendUser,
+  updateUser,
+  deleteUser
 };
