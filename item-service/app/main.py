@@ -156,13 +156,11 @@ def get_items_by_category(category_id: int, db: Session = Depends(get_db)):
 
     return items
 
-@app.get("/items/seller/{seller_id}", response_model=List[models.Item], status_code=200)
+@app.get("/items/seller/{seller_id}", response_model=Union[List[models.Item], None], status_code=200)
 def get_items(seller_id: int, db: Session = Depends(get_db)):
     stmt = select(Item).where(Item.seller_id == seller_id)
     items = db.execute(stmt).scalars().all()
     return items
-
-
 
 
 @app.delete("/items", status_code=200)
