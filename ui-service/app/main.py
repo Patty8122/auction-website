@@ -10,6 +10,7 @@ app = FastAPI()
 USER_SERVICE_URL = "http://user-service:3002"
 AUCTION_SERVICE_BASE_URL = "http://auction-service:3003"
 ITEM_SERVICE_URL = "http://item-service:3004"
+ITEM_SERVICE_URL = "http://item-service:3004"
 
 ############## USER SERVICE APIs ####################
 class User(BaseModel):
@@ -94,8 +95,6 @@ class BidCreate(BaseModel):
 async def create_auction(auction: AuctionCreate):
     url = f"{AUCTION_SERVICE_BASE_URL}/auctions"
     try:
-        data = auction.model_dump_json()
-        print(f"Data is : {data}")
         response = requests.post(url, json=auction.model_dump())
         response.raise_for_status()
     except requests.RequestException as e:
