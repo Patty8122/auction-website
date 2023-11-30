@@ -10,6 +10,7 @@ app = FastAPI()
 USER_SERVICE_URL = "http://user-service:3002"
 AUCTION_SERVICE_BASE_URL = "http://auction-service:3003"
 ITEM_SERVICE_URL = "http://item-service:3004"
+ITEM_SERVICE_URL = "http://item-service:3004"
 
 ############## USER SERVICE APIs ####################
 class User(BaseModel):
@@ -182,25 +183,34 @@ async def get_auctions_by_user(user_id: int):
 ############## ITEM SERVICE APIs ####################
 
 class Category(BaseModel):
-    created_at: str
+    id: int
+    created_at: datetime.datetime
     category: str
 
 class Item(BaseModel):
+    id: int
+    created_at: datetime.datetime 
+    updated_at: datetime.datetime
     quantity: int
-    description: Optional[str] = None
+    description: str
     shipping_cost: float
     category_id: int
     initial_bid_price: float
-    photo_url1: Optional[str] = None
-    photo_url2: Optional[str] = None
-    photo_url3: Optional[str] = None
-    photo_url4: Optional[str] = None
-    photo_url5: Optional[str] = None
+    final_bid_price: Optional[float]
+    seller_id: int
+    buyer_id: Optional[int]
+    photo_url1: Optional[str]
+    photo_url2: Optional[str]
+    photo_url3: Optional[str]
+    photo_url4: Optional[str]
+    photo_url5: Optional[str]
+
 
 class DeleteItem(BaseModel):
     user_id: int
     item_id: int
-    
+
+
 @app.post("/category")
 async def create_category(category: Category):
     url = f"{ITEM_SERVICE_URL}/category"
@@ -213,14 +223,16 @@ async def create_category(category: Category):
     return response.json()
 
 
-@app.get("/category/{category_id}")
-async def get_category_by_id(category_id: int):
+@app.get("/category/{category_id}", response_model=dict)
+def get_category_by_id(category_id: int):
+    url = f"{ITEM_SERVICE_URL}/category/{category_id}"
+    print("url", url)
+    headers = {'Accept': 'application/json'}
     try:
-        url = f"{ITEM_SERVICE_URL}/category/{category_id}"
-        response = requests.get(url)
+        response = requests.get(url, headers=headers)
         response.raise_for_status()
     except requests.RequestException as e:
-        raise HTTPException(status_code=500, detail=str(response.content))
+        raise HTTPException(status_code=500)
     return response.json()
 
 @app.post("/items")
@@ -248,18 +260,19 @@ async def get_item_by_item_id(item_id: int):
 async def get_item_by_category_id(category_id: int):
     try:
         url = f"{ITEM_SERVICE_URL}/items/category/{category_id}"
-        response = requests.get(url)
+        response = requests.get(url, headers={'Accept': 'application/json'})
         response.raise_for_status()
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(response.content))
     return response.json()
 
-@app.get("/items/seller/{seller_id}")
-async def get_item_by_seller_id(seller_id: int):
+@app.get("/items/seller/{seller_id}", response_model=list)
+def get_item_by_seller_id(seller_id: int):
     try:
         url = f"{ITEM_SERVICE_URL}/items/seller/{seller_id}"
-        response = requests.get(url)
+        response = requests.get(url, headers={'Accept': 'application/json'})
         response.raise_for_status()
+        print("response", response)
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(response.content))
     return response.json()
