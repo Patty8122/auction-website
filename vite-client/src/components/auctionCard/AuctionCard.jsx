@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import usePlaceBid from '@/hooks/auction/usePlaceBid';
+import { Button, Card } from '@/components/ui';
+import styles from './AuctionCard.module.css';
 
 const AuctionCard = ({ auction }) => {
   const [bidAmount, setBidAmount] = useState('');
@@ -60,21 +62,31 @@ const AuctionCard = ({ auction }) => {
   });
 
   return (
-    <li>
-      <span>{auction.id}</span>
-      <span>Current Bid: ${auction.current_bid}</span>
-      <input 
-        type="number" 
-        value={bidAmount}
-        onChange={(e) => setBidAmount(e.target.value)} 
-        placeholder="Enter bid amount"
-      />
-      <button onClick={handleBidSubmit}>Bid</button>
-      <button onClick={() => onPurchase(auction.id)}>Purchase</button>
-      <button onClick={() => onRemove(auction.id)}>Remove</button>
-      <p>{timeLeft}</p>
-    </li>
+    <Card>
+      <div className={styles.auctionInfo}>
+        <p><strong>ID:</strong> {auction.id}</p>
+        <p><strong>Current Bid:</strong> ${auction.current_bid}</p>
+      </div>
+      <div className={styles.bidSection}>
+        <input 
+          className={styles.bidInput}
+          type="number" 
+          value={bidAmount}
+          onChange={(e) => setBidAmount(e.target.value)} 
+          placeholder="Enter bid"
+        />
+        <Button className={styles.bidButton} onClick={handleBidSubmit}>Bid</Button>
+      </div>
+      <div className={styles.actionButtons}>
+        <Button onClick={() => onPurchase(auction.id)}>Purchase</Button>
+        <Button onClick={() => onRemove(auction.id)}>Remove</Button>
+      </div>
+      <div className={styles.timeLeft}>
+        <p>{timeLeft}</p>
+      </div>
+    </Card>
   );
+  
 };
 
 export default AuctionCard;

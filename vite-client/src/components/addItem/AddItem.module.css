@@ -1,0 +1,30 @@
+.addItemCard {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 250px;
+    margin: 0 auto;
+}
+
+.addItemCard form {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.addItemCard label {
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.addItemCard input {
+    margin-bottom: 16px;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.addItemCard button {
+    align-self: center;
+}

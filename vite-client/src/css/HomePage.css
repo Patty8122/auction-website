@@ -38,19 +38,6 @@ h2 {
 	margin-bottom: 10px;
 }
 
-ul {
-	list-style-type: none;
-	padding: 0;
-}
-
-li {
-	border: 1px solid #ddd;
-	margin-bottom: 10px;
-	padding: 10px;
-	display: flex;
-	justify-content: space-between;
-}
-
 form {
 	display: flex;
 	flex-direction: column;
@@ -58,17 +45,4 @@ form {
 
 label {
 	margin-bottom: 5px;
-}
-
-input {
-	margin-bottom: 10px;
-	padding: 8px;
-	font-size: 14px;
-}
-
-li input[type="number"] {
-	width: 300px;
-	height: 40px;
-	max-width: 100%;
-	margin: auto 10px;
 }

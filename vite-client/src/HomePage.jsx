@@ -1,54 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import io from 'socket.io-client';
-import { auctionService } from '@/services/auctionService';
 import { useUser } from '@/hooks/user/useUser';
-import AuctionCard from '@/components/auctionCard/AuctionCard';
+import { Button } from '@/components/ui';
+import ActiveAuctions from '@/components/activeAuctions/ActiveAuctions';
+import AddItem from '@/components/addItem/AddItem';
 import './css/HomePage.css';
 
 const App = () => {
   const { currentUser, logout, isLoading: isUserLoading } = useUser();
   const [activeAuctions, setActiveAuctions] = useState([]);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchAuctions = async () => {
-      if (currentUser) {
-        try {
-          const auctions = await auctionService.getAuctionsByUserId(currentUser.user_id);
-          setActiveAuctions(auctions);
-        } catch (error) {
-          console.error('Error fetching auctions:', error);
-          setActiveAuctions([]);
-        }
-      }
-    };
-
-    fetchAuctions();
-  }, [currentUser]);
-
-  useEffect(() => {
-    const socket = io('http://localhost:3003');
-
-    socket.on('bidUpdate', (data) => {
-      let { auctionId, bidAmount } = data;
-      auctionId = parseInt(auctionId, 10);
-
-      setActiveAuctions(currentAuctions =>
-        currentAuctions.map(auction =>
-          auction.id === auctionId ? { ...auction, current_bid: bidAmount } : auction
-        )
-      );
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-  const handleLogout = () => {
-    logout();
-  };
 
   const handleAddItem = (itemName, initialBid) => {
     const newItem = { id: activeAuctions.length + 1, name: itemName, currentBid: initialBid };
@@ -66,50 +27,20 @@ const App = () => {
           {currentUser ? (
             <>
               <p>Hello, {currentUser.username}!</p>
-              <button onClick={handleLogout}>Logout</button>
+              <Button onClick={() => logout()}>Logout</Button>
             </>
           ) : (
-            <button onClick={() => navigate('/login')}>Login</button>
+            <Button onClick={() => navigate('/login')}>Login</Button>
           )}
         </div>
       </header>
 
-      <section>
-        <h2>Active Auctions</h2>
-        {currentUser ? (
-          activeAuctions && activeAuctions.length > 0 ? (
-            <ul>
-              {activeAuctions.map((item) => (
-                <AuctionCard key={item.id} auction={item}/>
-              ))}
-            </ul>
-          ) : (
-            <p>Once you place a bid, your auctions will show here!</p>
-          )
-        ) : (
-          <p>Sign in to see your auctions!</p>
-        )}
-      </section>
-
-
-      <section>
-        <h2>Add Item</h2>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const itemName = e.target.itemName.value;
-            const initialBid = parseFloat(e.target.initialBid.value);
-            handleAddItem(itemName, initialBid);
-            e.target.reset();
-          }}
-        >
-          <label htmlFor="itemName">Item Name:</label>
-          <input type="text" id="itemName" required />
-          <label htmlFor="initialBid">Starting Bid:</label>
-          <input type="number" id="initialBid" required />
-          <button type="submit">Add Item</button>
-        </form>
-      </section>
+      {currentUser && (
+        <>
+          <ActiveAuctions />
+          <AddItem handleAddItem={handleAddItem} />
+        </>
+      )}
     </div>
   );
 };
