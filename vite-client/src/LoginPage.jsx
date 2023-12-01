@@ -29,7 +29,7 @@ const LoginPage = () => {
         await login(username, password);
 
         // Success
-        navigate('/home');
+        navigate('/buy');
       } catch (err) {
         setError(err.message || 'Failed to login');
       }
@@ -39,7 +39,7 @@ const LoginPage = () => {
         await register(username, password, email);
 
         // Success
-        navigate('/home');
+        navigate('/buy');
       } catch (err) {
         setError(err.message || 'Failed to register');
       }
