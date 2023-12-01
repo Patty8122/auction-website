@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/hooks/user/useUser';
+import { Button, Card } from '@/components/ui';
 import './css/LoginPage.css';
 
 const LoginPage = () => {
@@ -79,11 +80,11 @@ const LoginPage = () => {
         />
 
 
-        <button type="button" onClick={() => setIsLogin(!isLogin)}>
+        <Button type="button" onClick={() => setIsLogin(!isLogin)}>
           {isLogin ? 'Switch to Sign Up' : 'Switch to Login'}
-        </button>
+        </Button>
 
-        <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
+        <Button type="submit">{isLogin ? 'Login' : 'Sign Up'}</Button>
       </form>
 
       {error && <div className="error-message">{error}</div>}

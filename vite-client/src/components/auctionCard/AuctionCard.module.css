@@ -1,0 +1,29 @@
+.auctionInfo, .bidSection, .actionButtons, .timeLeft {
+    display: flex;
+    align-items: center;
+}
+
+.auctionInfo p, .timeLeft p {
+    margin: 0 10px;
+    font-size: 16px;
+}
+
+.bidInput {
+    width: 100px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.timeLeft {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #007bff;
+    width: 120px;
+}
