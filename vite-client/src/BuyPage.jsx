@@ -4,7 +4,8 @@ import { useUser } from '@/hooks/user/useUser';
 import { Button } from '@/components/ui';
 import ActiveAuctions from '@/components/activeAuctions/ActiveAuctions';
 import AddItem from '@/components/addItem/AddItem';
-import './css/HomePage.css';
+import Watchlist from './components/watchlist/Watchlist';
+import styles from './css/BuyPage.module.css';
 
 const BuyPage = () => {
   const { currentUser, logout, isLoading: isUserLoading } = useUser();
@@ -20,19 +21,20 @@ const BuyPage = () => {
   };
 
   return (
-    <div className="app">
+    <div className={styles.app}>
       <header>
         <h1>Auction Service</h1>
       </header>
 
-      {currentUser && currentUser.user_type != 'customer' &&  (
+      {currentUser && currentUser.user_type == 'customer' &&  (
         <>
           <ActiveAuctions />
-          <AddItem handleAddItem={handleAddItem} />
+          {/*<AddItem handleAddItem={handleAddItem} />*/}
+          <Watchlist />
         </>
       )}
 
-      {currentUser && currentUser.user_id == 2 && (
+      {currentUser && currentUser.user_id == 1 && (
         <p>Admin page</p>
       )}
     </div>
