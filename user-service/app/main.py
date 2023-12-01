@@ -48,7 +48,28 @@ def get_user(user_id: int):
         return user_info
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get('/api/users', response_model=list)
+async def get_all_users():
+    customer = Customer
+    try:
+        users = await customer.get_all_users()
+        user_list = []
+        for user in users:
+            user_dict = {
+                'user_id': user[0],
+                'username': user[1],
+                'email': user[2],
+                'user_type': user[3],
+                'active': user[4],
+                'comments': user[5]
+            }
+            user_list.append(user_dict)
 
+        return user_list
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
 @app.put("/update_user/{user_id}")
 def update_user(user_id: int, status: int = None, email: str = None, seller_rating: str = None):
     customer = Customer()
@@ -64,6 +85,25 @@ def suspend_user(user_id: int):
     try:
         customer.suspend_user(user_id)
         return {"message": "User suspended successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.put("add_comment/{user_id}")
+def add_comment(user_id:int, comment: str):
+    customer = Customer()
+    try:
+        customer.add_comments(user_id, comment)
+        return {"message": "Comment added successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.put("/remove_comments/{user_id}")
+def remove_comments(user_id: int):
+    customer  = Customer()
+    try:
+        # Assuming you have an instance of your database class named `database`
+        customer.remove_comments(user_id)
+        return {"message": "Comment removed successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -158,6 +198,7 @@ def create_tables():
         password VARCHAR(255) NOT NULL,
         user_type VARCHAR(255) DEFAULT 'customer' NOT NULL,
         active INT DEFAULT 0 NOT NULL
+        comments VARCHAR(255)
     );
     """
 

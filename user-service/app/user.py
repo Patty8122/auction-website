@@ -115,7 +115,13 @@ class Customer(User):
         print(existing_user)
         return {"user_id":existing_user[0], "username" :existing_user[1], "status": existing_user[2],
                     "email" : existing_user[3], "seller_ rating" : existing_user[4], "user_type" : existing_user[6]}
-    # make it optional
+    
+    def get_all_users(self) -> list:
+        select_all_query = f"SELECT user_id, username, status, email, active, comments FROM {table_name}"
+        self.cursor.execute(select_all_query)
+        return self.cursor.fetchall()
+    
+
     def update_user(self, user_id: int, status: int = None, email: str = None, seller_rating: str = None):
         existing_user = self.get_user_by_id(user_id)
         if not existing_user:
@@ -149,6 +155,17 @@ class Customer(User):
         update_query = f"UPDATE {table_name} SET status = 0 WHERE user_id = %s"
         self.cursor.execute(update_query, (user_id,))
         self.conn.commit()
+
+    def add_comments(self, user_id: int, comment: str):
+        update_comment_query = f"Update {table_name} SET comments = %s WHERE user_id = %s"
+        self.cursor.execute(update_comment_query, (comment, user_id))
+        self.conn.commit
+
+    def remove_comments(self, user_id: int):
+        remove_comment_query = f"UPDATE {table_name} SET comments = NULL WHERE user_id = %s"
+        self.cursor.execute(remove_comment_query, (user_id,))
+        self.conn.commit()
+
 
     def login(self, username: str, password: str):
         # Your login implementation for Customer
