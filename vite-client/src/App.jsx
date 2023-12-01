@@ -4,7 +4,7 @@ import UserProvider from "./hooks/user/useUser";
 import './App.css';
 import TestPage from './TestPage';
 import LoginPage from './LoginPage';
-import HomePage from "./HomePage";
+import BuyPage from "./BuyPage";
 import SellerPage from "./SellerPage";
 import Navbar from './components/navbar/Navbar';
 
@@ -24,13 +24,13 @@ function App() {
           <Route path="/explore" element={
             <>
               <Navbar />
-              <HomePage />
+              <BuyPage />
             </>
           } />
           <Route path="/buy" element={
             <>
               <Navbar />
-              <HomePage />
+              <BuyPage />
             </>
           } />
           <Route path="/sell" element={

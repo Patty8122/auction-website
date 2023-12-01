@@ -6,7 +6,7 @@ import ActiveAuctions from '@/components/activeAuctions/ActiveAuctions';
 import AddItem from '@/components/addItem/AddItem';
 import './css/HomePage.css';
 
-const App = () => {
+const BuyPage = () => {
   const { currentUser, logout, isLoading: isUserLoading } = useUser();
   const [activeAuctions, setActiveAuctions] = useState([]);
   const navigate = useNavigate();
@@ -49,4 +49,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default BuyPage;

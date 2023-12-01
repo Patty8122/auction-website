@@ -13,9 +13,11 @@ const Navbar = () => {
                 <NavLink to="/sell" className={({ isActive }) => isActive ? styles.navLinkActive : styles.navLink}>Sell</NavLink>
             </div>
             <div className={styles.rightSection}>
-                <Button className={styles.iconButton}>
-                    <FaShoppingCart />
-                </Button>
+                <NavLink to="/cart">
+                    <Button className={styles.iconButton}>
+                        <FaShoppingCart />
+                    </Button>
+                </NavLink>
                 <NavLink to="/profile" className={({ isActive }) => isActive ? styles.navLinkActive : styles.navLink}>Profile</NavLink>
             </div>
         </div>
