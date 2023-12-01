@@ -6,6 +6,7 @@ import TestPage from './TestPage';
 import LoginPage from './LoginPage';
 import HomePage from "./HomePage";
 import SellerPage from "./SellerPage";
+import Navbar from './components/navbar/Navbar';
 
 function App() {
 
@@ -15,7 +16,12 @@ function App() {
         <Routes>
           <Route path="/" element={<TestPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/home" element={<HomePage />} />
+          <Route path="/sell" element={
+            <>
+            <Navbar />
+            <HomePage />
+            </>
+          } />
           <Route path="/myitems" element={<SellerPage />} />
         </Routes>
       </BrowserRouter>

@@ -1,0 +1,50 @@
+
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navLinks {
+    display: flex;
+}
+
+.navLink, .navLinkActive {
+    margin-right: 20px;
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 16px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.navLinkActive {
+    background-color: #e0e0e0;
+}
+
+.rightSection {
+    display: flex;
+    align-items: center;
+}
+
+.iconButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background-color: white; /* White background */
+    border-radius: 50%; /* Circular shape */
+    padding: 8px;
+    cursor: pointer;
+    color: #1976d2; /* Blue icon color */
+    transition: color 0.3s; /* Smooth transition for color */
+}
+
+.iconButton:hover {
+    color: #1565c0; /* Darker blue on hover */
+}
