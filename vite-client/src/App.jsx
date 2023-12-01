@@ -14,15 +14,35 @@ function App() {
     <UserProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<TestPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/buy" element={
+          <Route path="/cart" element={
             <>
-            <Navbar />
-            <HomePage />
+              <Navbar />
+              <TestPage />
             </>
           } />
-          <Route path="/myitems" element={<SellerPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/explore" element={
+            <>
+              <Navbar />
+              <HomePage />
+            </>
+          } />
+          <Route path="/buy" element={
+            <>
+              <Navbar />
+              <HomePage />
+            </>
+          } />
+          <Route path="/sell" element={
+            <>
+              <Navbar />
+            </>
+          } />
+          <Route path="/profile" element={
+            <>
+              <Navbar />
+            </>
+          } />
         </Routes>
       </BrowserRouter>
     </UserProvider>
