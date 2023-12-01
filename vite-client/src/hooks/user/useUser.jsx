@@ -23,7 +23,7 @@ const UserProvider = ({ children }) => {
       }
     } catch (error) {
       console.error("Login failed: ", error.message);
-      // Handle login error
+      throw error;
     }
   };
 
@@ -45,6 +45,7 @@ const UserProvider = ({ children }) => {
       }
     } catch (error) {
       console.error("Registration failed: ", error.message);
+      throw error;
     }
   };
 
