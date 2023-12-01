@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { AiOutlineShoppingCart } from 'react-icons/ai';
+import { FaShoppingCart } from 'react-icons/fa';
 import { Button } from '@/components/ui';
 import styles from './Navbar.module.css';
 
@@ -14,7 +14,7 @@ const Navbar = () => {
             </div>
             <div className={styles.rightSection}>
                 <Button className={styles.iconButton}>
-                    <AiOutlineShoppingCart />
+                    <FaShoppingCart />
                 </Button>
                 <NavLink to="/profile" className={({ isActive }) => isActive ? styles.navLinkActive : styles.navLink}>Profile</NavLink>
             </div>
