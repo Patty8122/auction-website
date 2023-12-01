@@ -6,6 +6,7 @@ import TestPage from './TestPage';
 import LoginPage from './LoginPage';
 import BuyPage from "./BuyPage";
 import SellerPage from "./SellerPage";
+import ExplorePage from "./ExplorePage";
 import Navbar from './components/navbar/Navbar';
 
 function App() {
@@ -24,7 +25,7 @@ function App() {
           <Route path="/explore" element={
             <>
               <Navbar />
-              <BuyPage />
+              <ExplorePage />
             </>
           } />
           <Route path="/buy" element={
