@@ -15,7 +15,7 @@ const App = () => {
     const fetchAuctions = async () => {
       if (currentUser) {
         try {
-          const auctions = await auctionService.getAuctionsByUserId(currentUser.id);
+          const auctions = await auctionService.getAuctionsByUserId(currentUser.user_id);
           setActiveAuctions(auctions);
         } catch (error) {
           console.error('Error fetching auctions:', error);
@@ -29,16 +29,6 @@ const App = () => {
 
   useEffect(() => {
     const socket = io('http://localhost:3003');
-
-    /*
-    socket.on('connect', () => {
-      console.log('Socket connected');
-    });
-
-    socket.on('disconnect', () => {
-      console.log('Socket disconnected');
-    });
-    */
 
     socket.on('bidUpdate', (data) => {
       let { auctionId, bidAmount } = data;
@@ -56,33 +46,6 @@ const App = () => {
     };
   }, []);
 
-  const calculateTimeLeft = (endTime) => {
-    const difference = +new Date(endTime) - +new Date();
-
-    if (difference > 0) {
-      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((difference / 1000 / 60) % 60);
-      const seconds = Math.floor((difference / 1000) % 60);
-
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-
-    return "00:00:00";
-  };
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveAuctions(currentAuctions =>
-        currentAuctions.map(auction => ({
-          ...auction,
-          timeLeft: calculateTimeLeft(auction.end_time)
-        }))
-      );
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [activeAuctions]);
-
   const handleLogout = () => {
     logout();
   };
@@ -92,21 +55,7 @@ const App = () => {
     setActiveAuctions([...activeAuctions, newItem]);
 
     // TODO - Send new item to backend
-  };
-
-  const handleRemoveItem = (itemId) => {
-    const updatedAuctions = activeAuctions.filter((item) => item.id !== itemId);
-    setActiveAuctions(updatedAuctions);
-
-    // TODO - Send item id to backend to remove item
-  };
-
-  // TODO - Send item id and new bid to backend
-
-  const handlePurchase = (itemId) => {
-    console.log(`Item ${itemId} purchased`);
-
-    // TODO - Send item id to backend to purchase item
+    // and move this logic to itemSection or some other component
   };
 
   return (
@@ -131,13 +80,7 @@ const App = () => {
           activeAuctions && activeAuctions.length > 0 ? (
             <ul>
               {activeAuctions.map((item) => (
-                <AuctionCard
-                  key={item.id}
-                  auction={item}
-                  onPurchase={handlePurchase}
-                  onRemove={handleRemoveItem}
-                  timeLeft={item.timeLeft}
-                />
+                <AuctionCard key={item.id} auction={item}/>
               ))}
             </ul>
           ) : (

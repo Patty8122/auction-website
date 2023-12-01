@@ -8,21 +8,18 @@ const UserProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const userId = sessionStorage.getItem('user_id');
-    const username = sessionStorage.getItem('username');
-    if (userId && username) {
-      setCurrentUser({ id: userId, username: username });
+    const user_dict = userService.getSessionUser();
+    if (user_dict) {
+      setCurrentUser(user_dict);
     }
     setIsLoading(false);
   }, []);
 
   const login = async (username, password) => {
     try {
-      const user_info = await userService.login(username, password);
-      if (user_info) {
-        sessionStorage.setItem('user_id', user_info.user_id);
-        sessionStorage.setItem('username', user_info.username);
-        setCurrentUser({ id: user_info.user_id, username: user_info.username });
+      const user_dict = await userService.login(username, password);
+      if (user_dict) {
+        setCurrentUser(user_dict);
       }
     } catch (error) {
       console.error("Login failed: ", error.message);
@@ -33,22 +30,21 @@ const UserProvider = ({ children }) => {
   const logout = async () => {
     try {
       await userService.logout();
-      sessionStorage.removeItem('user_id');
-      sessionStorage.removeItem('username');
       setCurrentUser(null);
     } catch (error) {
       console.error("Logout failed: ", error.message);
-      // Handle logout error
     }
   };
 
   const register = async (username, password, email) => {
     try {
-      await userService.createUser(username, password, email);
-      // No need to set current user here since createUser calls login
+      // Create the user, then log them in
+      const response = await userService.createUser(username, password, email);
+      if (response && response.user_id) {
+        await login(username, password);
+      }
     } catch (error) {
       console.error("Registration failed: ", error.message);
-      // Handle registration error
     }
   };
 

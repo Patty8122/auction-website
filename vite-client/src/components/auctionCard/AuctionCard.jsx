@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import usePlaceBid from '@/hooks/auction/usePlaceBid';
 
-const AuctionCard = ({ auction, onPurchase, onRemove, timeLeft }) => {
+const AuctionCard = ({ auction }) => {
   const [bidAmount, setBidAmount] = useState('');
+  const [timeLeft, setTimeLeft] = useState('');
   const { placeBid } = usePlaceBid();
 
   const handleBidSubmit = async () => {
@@ -25,13 +26,46 @@ const AuctionCard = ({ auction, onPurchase, onRemove, timeLeft }) => {
     }
   };
 
+  const onPurchase = (auctionId) => {
+    alert(`Purchase auction ${auctionId}`);
+  }
+
+  const onRemove = (auctionId) => {
+    alert(`Remove auction ${auctionId}`);
+  }
+
+  const calculateTimeLeft = (endTime) => {
+    const difference = +new Date(endTime) - +new Date();
+
+    if (difference > 0) {
+      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((difference / 1000 / 60) % 60);
+      const seconds = Math.floor((difference / 1000) % 60);
+
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    return "BIDDING COMPLETE";
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const timeLeft = calculateTimeLeft(auction.end_time);
+      setTimeLeft(timeLeft);
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  });
+
   return (
     <li>
       <span>{auction.id}</span>
       <span>Current Bid: ${auction.current_bid}</span>
       <input 
         type="number" 
-        value={bidAmount} 
+        value={bidAmount}
         onChange={(e) => setBidAmount(e.target.value)} 
         placeholder="Enter bid amount"
       />
