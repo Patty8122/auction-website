@@ -5,6 +5,7 @@ import './App.css';
 import TestPage from './TestPage';
 import LoginPage from './LoginPage';
 import HomePage from "./HomePage";
+import SellerPage from "./SellerPage";
 
 function App() {
 
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<TestPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/home" element={<HomePage />} />
+          <Route path="/myitems" element={<SellerPage />} />
         </Routes>
       </BrowserRouter>
     </UserProvider>
