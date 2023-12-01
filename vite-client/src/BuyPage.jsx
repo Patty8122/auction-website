@@ -23,16 +23,6 @@ const BuyPage = () => {
     <div className="app">
       <header>
         <h1>Auction Service</h1>
-        <div>
-          {currentUser ? (
-            <>
-              <p>Hello, {currentUser.username}!</p>
-              <Button onClick={() => logout()}>Logout</Button>
-            </>
-          ) : (
-            <Button onClick={() => navigate('/login')}>Login</Button>
-          )}
-        </div>
       </header>
 
       {currentUser && currentUser.user_type != 'customer' &&  (

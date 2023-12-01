@@ -3,8 +3,12 @@ import { NavLink } from 'react-router-dom';
 import { FaShoppingCart } from 'react-icons/fa';
 import { Button } from '@/components/ui';
 import styles from './Navbar.module.css';
+import { useUser } from '@/hooks/user/useUser';
 
 const Navbar = () => {
+
+    const { currentUser, logout, isLoading: isUserLoading } = useUser();
+
     return (
         <div className={styles.navbar}>
             <div className={styles.navLinks}>
@@ -18,7 +22,13 @@ const Navbar = () => {
                         <FaShoppingCart />
                     </Button>
                 </NavLink>
-                <NavLink to="/profile" className={({ isActive }) => isActive ? styles.navLinkActive : styles.navLink}>Profile</NavLink>
+                {currentUser ? (
+                    <NavLink to="/profile" className={({ isActive }) => isActive ? styles.navLinkActive : styles.navLink}>Hello, {currentUser.username}</NavLink>
+                ) : (
+                    <></>
+                )}
+                
+            
             </div>
         </div>
     );
