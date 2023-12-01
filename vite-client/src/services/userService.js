@@ -31,10 +31,12 @@ const login = async (username, password) => {
 
     // NB: This redundancy in user_info is from mediator adding another layer
     const user_info = data.user_info.user_info;
+    console.log(user_info);
     const user_dict = {
       user_id: user_info.user_id,
       username: user_info.username,
       user_type: user_info.user_type,
+      email: user_info.email,
     };
 
     setSessionUser(user_dict);
