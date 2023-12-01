@@ -35,11 +35,15 @@ const App = () => {
         </div>
       </header>
 
-      {currentUser && (
+      {currentUser && currentUser.user_type != 'customer' &&  (
         <>
           <ActiveAuctions />
           <AddItem handleAddItem={handleAddItem} />
         </>
+      )}
+
+      {currentUser && currentUser.user_id == 2 && (
+        <p>Admin page</p>
       )}
     </div>
   );
