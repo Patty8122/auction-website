@@ -17,36 +17,40 @@ function App() {
     <UserProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/cart" element={
-            <>
-              <Navbar />
-              <TestPage />
-            </>
-          } />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/explore" element={
-            <>
-              <Navbar />
-              <ExplorePage />
-            </>
-          } />
-          <Route path="/buy" element={
-            <>
-              <Navbar />
-              <BuyPage />
-            </>
-          } />
-          <Route path="/sell" element={
-            <>
-              <Navbar />
-            </>
-          } />
-          <Route path="/profile" element={
-            <>
-              <Navbar />
-              <ProfilePage />
-            </>
-          } />
+
+          <Route path="/" element={<ProtectedRoute />} >
+            <Route path="/cart" element={
+              <>
+                <Navbar />
+                <TestPage />
+              </>
+            } />
+            
+            <Route path="/explore" element={
+              <>
+                <Navbar />
+                <ExplorePage />
+              </>
+            } />
+            <Route path="/buy" element={
+              <>
+                <Navbar />
+                <BuyPage />
+              </>
+            } />
+            <Route path="/sell" element={
+              <>
+                <Navbar />
+              </>
+            } />
+            <Route path="/profile" element={
+              <>
+                <Navbar />
+                <ProfilePage />
+              </>
+            } />
+          </Route>
         </Routes>
       </BrowserRouter>
     </UserProvider>
