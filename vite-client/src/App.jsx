@@ -7,7 +7,9 @@ import LoginPage from './LoginPage';
 import BuyPage from "./BuyPage";
 import SellerPage from "./SellerPage";
 import ExplorePage from "./ExplorePage";
+import ProfilePage from "./ProfilePage";
 import Navbar from './components/navbar/Navbar';
+import ProtectedRoute from './components/protectedRoute/ProtectedRoute';
 
 function App() {
 
@@ -42,6 +44,7 @@ function App() {
           <Route path="/profile" element={
             <>
               <Navbar />
+              <ProfilePage />
             </>
           } />
         </Routes>
