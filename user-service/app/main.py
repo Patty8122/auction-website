@@ -21,8 +21,8 @@ class LoginRequest(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    insert_test_data()
     create_tables()
+    insert_test_data()
     print("Table created")
     yield
     # Shutdown
