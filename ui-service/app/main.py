@@ -17,6 +17,8 @@ class User(BaseModel):
     username: str
     password: str
     email: Optional[str] = None
+    status: Optional[int] = None
+    seller_rating: Optional[str] = None
 
 # Endpoint to create a new user
 @app.post("/create_user")
@@ -53,6 +55,17 @@ async def suspend_user(user_id: int):
     
     return {"message": f"User with id : {user_id} has been suspended"}
 
+@app.put("/update_user/{user_id}")
+async def update_user(user_id: int, user: User):
+    try:
+        
+        response = requests.put(f"{USER_SERVICE_URL}/update_user/{user_id}", params=user.model_dump())
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    return {"message": f"User with id : {user_id} has been updated"}
+    
 # Endpoint to simulate user login
 @app.post("/login")
 async def login(user: User):
