@@ -9,12 +9,17 @@
 }
 
 .bidInput {
+    height: 32px;
     width: 100px;
     border: 1px solid #ced4da;
     border-radius: 4px;
     padding: 8px 12px;
-    margin-right: 8px;
+    margin: 0 4px;
     font-size: 16px;
+}
+
+.currentBid {
+    width: 160px;
 }
 
 .timeLeft {

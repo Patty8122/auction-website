@@ -4,9 +4,10 @@ import { useUser } from '@/hooks/user/useUser';
 import { Button } from '@/components/ui';
 import ActiveAuctions from '@/components/activeAuctions/ActiveAuctions';
 import AddItem from '@/components/addItem/AddItem';
-import './css/HomePage.css';
+import Watchlist from './components/watchlist/Watchlist';
+import styles from './css/BuyPage.module.css';
 
-const App = () => {
+const BuyPage = () => {
   const { currentUser, logout, isLoading: isUserLoading } = useUser();
   const [activeAuctions, setActiveAuctions] = useState([]);
   const navigate = useNavigate();
@@ -20,29 +21,19 @@ const App = () => {
   };
 
   return (
-    <div className="app">
-      <header>
-        <h1>Auction Service</h1>
-        <div>
-          {currentUser ? (
-            <>
-              <p>Hello, {currentUser.username}!</p>
-              <Button onClick={() => logout()}>Logout</Button>
-            </>
-          ) : (
-            <Button onClick={() => navigate('/login')}>Login</Button>
-          )}
-        </div>
-      </header>
-
-      {currentUser && (
-        <>
+    <div className={styles.app}>
+      {currentUser && currentUser.user_type == 'customer' && (
+        <div className={styles.customerFlex}>
+          <Watchlist />
           <ActiveAuctions />
-          <AddItem handleAddItem={handleAddItem} />
-        </>
+        </div>
+      )}
+
+      {currentUser && currentUser.user_id == 1 && (
+        <p>Admin page</p>
       )}
     </div>
   );
 };
 
-export default App;
+export default BuyPage;

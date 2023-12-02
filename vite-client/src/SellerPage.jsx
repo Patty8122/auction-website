@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { itemService } from '@/services/itemService';
 import { useUser } from '@/hooks/user/useUser';
-import './css/HomePage.css';
+//import './css/HomePage.css';
 
 const App = () => {
   const { currentUser, logout, isLoading: isUserLoading } = useUser();

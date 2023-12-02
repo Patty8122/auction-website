@@ -45,7 +45,7 @@ const ActiveAuctions = () => {
   }, [currentUser]);
 
   return (
-    <section>
+    <section className={styles.activeAuctions}>
       <h2>Active Auctions</h2>
       {activeAuctions.length > 0 ? (
         <div className={styles.auctionList}>
