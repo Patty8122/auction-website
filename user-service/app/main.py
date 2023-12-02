@@ -3,7 +3,9 @@ from contextlib import asynccontextmanager
 from app.user import Customer
 from app.cart import CartManagement
 from pydantic import BaseModel
+from app.test_data import insert_test_data
 import psycopg2
+
 
 
 # Define Pydantic models
@@ -19,7 +21,7 @@ class LoginRequest(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-   
+    insert_test_data()
     create_tables()
     print("Table created")
     yield
@@ -51,9 +53,9 @@ def get_user(user_id: int):
     
 @app.get('/api/users', response_model=list)
 async def get_all_users():
-    customer = Customer
+    customer = Customer()
     try:
-        users = await customer.get_all_users()
+        users = customer.get_all_users()
         user_list = []
         for user in users:
             user_dict = {
@@ -88,8 +90,8 @@ def suspend_user(user_id: int):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@app.put("add_comment/{user_id}")
-def add_comment(user_id:int, comment: str):
+@app.put("/add_comments/{user_id}")
+def add_comments(user_id:int, comment: str):
     customer = Customer()
     try:
         customer.add_comments(user_id, comment)
@@ -197,7 +199,7 @@ def create_tables():
         seller_rating INT NOT NULL,
         password VARCHAR(255) NOT NULL,
         user_type VARCHAR(255) DEFAULT 'customer' NOT NULL,
-        active INT DEFAULT 0 NOT NULL
+        active INT DEFAULT 0 NOT NULL,
         comments VARCHAR(255)
     );
     """
