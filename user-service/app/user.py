@@ -159,7 +159,7 @@ class Customer(User):
     def add_comments(self, user_id: int, comment: str):
         update_comment_query = f"Update {table_name} SET comments = %s WHERE user_id = %s"
         self.cursor.execute(update_comment_query, (comment, user_id))
-        self.conn.commit
+        self.conn.commit()
 
     def remove_comments(self, user_id: int):
         remove_comment_query = f"UPDATE {table_name} SET comments = NULL WHERE user_id = %s"
