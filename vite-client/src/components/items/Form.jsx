@@ -2,7 +2,7 @@ import React from 'react';
 import { DropdownItem } from 'react-bootstrap';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
-import ImageUploader from 'react-image-upload';
+
 
 
 
@@ -45,16 +45,6 @@ export const Form = ({ onSubmit }) => {
         <label htmlFor="name">Initial Bid Price</label>
         <input className="form-control" id="initial_bid_price" />
       </div>
-      <ImageUploader
-          withIcon={true}
-          withPreview={true}
-          buttonText="Choose images"
-          onChange={(image) => onDrop(image)}
-          imgExtension={['.jpg', '.png']}
-          maxFileSize={5242880}
-          imagePreviewMaxHeight={300}
-          imagePreviewMaxWidth={500}
-        />
       <div className="form-group">
         <button className="form-control btn btn-primary" type="submit">
           Submit
