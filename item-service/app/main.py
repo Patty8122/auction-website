@@ -95,6 +95,12 @@ async def create_category(category: models.CategoryIn, db: Session = Depends(get
 
     return db_category
 
+@app.get("/categories", response_model=List[models.Category], status_code=200)
+async def get_categories(db: Session = Depends(get_db)):
+    stmt = select(Category)
+    db_categories = db.execute(stmt).scalars().all()
+    return db_categories
+
 
 @app.get("/category/{category_id}", response_model=models.Category, status_code=200)
 async def get_category(category_id: int, db: Session = Depends(get_db)):
@@ -183,31 +189,33 @@ def delete_item(item_id: int, user_id: int, db: Session = Depends(get_db)):
     db.commit()
     return f"Deleted Item with id : {item_id} by User with id : {user_id} Successfully!"
 
-@app.get("/items/price", response_model=Union[List[models.Item], None], status_code=200)
-def get_items_with_price_range(min_price: float, max_price: float, db: Session = Depends(get_db)):
-    if min_price == None and max_price == None:
-        raise HTTPException(status_code = 400, detail="Min price and max price cannot be null")
-    
-    if min_price > max_price:
-        raise HTTPException(status_code = 400, detail="Min price cannot be greater than max price")
-    
-    if min_price < 0 or max_price < 0:
-        raise HTTPException(status_code = 400, detail="Price cannot be negative")
 
-    if min_price == None:
-        db_items = db.query(Item).filter(Item.initial_bid_price <= max_price).scalars().all()
-        print(" min price is none db_items: ", db_items)
-        return db_items
-    
-    if max_price == None:
+
+@app.get("/items/price", response_model=Union[List[models.Item], None], status_code=200)
+def get_items_with_price_range(min_price: float = None, max_price: float = None, db: Session = Depends(get_db)):
+    if min_price is None and max_price is None:
+        raise HTTPException(status_code=400, detail="Min price and max price cannot be null")
+
+    if min_price is not None and max_price is not None and min_price > max_price:
+        raise HTTPException(status_code=400, detail="Min price cannot be greater than max price")
+
+    if min_price is not None and min_price < 0 or max_price is not None and max_price < 0:
+        raise HTTPException(status_code=400, detail="Price cannot be negative")
+
+    if min_price is None and max_price is None:
+        raise HTTPException(status_code=400, detail="Both min price and max price cannot be null")
+
+    if min_price is not None and max_price is None:
         db_items = db.query(Item).filter(Item.initial_bid_price >= min_price).scalars().all()
-        print(" max price is none db_items: ", db_items)
         return db_items
-    
-    print(" min price: ", min_price, " max price: ", max_price)
+
+    if max_price is not None and min_price is None:
+        db_items = db.query(Item).filter(Item.initial_bid_price <= max_price).scalars().all()
+        return db_items
+
     db_items = db.query(Item).filter(Item.initial_bid_price >= min_price, Item.initial_bid_price <= max_price).scalars().all()
-    print(" db_items: ", db_items)
     return db_items
+
 
 
 @app.put("/items", response_model=models.Item, status_code=200)
