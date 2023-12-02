@@ -4,7 +4,7 @@ import hashlib
 
 def hash_password(password):
    
-    hashed_password = hashlib.sha256(password.encode()).hexdigest()
+    hashed_password = hashlib.md5(password.encode()).hexdigest()
     return hashed_password
 
 def data_exists(cursor):
