@@ -22,16 +22,11 @@ const BuyPage = () => {
 
   return (
     <div className={styles.app}>
-      <header>
-        <h1>Auction Service</h1>
-      </header>
-
-      {currentUser && currentUser.user_type == 'customer' &&  (
-        <>
-          <ActiveAuctions />
-          {/*<AddItem handleAddItem={handleAddItem} />*/}
+      {currentUser && currentUser.user_type == 'customer' && (
+        <div className={styles.customerFlex}>
           <Watchlist />
-        </>
+          <ActiveAuctions />
+        </div>
       )}
 
       {currentUser && currentUser.user_id == 1 && (

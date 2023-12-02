@@ -14,22 +14,24 @@ const Watchlist = () => {
   };
 
   return (
-    <Card className={styles.watchlistCard}>
-      <form onSubmit={handleSubmit}>
-        <h2>Watchlist</h2>
-        <label htmlFor="category">Category:</label>
-        <select id="category" required className={styles.input}>
-          {categories.map((category, index) => (
-            <option key={index} value={category}>{category}</option>
-          ))}
-        </select>
+    <div className={styles.watchlist}>
+      <h2>Watchlist</h2>
+      <Card className={styles.watchlistCard}>
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="category">Category:</label>
+          <select id="category" required className={styles.input}>
+            {categories.map((category, index) => (
+              <option key={index} value={category}>{category}</option>
+            ))}
+          </select>
 
-        <label htmlFor="maxPrice">Max Price:</label>
-        <input type="number" id="maxPrice" required className={styles.input} />
+          <label htmlFor="maxPrice">Max Price:</label>
+          <input type="number" id="maxPrice" required className={styles.input} />
 
-        <Button type="submit">Add to watchlist</Button>
-      </form>
-    </Card>
+          <Button type="submit">Add to watchlist</Button>
+        </form>
+      </Card>
+    </div>
   );
 };
 

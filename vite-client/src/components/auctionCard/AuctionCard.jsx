@@ -1,39 +1,60 @@
 import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import { useUser } from '@/hooks/user/useUser';
 import usePlaceBid from '@/hooks/auction/usePlaceBid';
 import { Button, Card } from '@/components/ui';
 import styles from './AuctionCard.module.css';
 
 const AuctionCard = ({ auction }) => {
-  const [bidAmount, setBidAmount] = useState('');
-  const [timeLeft, setTimeLeft] = useState('');
+  const { currentUser } = useUser();
   const { placeBid } = usePlaceBid();
+  const [bidAmount, setBidAmount] = useState(0);
+  const [timeLeft, setTimeLeft] = useState('');
+
+  const isBidValid = () => {
+    const currentBid = parseInt(auction.current_bid, 10);
+    const bidIncrement = parseInt(auction.bid_increment, 10);
+    return bidAmount >= currentBid + bidIncrement;
+  }
 
   const handleBidSubmit = async () => {
-    const bidValue = parseInt(bidAmount, 10);
-    if (!isNaN(bidValue) && bidValue > 0) {
+    if (isBidValid()) {
       const bidData = {
-        userId: 5,
-        bidAmount: bidValue,
+        userId: currentUser.user_id,
+        bidAmount: parseInt(bidAmount, 10),
       }
 
       try {
         await placeBid(auction.id, bidData);
-        alert('Bid placed successfully');
+        toast.success('Bid placed successfully!');
         setBidAmount('');
       } catch (error) {
-        alert(`Error placing bid: ${error.message}`);
+        toast.error('Error placing bid');
       }
     } else {
-      alert('Please enter a valid bid amount');
+      toast.warn('Invalid bid amount');
+    }
+  };
+
+  // Handle change in bid input
+  const handleBidInputChange = (e) => {
+    const inputVal = e.target.value;
+    const parsedVal = parseInt(inputVal, 10);
+
+    // Set state only if input is a number and non-negative
+    if (!isNaN(parsedVal) && parsedVal >= 0) {
+      setBidAmount(parsedVal);
+    } else {
+      setBidAmount(0);
     }
   };
 
   const onPurchase = (auctionId) => {
-    alert(`Purchase auction ${auctionId}`);
+    toast.success(`Purchase auction ${auctionId}`);
   }
 
   const onRemove = (auctionId) => {
-    alert(`Remove auction ${auctionId}`);
+    toast.success(`Remove auction ${auctionId}`);
   }
 
   const calculateTimeLeft = (endTime) => {
@@ -64,8 +85,8 @@ const AuctionCard = ({ auction }) => {
   return (
     <Card>
       <div className={styles.auctionInfo}>
-        <p><strong>ID:</strong> {auction.id}</p>
-        <p><strong>Current Bid:</strong> ${auction.current_bid}</p>
+        <p><strong>{auction.id}</strong></p>
+        <p className={styles.currentBid}><strong>Current Bid:</strong> ${auction.current_bid}</p>
       </div>
       <div className={styles.bidSection}>
         <input 

@@ -1,5 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import UserProvider from "./hooks/user/useUser";
 import './App.css';
 import TestPage from './TestPage';
@@ -26,7 +28,7 @@ function App() {
                 <TestPage />
               </>
             } />
-            
+
             <Route path="/explore" element={
               <>
                 <Navbar />
@@ -53,6 +55,18 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </UserProvider>
   );
 }
