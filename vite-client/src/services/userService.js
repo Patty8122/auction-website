@@ -1,5 +1,20 @@
 const API_URL = '/api';
 
+// Utility functions for session storage management
+const setSessionUser = (user) => {
+  sessionStorage.setItem('user', JSON.stringify(user));
+};
+
+const getSessionUser = () => {
+  const user = sessionStorage.getItem('user');
+  return user ? JSON.parse(user) : null;
+};
+
+const clearSessionUser = () => {
+  sessionStorage.removeItem('user');
+};
+
+// API calls to ui-service
 const login = async (username, password) => {
   try {
     const response = await fetch(`${API_URL}/login`, {
@@ -13,37 +28,43 @@ const login = async (username, password) => {
     }
 
     const data = await response.json();
+
+    // NB: This redundancy in user_info is from mediator adding another layer
     const user_info = data.user_info.user_info;
     console.log(user_info);
-    console.log(user_info.user_id);
-    console.log(user_info.username);
-    if (user_info) {
-      sessionStorage.setItem('user_id', user_info.user_id);
-      sessionStorage.setItem('username', user_info.username);
-    }
-    return user_info;
+    const user_dict = {
+      user_id: user_info.user_id,
+      username: user_info.username,
+      user_type: user_info.user_type,
+      email: user_info.email,
+    };
+
+    setSessionUser(user_dict);
+    return user_dict;
   } catch (error) {
     throw new Error(error.message);
   }
 };
 
+
 const logout = async () => {
-  const userId = sessionStorage.getItem('user_id');
-  if (userId) {
-    try {
-      const response = await fetch(`${API_URL}/logout/${userId}`, { method: 'POST' });
-
-      if (!response.ok) {
-        throw new Error('Logout failed');
-      }
-
-      const data = await response.json();
-      sessionStorage.removeItem('user_id');
-      sessionStorage.removeItem('username');
-      return data;
-    } catch (error) {
-      throw new Error(error.message);
+  try {
+    const user_dict = getSessionUser();
+    if (!user_dict) {
+      throw new Error('No user in session');
     }
+
+    const { user_id } = user_dict;
+    const response = await fetch(`${API_URL}/logout/${user_id}`, { method: 'POST' });
+
+    if (!response.ok) {
+      throw new Error('Logout failed');
+    }
+
+    clearSessionUser();
+    return await response.json();
+  } catch (error) {
+    throw new Error(error.message);
   }
 };
 
@@ -60,16 +81,15 @@ const createUser = async (username, password, email) => {
       throw new Error('Registration failed');
     }
 
+    // Logout should be handled by the caller, since
+    // they will need to update state
     const data = await response.json();
-    if (data && data.user_id) {
-      // Log the user in after successful registration
-      return await login(username, password);
-    }
     return data;
   } catch (error) {
     throw new Error(error.message);
   }
 };
+
 
 const suspendUser = async (user_id) => {
   try {
@@ -99,7 +119,7 @@ const updateUser = async (user_id, status = null, email = null, seller_rating = 
     const response = await fetch(`${API_URL}/update_user/${user_id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status, email, seller_rating}),
+      body: JSON.stringify({ status, email, seller_rating }),
     });
 
     if (!response.ok) {
@@ -134,11 +154,14 @@ const deleteUser = async (user_id) => {
   }
 };
 
+
+
 export const userService = {
   login,
   logout,
   createUser,
   suspendUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  getSessionUser,
 };
