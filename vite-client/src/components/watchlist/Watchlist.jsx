@@ -76,6 +76,7 @@ const Watchlist = () => {
   return (
     <div className={styles.watchlist}>
       <h2>Watchlist</h2>
+
       <Card className={styles.watchlistCard}>
         <form onSubmit={handleSubmit}>
           <label htmlFor="category">Category:</label>
@@ -110,8 +111,10 @@ const Watchlist = () => {
           <Button type="submit">Add to watchlist</Button>
         </form>
       </Card>
+
       <Card className={styles.watchlistCard}>
         <h3>My Watchlist</h3>
+        <p>You will be notified when an item matching one of these criteria is listed.</p>
         <div className={styles.watchlistItems}>
           {watchlist.length === 0 ? (
             <p>Add an item to your watchlist above and it will appear here.</p>
