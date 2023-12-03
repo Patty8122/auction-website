@@ -294,6 +294,67 @@ app.get('/auctions/:id', async (req, res) => {
 
 /**
  * @swagger
+ * /auctions/{id}/status:
+ *   put:
+ *     summary: Update auction status
+ *     description: Updates the status of a specific auction identified by its ID.
+ *     tags:
+ *      - Auctions
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The ID of the auction to update.
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 description: New status of the auction.
+ *     responses:
+ *       200:
+ *         description: Auction status updated successfully.
+ *       400:
+ *         description: Invalid input.
+ *       404:
+ *         description: Auction not found.
+ *       500:
+ *         description: Server error.
+ */
+app.put('/auctions/:id/status', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!status) {
+            return res.status(400).send('Status is required');
+        }
+
+        const result = await query('UPDATE auctions SET status = $1 WHERE id = $2 RETURNING *', [status, id]);
+
+        if (result.rows.length > 0) {
+            res.status(200).json({
+                message: 'Auction status updated successfully',
+                auction: result.rows[0]
+            });
+        } else {
+            res.status(404).send('Auction not found');
+        }
+       
+    } catch (error) {
+        console.error('Error updating auction status:', error);
+        res.status(500).send('Error updating auction status');
+    }
+});
+
+/**
+ * @swagger
  * /auctions/{id}/bids:
  *   post:
  *     summary: Place a bid on an auction
