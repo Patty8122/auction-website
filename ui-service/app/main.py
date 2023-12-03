@@ -4,6 +4,9 @@ from typing import Optional
 import requests
 import hashlib
 import datetime
+import pika
+import json
+import os
 
 app = FastAPI()
 
@@ -334,3 +337,45 @@ def update_item(item_id: int, item_with_new_values: dict):
         raise HTTPException(status_code=500, detail=str(response.content))
     
     return response.json()
+
+############## NOTIFICATION SERVICE APIs ####################
+
+class EmailReq(BaseModel):
+    from_address: Optional[str] = "teambitmasters@gmail.com"
+    to_address: str
+    subject: str
+    body: str
+    
+# Connect to RabbitMQ
+amqp_url = os.environ['AMQP_URL']
+url_params = pika.URLParameters(amqp_url)
+
+# connect to rabbitmq
+connection = pika.BlockingConnection(url_params)
+channel = connection.channel()
+    
+# Declare the RabbitMQ queue
+queue_name = 'email_service_queue'
+channel.queue_declare(queue=queue_name, durable=True)
+
+def send_message_to_queue(message):
+    # Send the message to the RabbitMQ queue
+    print("Sending message to queue")
+    channel.basic_publish(
+        exchange='',
+        routing_key=queue_name,
+        body=message,
+        properties=pika.BasicProperties(
+            delivery_mode=2,  # Make the message persistent
+        )
+    )
+    print(f"Message sent to '{queue_name}': {message}")
+    
+@app.post("/email")
+async def post_to_queue(data: EmailReq):
+    try:
+        send_message_to_queue(data.model_dump_json())
+        return {"message": "Data posted to the queue successfully."}
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")

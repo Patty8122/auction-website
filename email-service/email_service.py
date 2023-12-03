@@ -25,16 +25,19 @@ def send_email(from_address, to_address, subject, body, gmail_username, app_pass
 
 def callback(ch, method, properties, body):
     # parse the message body which is a JSON string
-    email_content = json.loads(body.decode('utf-8'))
     
-    print(f"Email content is: {email_content}")
+    try:
+        email_content = json.loads(body.decode('utf-8'))
+        
+        print(f"Email content is: {email_content}")
 
-    send_email(email_content['from_address'], email_content['to_address'], email_content['subject'],
-               email_content['body'], 'FROM_EMAIL', 'APP_PASSWORD')
+        send_email(email_content['from_address'], email_content['to_address'], email_content['subject'],
+                   email_content['body'], 'teambitmasters@gmail.com', 'gwwi thar jywl tdci')
 
-    # Acknowledge message receipt
-    ch.basic_ack(delivery_tag=method.delivery_tag)
-    
+        # Acknowledge message receipt
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+    except Exception as e:
+        print(f"Email could not be sent: Error: {e}")
 
 if __name__ == '__main__':
     
