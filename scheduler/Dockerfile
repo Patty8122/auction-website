@@ -1,9 +1,6 @@
 # Use a base image with the necessary runtime for your consumer service
 FROM python:3.8-slim
 
-# install pika to access rabbitmq
-RUN pip3 install 
-
 # Without this setting, Python never prints anything out.
 ENV PYTHONUNBUFFERED=1
 

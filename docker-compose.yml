@@ -145,6 +145,10 @@ services:
       - mongodb_service
     ports:
       - "2000:2000"
+  
+  scheduler:
+    build: ./scheduler 
+    stop_signal: SIGKILL
 
 volumes:
   client_node_modules:
