@@ -8,12 +8,10 @@ const Watchlist = () => {
   const [inputValue, setInputValue] = useState('');
   const [categories, setCategories] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
-  const [createNewCategory, setCreateNewCategory] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [watchlist, setWatchlist] = useState([
     { category: 'Electronics', maxPrice: 100 },
     { category: 'Clothing', maxPrice: 50 }]);
-  const inputRef = useRef(null);
 
   useEffect(() => {
     fetchCategories();
@@ -34,17 +32,27 @@ const Watchlist = () => {
   const handleInputChange = (e) => {
     const value = e.target.value;
     setInputValue(value);
-    setCreateNewCategory(false);
     const filtered = categories
       .filter(category => category.toLowerCase().includes(value.toLowerCase()))
       .slice(0, 4);
     setFilteredCategories(filtered);
   };
 
-  const handleCreateCategoryClick = (category) => {
-    setInputValue(category);
-    setCreateNewCategory(true);
-  };
+  const handleCreateNewCategory = async () => {
+    const newCategory = document.getElementById('newCategory').value;
+    if (!newCategory) {
+      toast.warn('Please enter a category name');
+      return;
+    }
+  
+    try {
+      await itemService.createCategory(newCategory);
+      await fetchCategories(); // Fetch the updated list of categories
+      toast.success('Category created successfully');
+    } catch (error) {
+      toast.error('Error creating category');
+    }
+  };  
 
   const handleFocus = () => {
     setShowDropdown(true);
@@ -65,12 +73,21 @@ const Watchlist = () => {
 
     const maxPrice = parseFloat(document.getElementById('maxPrice').value);
 
-    if (createNewCategory) {
-      await itemService.createCategory(inputValue);
-      fetchCategories();
-    }
+    // Wait for state update before checking category existence
+    setTimeout(async () => {
+      const categoryExists = categories.some(category => category.toLowerCase() === inputValue.toLowerCase());
+      if (!categoryExists) {
+        toast.error('Category not found');
+        return;
+      }
 
-    // Handle submission for existing category
+      // Category exists, add to watchlist
+      const watchlistItem = { category: inputValue, maxPrice };
+      setWatchlist([...watchlist, watchlistItem]);
+      setInputValue('');
+      document.getElementById('maxPrice').value = '';
+      toast.success('Item added to watchlist');
+    }, 0);
   };
 
   return (
@@ -93,11 +110,6 @@ const Watchlist = () => {
             />
             {showDropdown && (
               <div className={styles.dropdown}>
-                {inputValue && (
-                  <div className={styles.dropdownItem} onClick={() => handleCreateCategoryClick(inputValue)}>
-                    Create category <b>{inputValue}</b>
-                  </div>
-                )}
                 {filteredCategories.map((category, index) => (
                   <div key={index} className={styles.dropdownItem} onClick={() => setInputValue(category)}>
                     {category}
@@ -110,6 +122,15 @@ const Watchlist = () => {
           <input type="number" id="maxPrice" className={styles.input} />
           <Button type="submit">Add to watchlist</Button>
         </form>
+        <div className={styles.newCategoryContainer}>
+          <input
+            type="text"
+            id="newCategory"
+            placeholder="Enter new category"
+            className={styles.input}
+          />
+          <Button onClick={handleCreateNewCategory}>Create</Button>
+        </div>
       </Card>
 
       <Card className={styles.watchlistCard}>

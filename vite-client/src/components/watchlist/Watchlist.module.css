@@ -88,3 +88,14 @@
 .watchlistCard p {
 	margin-bottom: 20px;
 }
+
+.newCategoryContainer {
+  display: flex;
+  margin-top: 20px;
+  align-items: center;
+}
+
+.newCategoryContainer input {
+  margin-right: 10px;
+	margin-bottom: 0;
+}
