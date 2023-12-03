@@ -1,42 +1,68 @@
 .watchlist {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 .watchlist h2 {
-    margin-bottom: 20px;
+	margin-bottom: 20px;
 }
 
 .watchlistCard {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    padding: 20px;
-    width: 300px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	padding: 20px;
+	width: 300px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .watchlistCard form {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
 }
 
 .watchlistCard label {
-    margin-bottom: 8px;
-    font-weight: bold;
+	margin-bottom: 8px;
+	font-weight: bold;
+}
+
+.inputContainer {
+	position: relative;
+	width: 100%;
 }
 
 .input {
-    margin-bottom: 16px;
-    padding: 8px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 16px;
+	margin-bottom: 16px;
+	padding: 8px;
+	border: 1px solid #ced4da;
+	border-radius: 4px;
+	font-size: 16px;
 }
 
 .watchlistCard button {
-    align-self: center;
-    margin-top: 10px;
+	align-self: center;
+	margin-top: 10px;
+}
+
+.dropdown {
+  position: absolute;
+	top: calc(100% - 16px);
+	left: 0;
+  width: 100%;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.dropdownItem {
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-top: none;
+  cursor: pointer;
+}
+
+.dropdownItem:hover {
+  background-color: #f8f9fa;
 }

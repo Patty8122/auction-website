@@ -187,6 +187,9 @@ class Category(BaseModel):
     created_at: datetime.datetime
     category: str
 
+class CategoryCreate(BaseModel):
+    category: str
+
 class Item(BaseModel):
     id: int
     created_at: datetime.datetime 
@@ -212,12 +215,13 @@ class DeleteItem(BaseModel):
 
 
 @app.post("/category")
-async def create_category(category: Category):
+async def create_category(category: CategoryCreate):
     url = f"{ITEM_SERVICE_URL}/category"
     try:
         response = requests.post(url, json=category.model_dump())
         response.raise_for_status()
     except requests.RequestException as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(response.content))
     
     return response.json()
