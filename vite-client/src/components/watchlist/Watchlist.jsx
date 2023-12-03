@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Button } from '@/components/ui';
+import { toast } from 'react-toastify';
 import styles from './Watchlist.module.css';
 import { itemService } from '../../services/itemService';
 
@@ -9,6 +10,9 @@ const Watchlist = () => {
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [createNewCategory, setCreateNewCategory] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [watchlist, setWatchlist] = useState([
+    { category: 'Electronics', maxPrice: 100 },
+    { category: 'Clothing', maxPrice: 50 }]);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -99,8 +103,24 @@ const Watchlist = () => {
           <Button type="submit">Add to watchlist</Button>
         </form>
       </Card>
+      <Card className={styles.watchlistCard}>
+        <h3>My Watchlist</h3>
+        <div className={styles.watchlistItems}>
+          {watchlist.length === 0 ? (
+            <p>Add an item to your watchlist above and it will appear here.</p>
+          ) : (
+            watchlist.map((item, index) => (
+              <div key={index} className={styles.watchlistItem}>
+                <p>{item.category}</p>
+                <p>&lt; ${item.maxPrice}</p>
+              </div>
+            ))
+          )}
+        </div>
+      </Card>
+
     </div>
-  );  
+  );
 };
 
 export default Watchlist;

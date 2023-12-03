@@ -66,3 +66,17 @@
 .dropdownItem:hover {
   background-color: #f8f9fa;
 }
+
+.watchlistItems {
+	display: flex;
+	flex-direction: column;
+}
+
+.watchlistItem {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 0 6px;
+	justify-content: space-between;
+	border-bottom: 1px solid #ced4da;
+}
