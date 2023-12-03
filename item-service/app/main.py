@@ -1,5 +1,8 @@
-from fastapi import FastAPI
+from fastapi import Body, FastAPI
 from pydantic import BaseModel
+from fuzzywuzzy import fuzz
+
+import datetime
 
 from typing import Optional, List
 from typing import Union
@@ -14,6 +17,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import select
+
+import re
+from fastapi import Query
 
 
 #################### DATABASE ####################
@@ -95,12 +101,16 @@ async def create_category(category: models.CategoryIn, db: Session = Depends(get
 
     return db_category
 
-@app.get("/categories", response_model=List[models.Category], status_code=200)
-async def get_categories(db: Session = Depends(get_db)):
+async def fetch_categories(db):
     stmt = select(Category)
-    db_categories = db.execute(stmt).scalars().all()
-    return db_categories
+    result = db.execute(stmt)
+    db_categories = result.scalars().all()
+    for category in db_categories:
+        yield [category.id, category.category]
 
+@app.get("/categories", response_model=list, status_code=200)
+async def get_categories(db: Session = Depends(get_db)):
+    return [category[1] async for category in fetch_categories(db)]
 
 @app.get("/category/{category_id}", response_model=models.Category, status_code=200)
 async def get_category(category_id: int, db: Session = Depends(get_db)):
@@ -129,6 +139,14 @@ def create_item_user(item: models.ItemIn, user_id: int, db: Session = Depends(ge
     db.refresh(item_with_new_values)
 
     return item_with_new_values
+
+
+@app.get("/items", response_model=List[models.Item], status_code=200)
+def get_items(db: Session = Depends(get_db)):
+    stmt = select(Item)
+    items = db.execute(stmt).scalars().all()
+    return items
+
 
 @app.get("/items/{item_id}", response_model=models.Item, status_code=200)
 def get_item(item_id: int, db: Session = Depends(get_db)):
@@ -190,68 +208,130 @@ def delete_item(item_id: int, user_id: int, db: Session = Depends(get_db)):
     return f"Deleted Item with id : {item_id} by User with id : {user_id} Successfully!"
 
 
+@app.get("/items/{min_initial_bid_price}/{max_initial_bid_price}", response_model=List[models.Item], status_code=200)
+def get_items_by_price(min_initial_bid_price: float, max_initial_bid_price: float, db: Session = Depends(get_db)):
+    if min_initial_bid_price is not None and max_initial_bid_price is not None:
+        stmt = select(Item).where(Item.initial_bid_price >= min_initial_bid_price).where(Item.initial_bid_price <= max_initial_bid_price)
+        items = db.execute(stmt).scalars().all()
+        return items
+    elif min_initial_bid_price is not None:
+        stmt = select(Item).where(Item.initial_bid_price >= min_initial_bid_price)
+        items = db.execute(stmt).scalars().all()
+        return items
+    elif max_initial_bid_price is not None:
+        stmt = select(Item).where(Item.initial_bid_price <= max_initial_bid_price)
+        items = db.execute(stmt).scalars().all()
+        return items
 
-@app.get("/items/price", response_model=Union[List[models.Item], None], status_code=200)
-def get_items_with_price_range(min_price: float = None, max_price: float = None, db: Session = Depends(get_db)):
-    if min_price is None and max_price is None:
-        raise HTTPException(status_code=400, detail="Min price and max price cannot be null")
-
-    if min_price is not None and max_price is not None and min_price > max_price:
-        raise HTTPException(status_code=400, detail="Min price cannot be greater than max price")
-
-    if min_price is not None and min_price < 0 or max_price is not None and max_price < 0:
-        raise HTTPException(status_code=400, detail="Price cannot be negative")
-
-    if min_price is None and max_price is None:
-        raise HTTPException(status_code=400, detail="Both min price and max price cannot be null")
-
-    if min_price is not None and max_price is None:
-        db_items = db.query(Item).filter(Item.initial_bid_price >= min_price).scalars().all()
-        return db_items
-
-    if max_price is not None and min_price is None:
-        db_items = db.query(Item).filter(Item.initial_bid_price <= max_price).scalars().all()
-        return db_items
-
-    db_items = db.query(Item).filter(Item.initial_bid_price >= min_price, Item.initial_bid_price <= max_price).scalars().all()
-    return db_items
+    return []
+    
 
 
-
-@app.put("/items", response_model=models.Item, status_code=200)
-def update_item(item_id: int, item_with_new_values: models.Item, user_id: int, db: Session = Depends(get_db)):
+@app.put("/items_edit/{item_id}", response_model=models.Item, status_code=200)
+def update_item(item_id: int, item_with_new_values: dict = Body(...),
+     db: Session = Depends(get_db)):
     # does user own item?
     db_item = db.query(Item).filter(Item.id == item_id).first()
 
     if db_item is None:
         raise HTTPException(status_code = 400, detail="Item does not exist")
     
-    if db_item.seller_id != user_id and db_item.seller_id != 1: # 0 is admin
-        raise HTTPException(status_code = 400, detail="User does not own item")
+    # if db_item.seller_id != user_id and db_item.seller_id != 1: # 0 is admin
+    #     raise HTTPException(status_code = 400, detail="User does not own item")
     
     # update item
-    db_item = models.Item(**item_with_new_values.model_dump())
+    for key, value in item_with_new_values.items():
+        if key == "category_id":
+            db_item.category_id = value
+        elif key == "description":
+            db_item.description = value
+        elif key == "shipping_cost":
+            db_item.shipping_cost = value
+        elif key == "initial_bid_price":
+            db_item.initial_bid_price = value
+        elif key == "photo_url1":
+            db_item.photo_url1 = value
+        elif key == "photo_url2":
+            db_item.photo_url2 = value
+        elif key == "photo_url3":
+            db_item.photo_url3 = value
+        elif key == "photo_url4":
+            db_item.photo_url4 = value
+        elif key == "photo_url5":
+            db_item.photo_url5 = value
+        else:
+            raise HTTPException(status_code = 400, detail="Invalid key")
 
+    db_item.updated_at = str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     # commit changes
     db.commit()
     db.refresh(db_item)
-
     return db_item
 
 
-@app.post("/items/search", response_model=List[models.Item], status_code=200)
-def search_items(search_term: str, db: Session = Depends(get_db)):
+async def fetch_items(db):
+    stmt = select(Item)
+    result = db.execute(stmt)
+    db_items = result.scalars().all()
+    for item in db_items:
+        yield item
+
+
+@app.get("/search/{search_term}", response_model=List[models.Item], status_code=200)
+async def search_items(search_term: str, db: Session = Depends(get_db)):
     # find items with search term looking at description
-    stmt = select(Item).where(Item.category.contains(search_term))
+    categories = [category[1] async for category in fetch_categories(db)]
+    categories_id = [category[0] async for category in fetch_categories(db)]
+    categories = [category.lower() for category in categories]
+    categories = [category.replace(" ", "") for category in categories]
+    print(categories)
+    search_term = search_term.lower()
+    search_term = search_term.replace(" ", "")
+    print(search_term)
+    for category in categories:
+        # if the search term is a substring of a category
+        if fuzz.partial_ratio(search_term, category) >= 80:
+            print("search term is a category", category, search_term)
+            # search term is a category
+            stmt = select(Item).where(Item.category_id == categories_id[categories.index(category)])
+            items = db.execute(stmt).scalars().all()
+            return items
+    
+    stmt = select(Item).where(Item.description.ilike(f"%{search_term}%"))
     items = db.execute(stmt).scalars().all()
-
-    if items is None:
-        # search term is a description
-        stmt = select(Item).where(Item.description.contains(search_term))
-        items = db.execute(stmt).scalars().all()
+    if items:
         return items
-    
-    return items
-    
 
+    items = fetch_items(db)
+    items = [item async for item in items if fuzz.partial_ratio(search_term, item.description.lower().replace(" ", "")) >= 80]
+    print(items)
+    return items
+
+    
+# Update final bid price and get items by final bid price range
+# @app.get("/items/{min_current_bid_price}/{max_current_bid_price}", response_model=List[models.Item], status_code=200)
+# def get_items_by_bid_price(min_current_bid_price: float, max_current_bid_price: float, db: Session = Depends(get_db)):
+#     # Update final bid price
+#     stmt = select(Item).where(Item.final_bid_price == None)
+#     items = db.execute(stmt).scalars().all()
+
+#     for item in items:
+#         item.final_bid_price = item.get_current_bid_price()
+#         db.commit()
+#         db.refresh(item)
+
+#     if min_current_bid_price is not None and max_current_bid_price is not None:
+#         stmt = select(Item).where(Item.final_bid_price >= min_current_bid_price).where(Item.initial_bid_price <= max_current_bid_price)
+#         items = db.execute(stmt).scalars().all()
+#         return items
+#     elif min_current_bid_price is not None:
+#         stmt = select(Item).where(Item.final_bid_price >= min_current_bid_price)
+#         items = db.execute(stmt).scalars().all()
+#         return items
+#     elif max_current_bid_price is not None:
+#         stmt = select(Item).where(Item.final_bid_price <= max_current_bid_price)
+#         items = db.execute(stmt).scalars().all()
+#         return items
+#     else:
+#         raise HTTPException(status_code = 400, detail="Invalid price range")
 

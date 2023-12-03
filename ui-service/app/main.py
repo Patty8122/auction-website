@@ -222,6 +222,16 @@ async def create_category(category: Category):
     
     return response.json()
 
+@app.get("/categories", response_model=list)
+def get_categories():
+    url = f"{ITEM_SERVICE_URL}/categories"
+    headers = {'Accept': 'application/json'}
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500)
+    return response.json()
 
 @app.get("/category/{category_id}", response_model=dict)
 def get_category_by_id(category_id: int):
@@ -286,3 +296,37 @@ async def delete_item_by_id(deleteItem: DeleteItem):
         raise HTTPException(status_code=500, detail=str(response.content))
    
     return response.content
+
+@app.get("/items/{min_initial_bid_price}/{max_initial_bid_price}", response_model=list)
+async def get_items_by_price(min_initial_bid_price: float, max_initial_bid_price: float):
+    try:
+        url = f"{ITEM_SERVICE_URL}/items/{min_initial_bid_price}/{max_initial_bid_price}"
+        response = requests.get(url, headers={'Accept': 'application/json'})
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    
+    return response.json()
+
+
+@app.get("/search/{search_term}", response_model=list)
+async def search_items(search_term: str):
+    try:
+        url = f"{ITEM_SERVICE_URL}/search/{search_term}"
+        response = requests.get(url, headers={'Accept': 'application/json'})
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    
+    return response.json()
+
+@app.put("/items_edit/{item_id}", response_model=dict)
+def update_item(item_id: int, item_with_new_values: dict):
+    try:
+        url = f"{ITEM_SERVICE_URL}/items_edit/{item_id}"
+        response = requests.put(url, json=item_with_new_values)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    
+    return response.json()
