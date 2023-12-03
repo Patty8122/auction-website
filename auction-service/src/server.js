@@ -142,13 +142,28 @@ app.post('/auctions', validateAuction, async (req, res) => {
  * @swagger
  * /auctions:
  *   get:
- *     summary: Retrieve all auctions
- *     description: Fetches details of all auctions.
+ *     summary: Retrieve auctions
+ *     description: Fetches details of auctions. Can optionally filter auctions based on start and end times.
  *     tags:
  *      - Auctions
+ *     parameters:
+ *       - in: query
+ *         name: startDateTime
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         required: false
+ *         description: Start time to filter auctions. Format as ISO 8601 date-time.
+ *       - in: query
+ *         name: endDateTime
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         required: false
+ *         description: End time to filter auctions. Format as ISO 8601 date-time.
  *     responses:
  *       200:
- *         description: List of all auctions
+ *         description: List of auctions, filtered by start and end times if provided.
  *         content:
  *           application/json:
  *             schema:
@@ -184,7 +199,27 @@ app.post('/auctions', validateAuction, async (req, res) => {
  */
 app.get('/auctions', async (req, res) => {
     try {
-        const result = await query('SELECT * FROM auctions');
+        const { startDateTime, endDateTime } = req.query;
+
+        let queryText = 'SELECT * FROM auctions';
+        const queryParams = [];
+
+        if (startDateTime || endDateTime) {
+            queryText += ' WHERE';
+
+            if (startDateTime) {
+                queryParams.push(startDateTime);
+                queryText += ` start_time >= $${queryParams.length}`;
+            }
+
+            if (endDateTime) {
+                if (queryParams.length) queryText += ' AND';
+                queryParams.push(endDateTime);
+                queryText += ` end_time <= $${queryParams.length}`;
+            }
+        }
+
+        const result = await query(queryText, queryParams);
         res.json(result.rows);
     } catch (error) {
         console.error('Error retrieving auctions:', error);
