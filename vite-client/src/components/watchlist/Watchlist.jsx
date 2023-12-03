@@ -57,11 +57,19 @@ const Watchlist = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!inputValue || !document.getElementById('maxPrice').value) {
+      toast.warn('Please fill out all fields');
+      return;
+    }
+
+    const maxPrice = parseFloat(document.getElementById('maxPrice').value);
+
     if (createNewCategory) {
       await itemService.createCategory(inputValue);
       fetchCategories();
     }
-    console.log(`Category: ${inputValue}`);
+
     // Handle submission for existing category
   };
 
@@ -80,7 +88,6 @@ const Watchlist = () => {
               onFocus={handleFocus}
               onBlur={handleBlur}
               autoComplete='off'
-              required
               className={styles.input}
             />
             {showDropdown && (
@@ -99,7 +106,7 @@ const Watchlist = () => {
             )}
           </div>
           <label htmlFor="maxPrice">Max Price:</label>
-          <input type="number" id="maxPrice" required className={styles.input} />
+          <input type="number" id="maxPrice" className={styles.input} />
           <Button type="submit">Add to watchlist</Button>
         </form>
       </Card>
