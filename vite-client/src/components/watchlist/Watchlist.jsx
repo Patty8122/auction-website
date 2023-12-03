@@ -122,6 +122,7 @@ const Watchlist = () => {
           <input type="number" id="maxPrice" className={styles.input} />
           <Button type="submit">Add to watchlist</Button>
         </form>
+        <p>Don't see your category listed? Create a new one below.</p>
         <div className={styles.newCategoryContainer}>
           <input
             type="text"
@@ -135,7 +136,7 @@ const Watchlist = () => {
 
       <Card className={styles.watchlistCard}>
         <h3>My Watchlist</h3>
-        <p>You will be notified when an item matching one of these criteria is listed.</p>
+        <p id={styles.notification}>You will be notified when an item matching one of these criteria is listed.</p>
         <div className={styles.watchlistItems}>
           {watchlist.length === 0 ? (
             <p>Add an item to your watchlist above and it will appear here.</p>
