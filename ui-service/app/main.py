@@ -398,6 +398,7 @@ class AuctionStatus(BaseModel):
 
 @app.post("/start_auction/{auction_id}")
 async def start_auction(auction_id: int):
+    # Tasks to do when auction starts
     try:
         url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/status"
         response = requests.put(url, json={"status": "active"})
@@ -405,12 +406,11 @@ async def start_auction(auction_id: int):
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(response.content))
 
-    # Tasks to do when auction starts
     print(f"Auction {auction_id} Started from ui-service!")
 
 @app.post("/end_auction/{auction_id}/{item_id}")
 async def end_auction(auction_id: int, item_id: int):
-    
+    # Tasks to do when auction ends
     try:
         # Get item details
         url = f"{ITEM_SERVICE_URL}/items/{item_id}"
@@ -446,5 +446,4 @@ async def end_auction(auction_id: int, item_id: int):
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(response.content))
     
-    # Tasks to do when auction ends
     print(f"Auction {auction_id} Ended from ui-service!")
