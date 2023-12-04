@@ -149,6 +149,9 @@ services:
   scheduler:
     build: ./scheduler 
     stop_signal: SIGKILL
+    depends_on:
+      ui-service:
+        condition: service_started
 
 volumes:
   client_node_modules:
