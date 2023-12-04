@@ -1,3 +1,5 @@
+import { itemService } from './itemService';
+
 const API_BASE_URL = '/api/auctions';
 
 const getAuctions = async () => {
@@ -116,6 +118,27 @@ const getFinalBid = async (auctionId) => {
   }
 };
 
+// This function takes an array of auctions and returns a new array of auctions
+// with enriched data from the items and categories tables.
+const enrichAuctions = async (auctions) => {
+  const itemIds = [...new Set(auctions.map(a => a.item_id))];
+  const items = await Promise.all(itemIds.map(itemId => itemService.getItemById(itemId)));
+  const itemsMap = items.reduce((acc, item) => ({ ...acc, [item.id]: item }), {});
+
+  const categoryIds = [...new Set(items.map(item => item.category_id))];
+  const categories = await Promise.all(categoryIds.map(categoryId => itemService.getCategoryName(categoryId)));
+  const categoriesMap = categories.reduce((acc, category) => ({ ...acc, [category.id]: category }), {});
+
+  return auctions.map(auction => ({
+    ...auction,
+    item_title: itemsMap[auction.item_id]?.title,
+    category: categoriesMap[itemsMap[auction.item_id]?.category_id]?.category,
+    photo_url1: itemsMap[auction.item_id]?.photo_url1,
+    shipping_cost: itemsMap[auction.item_id]?.shipping_cost,
+    quantity: itemsMap[auction.item_id]?.quantity
+  }));
+};
+
 export const auctionService = {
   getAuctions,
   createAuction,
@@ -125,4 +148,5 @@ export const auctionService = {
   getBids,
   getCurrentBid,
   getFinalBid,
+  enrichAuctions,
 };
