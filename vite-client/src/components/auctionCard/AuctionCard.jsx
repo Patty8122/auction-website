@@ -83,32 +83,35 @@ const AuctionCard = ({ auction }) => {
   });
 
   return (
-    <Card>
-      <div className={styles.auctionInfo}>
-        <p><strong>{auction.id}</strong></p>
-        <p className={styles.currentBid}><strong>Current Bid:</strong> ${auction.current_bid}</p>
-        <p className={styles.bidIncrement}><strong>Bid Increment:</strong> ${auction.bid_increment}</p>
+    <Card className={styles.auctionCard}>
+      <div className={styles.cardHeader}>
+        <h3>{auction.item_title} ({auction.quantity})</h3>
       </div>
-      <div className={styles.bidSection}>
-        <input 
-          className={styles.bidInput}
-          type="number" 
-          value={bidAmount}
-          onChange={(e) => setBidAmount(e.target.value)} 
-          placeholder="Enter bid"
-        />
-        <Button className={styles.bidButton} onClick={handleBidSubmit}>Bid</Button>
-      </div>
-      <div className={styles.actionButtons}>
-        <Button onClick={() => onPurchase(auction.id)}>Purchase</Button>
-        <Button onClick={() => onRemove(auction.id)}>Remove</Button>
-      </div>
-      <div className={styles.timeLeft}>
-        <p>{timeLeft}</p>
+      <div className={styles.cardBody}>
+        <div className={styles.imageContainer}>
+          <img src={auction.image_url1} alt={auction.item_title} />
+        </div>
+        <div className={styles.bidInfo}>
+          <p className={styles.currentBid}>Current Bid: ${auction.current_bid}</p>
+          <div className={styles.bidSection}>
+            <input
+              className={styles.bidInput}
+              type="number"
+              value={bidAmount}
+              onChange={(e) => setBidAmount(e.target.value)}
+              placeholder="Enter bid"
+            />
+            <Button className={styles.bidButton} onClick={handleBidSubmit}>Bid</Button>
+          </div>
+          <p className={styles.bidIncrement}>Bid Increment: ${auction.bid_increment}</p>
+          <div className={styles.timeLeft}>
+            <p>{timeLeft}</p>
+          </div>
+        </div>
       </div>
     </Card>
   );
-  
+
 };
 
 export default AuctionCard;

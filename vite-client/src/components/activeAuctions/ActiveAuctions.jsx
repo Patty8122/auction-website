@@ -41,7 +41,7 @@ const ActiveAuctions = () => {
 
           const enrichedAuctions = await auctionService.enrichAuctions(auctions);
           console.log(enrichedAuctions);
-          setActiveAuctions(auctions);
+          setActiveAuctions(enrichedAuctions);
         } catch (error) {
           console.error('Error fetching auctions:', error);
           setActiveAuctions([]);

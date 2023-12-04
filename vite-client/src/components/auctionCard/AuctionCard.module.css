@@ -1,38 +1,70 @@
-.auctionInfo, .bidSection, .actionButtons, .timeLeft {
+.auctionCard {
     display: flex;
+    flex-direction: column;
     align-items: center;
-}
-
-.auctionInfo p, .timeLeft p {
-    margin: 0 10px;
-    font-size: 16px;
-}
-
-.bidInput {
-    height: 32px;
-    width: 100px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: 8px 12px;
-    margin: 0 4px;
-    font-size: 16px;
-}
-
-.currentBid {
-    width: 140px;
-}
-
-.bidIncrement {
-    width: 150px;
-}
-
-.timeLeft {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .cardHeader {
     text-align: center;
-    font-size: 18px;
+    width: 100%;
+  }
+  
+  .cardBody {
+    display: flex;
+    width: 100%;
+  }
+  
+  .imageContainer {
+    flex: 1;
+    padding: 10px;
+  }
+  
+  .imageContainer img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+  }
+  
+  .bidInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .currentBid {
+    font-size: 1.1em;
     font-weight: bold;
     color: #007bff;
-    width: 120px;
-}
+    margin-bottom: 10px;
+  }
+  
+  .bidSection {
+    display: flex;
+    margin-bottom: 10px;
+  }
+  
+  .bidInput {
+    width: 60%;
+    margin-right: 5px;
+    margin-bottom: 0;
+    padding: 0px;
+  }
+  
+  .bidButton {
+    width: 30%;
+    margin: 0;
+    padding: 0;
+    height: 32px;
+  }
+  
+  .bidIncrement {
+    font-size: 1em;
+    margin-bottom: 0;
+  }
+  
+  .timeLeft {
+    margin-top: 20px;
+  }
