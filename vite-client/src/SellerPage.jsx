@@ -5,7 +5,7 @@ import { useUser } from '@/hooks/user/useUser';
 import Container from './components/items/Container';
 import MyItems from './components/items/MyItems';
 import SearchBar from './components/items/SearchBar';
-
+import MyActiveAuctions from './components/items/MyActiveAuctions';
 
 const App = () => {
   const { currentUser, logout, isLoading: isUserLoading } = useUser();
@@ -60,7 +60,7 @@ const App = () => {
           <div>
             <Container triggerText={'Create Item'} onSubmit={onSubmit} />
             <MyItems />
-            <SearchBar />
+            <MyActiveAuctions />
           </div>
         )}
     </div>

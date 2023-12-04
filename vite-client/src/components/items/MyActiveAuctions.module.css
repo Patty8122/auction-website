@@ -1,0 +1,10 @@
+.activeAuctions {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: fit-content;
+}
+
+.activeAuctions h2 {
+	margin-bottom: 20px;
+}

@@ -25,7 +25,6 @@ class ItemIn(BaseModel):
     photo_url5: Optional[str] = None
     listing_status: Optional[bool] = False
 
-
 class Item(BaseModel):
     id: int
     created_at: datetime.datetime 
