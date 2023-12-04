@@ -1,0 +1,29 @@
+.searchCard {
+	display: flex;
+  height: fit-content;
+	flex-direction: column;
+  justify-content: flex-start;
+	align-items: stretch;
+	padding: 20px;
+	width: 300px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.searchField {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+  
+  .searchField label {
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+  
+  .input {
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 16px;
+  }

@@ -1,0 +1,17 @@
+.myItems {
+    display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+}
+
+.myItems h2 {
+	margin-bottom: 20px;
+}
+
+.itemList {
+    display: flex;
+    flex-wrap: wrap;
+    /* justify-content: space-between; */
+    width: 100%;
+}

@@ -33,7 +33,15 @@ const ActiveAuctions = () => {
       if (currentUser) {
         try {
           const auctions = await auctionService.getAuctionsByUserId(currentUser.user_id);
-          setActiveAuctions(auctions);
+          for (let auction of auctions) {
+            const winningBid = await auctionService.getCurrentBid(auction.id);
+            console.log(winningBid);
+            auction.current_bid = winningBid.bid_amount;
+          }
+
+          const enrichedAuctions = await auctionService.enrichAuctions(auctions);
+          console.log(enrichedAuctions);
+          setActiveAuctions(enrichedAuctions);
         } catch (error) {
           console.error('Error fetching auctions:', error);
           setActiveAuctions([]);

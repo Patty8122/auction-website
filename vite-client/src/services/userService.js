@@ -144,17 +144,20 @@ const deleteUser = async (user_id) => {
     });
 
     if (!response.ok) {
-      throw new Error('Deletion failed');
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Deletion failed');
     }
 
     const data = await response.json();
+    if (data.status === 'failed') {
+      throw new Error(data.message);
+    }
+
     return data;
   } catch (error) {
     throw new Error(error.message);
   }
 };
-
-
 
 export const userService = {
   login,
