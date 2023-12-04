@@ -13,6 +13,10 @@ const ProtectedRoute = () => {
         return <Navigate to="/login" replace />;
     }
 
+    if (currentUser.user_type === 'admin') {
+        return <Navigate to="/admin" replace />;
+    }
+
     return <Outlet />;
 };
 

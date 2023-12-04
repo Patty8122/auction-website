@@ -10,6 +10,7 @@ import BuyPage from "./BuyPage";
 import SellerPage from "./SellerPage";
 import ExplorePage from "./ExplorePage";
 import ProfilePage from "./ProfilePage";
+import AdminPage from "./AdminPage";
 import Navbar from './components/navbar/Navbar';
 import ProtectedRoute from './components/protectedRoute/ProtectedRoute';
 
@@ -20,6 +21,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+
+          <Route path="/admin" element={<AdminPage />} />
 
           <Route path="/" element={<ProtectedRoute />} >
             <Route path="/cart" element={
