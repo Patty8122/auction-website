@@ -29,7 +29,7 @@ const BuyPage = () => {
         </div>
       )}
 
-      {currentUser && currentUser.user_id == 1 && (
+      {currentUser && currentUser.user_type == 'admin' && (
         <p>Admin page</p>
       )}
     </div>

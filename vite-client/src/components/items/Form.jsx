@@ -1,10 +1,4 @@
 import React from 'react';
-import { DropdownItem } from 'react-bootstrap';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownButton from 'react-bootstrap/DropdownButton';
-
-
-
 
 export const Form = ({ onSubmit, placeholders }) => {
   if (!placeholders) {

@@ -21,6 +21,7 @@ services:
     build: ./ui-service
     environment:
       - PORT=3001
+      - AMQP_URL=amqp://rabbit_mq?connection_attempts=10&retry_delay=10
     ports:
       - 3001:3001
     volumes:
@@ -144,6 +145,13 @@ services:
       - mongodb_service
     ports:
       - "2000:2000"
+  
+  scheduler:
+    build: ./scheduler 
+    stop_signal: SIGKILL
+    depends_on:
+      ui-service:
+        condition: service_started
 
 volumes:
   client_node_modules:

@@ -2,8 +2,8 @@ import { query } from './db.js';
 
 const createAuctions = async () => {
     const auctionsData = [
-        { item_id: 1, seller_id: 1, start_time: '2023-11-26 09:00:00', end_time: '2023-12-08 17:00:00', starting_price: 0, bid_increment: 5, status: 'open' },
-        { item_id: 2, seller_id: 2, start_time: '2023-11-26 10:00:00', end_time: '2023-12-08 18:00:00', starting_price: 0, bid_increment: 5, status: 'open' }
+        { item_id: 1, seller_id: 1, start_time: '2023-11-26 09:00:00', end_time: '2023-12-08 17:00:00', starting_price: 0, bid_increment: 5, status: 'pending' },
+        { item_id: 2, seller_id: 2, start_time: '2023-11-26 10:00:00', end_time: '2023-12-08 18:00:00', starting_price: 0, bid_increment: 5, status: 'pending' }
     ];
 
     for (const auction of auctionsData) {

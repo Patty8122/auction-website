@@ -142,13 +142,28 @@ app.post('/auctions', validateAuction, async (req, res) => {
  * @swagger
  * /auctions:
  *   get:
- *     summary: Retrieve all auctions
- *     description: Fetches details of all auctions.
+ *     summary: Retrieve auctions
+ *     description: Fetches details of auctions. Can optionally filter auctions based on start and end times.
  *     tags:
  *      - Auctions
+ *     parameters:
+ *       - in: query
+ *         name: startDateTime
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         required: false
+ *         description: Start time to filter auctions. Format as ISO 8601 date-time.
+ *       - in: query
+ *         name: endDateTime
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         required: false
+ *         description: End time to filter auctions. Format as ISO 8601 date-time.
  *     responses:
  *       200:
- *         description: List of all auctions
+ *         description: List of auctions, filtered by start and end times if provided.
  *         content:
  *           application/json:
  *             schema:
@@ -184,7 +199,27 @@ app.post('/auctions', validateAuction, async (req, res) => {
  */
 app.get('/auctions', async (req, res) => {
     try {
-        const result = await query('SELECT * FROM auctions');
+        const { startDateTime, endDateTime } = req.query;
+
+        let queryText = 'SELECT * FROM auctions';
+        const queryParams = [];
+
+        if (startDateTime || endDateTime) {
+            queryText += ' WHERE';
+
+            if (startDateTime) {
+                queryParams.push(startDateTime);
+                queryText += ` start_time >= $${queryParams.length}`;
+            }
+
+            if (endDateTime) {
+                if (queryParams.length) queryText += ' AND';
+                queryParams.push(endDateTime);
+                queryText += ` end_time <= $${queryParams.length}`;
+            }
+        }
+
+        const result = await query(queryText, queryParams);
         res.json(result.rows);
     } catch (error) {
         console.error('Error retrieving auctions:', error);
@@ -254,6 +289,67 @@ app.get('/auctions/:id', async (req, res) => {
     } catch (error) {
         console.error('Error retrieving auction:', error);
         res.status(500).send('Error retrieving auction');
+    }
+});
+
+/**
+ * @swagger
+ * /auctions/{id}/status:
+ *   put:
+ *     summary: Update auction status
+ *     description: Updates the status of a specific auction identified by its ID.
+ *     tags:
+ *      - Auctions
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The ID of the auction to update.
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 description: New status of the auction.
+ *     responses:
+ *       200:
+ *         description: Auction status updated successfully.
+ *       400:
+ *         description: Invalid input.
+ *       404:
+ *         description: Auction not found.
+ *       500:
+ *         description: Server error.
+ */
+app.put('/auctions/:id/status', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!status) {
+            return res.status(400).send('Status is required');
+        }
+
+        const result = await query('UPDATE auctions SET status = $1 WHERE id = $2 RETURNING *', [status, id]);
+
+        if (result.rows.length > 0) {
+            res.status(200).json({
+                message: 'Auction status updated successfully',
+                auction: result.rows[0]
+            });
+        } else {
+            res.status(404).send('Auction not found');
+        }
+       
+    } catch (error) {
+        console.error('Error updating auction status:', error);
+        res.status(500).send('Error updating auction status');
     }
 });
 
