@@ -54,31 +54,31 @@ const ItemCard = ({ item, category, ...props }) => {
         console.log("bidIncrement", bidIncrement.value);
 
         var auction = {
-            "item_id": item.id,
-            "seller_id": item.seller_id,
-            "start_time": startDateTime.value,
-            "end_time": endDateTime.value,
-            "starting_price": item.initial_bid_price,
+            "itemId": item.id,
+            "sellerId": item.seller_id,
+            "startDateTime": startDateTime.value,
+            "endDateTime": endDateTime.value,
+            "startingPrice": item.initial_bid_price,
             "status": "active",
-            "bid_increment": 5
+            "bidIncrement": 5
         }
         if (itemid && itemid.value !== '') {
-            auction.item_id = parseInt(itemid.value);
+            auction.itemId = parseInt(itemid.value);
         }
         if (startDateTime && startDateTime.value !== '') {
-            auction.start_time = convertToUTC(startDateTime.value)
+            auction.startDateTime = convertToUTC(startDateTime.value)
         }
         if (endDateTime && endDateTime.value !== '') {
-            auction.end_time = convertToUTC(endDateTime.value)
+            auction.endDateTime = convertToUTC(endDateTime.value)
         }
         if (startingPrice && startingPrice.value !== '') {
             auction.starting_price = parseFloat(startingPrice.value);
         }
         if (sellerId && sellerId.value !== '') {
-            auction.seller_id = parseInt(sellerId.value);
+            auction.sellerId = parseInt(sellerId.value);
         }
         if (bidIncrement && bidIncrement.value !== '') {
-            auction.bid_increment = parseFloat(bidIncrement.value);
+            auction.bidIncrement = parseFloat(bidIncrement.value);
         }
 
         console.log("auction", auction)
