@@ -147,9 +147,25 @@ class Customer(User):
         self.conn.commit()
     
     def delete_user(self, user_id: int):
+        # Check if the user exists before deletion
+        exists_query = f"SELECT EXISTS(SELECT 1 FROM {table_name} WHERE user_id = %s)"
+        self.cursor.execute(exists_query, (user_id,))
+        exists_before = self.cursor.fetchone()[0]
+
+        if not exists_before:
+            return False
+
+        # Perform the deletion
         delete_query = f"DELETE FROM {table_name} WHERE user_id = %s"
         self.cursor.execute(delete_query, (user_id,))
         self.conn.commit()
+
+        # Check if the user still exists
+        self.cursor.execute(exists_query, (user_id,))
+        exists_after = self.cursor.fetchone()[0]
+
+        # Return True if the user was deleted, False otherwise
+        return not exists_after
 
     def suspend_user(self, user_id: int):
         update_query = f"UPDATE {table_name} SET status = 0 WHERE user_id = %s"

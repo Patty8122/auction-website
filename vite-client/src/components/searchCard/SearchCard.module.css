@@ -1,6 +1,8 @@
 .searchCard {
 	display: flex;
+  height: fit-content;
 	flex-direction: column;
+  justify-content: flex-start;
 	align-items: stretch;
 	padding: 20px;
 	width: 300px;

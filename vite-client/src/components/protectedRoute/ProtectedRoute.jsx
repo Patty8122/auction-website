@@ -1,8 +1,8 @@
 import React from 'react';
 import { useUser } from '@/hooks/user/useUser';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
-const ProtectedRoute = () => {
+const ProtectedRoute = ({ adminOnly = false, children }) => {
     const { currentUser, isLoading } = useUser();
     
     if (isLoading) {
@@ -13,7 +13,15 @@ const ProtectedRoute = () => {
         return <Navigate to="/login" replace />;
     }
 
-    return <Outlet />;
+    if (adminOnly && currentUser.user_type !== 'admin') {
+        return <Navigate to="/explore" replace />;
+    }
+
+    if (!adminOnly && currentUser.user_type === 'admin') {
+        return <Navigate to="/admin" replace />;
+    }
+
+    return children;
 };
 
 export default ProtectedRoute;

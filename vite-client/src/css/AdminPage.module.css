@@ -1,0 +1,55 @@
+.adminPage {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 20px;
+}
+
+.adminPage input {
+	margin-bottom: 0;
+	height: 32px;
+}
+
+.userBlockCard,
+.categoryCard,
+.auctionsCard {
+	margin-bottom: 20px;
+	padding: 15px;
+	width: 700px;
+}
+
+.userBlockCard input,
+.categoryCard input,
+.categoryCard select {
+	padding: 5px;
+	margin-right: 10px;
+}
+
+.auctionsCard ul {
+	list-style: none;
+	padding: 0;
+}
+
+.categoryCard {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+}
+
+.categoryAction {
+	display: flex;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.categoryAction input,
+.categoryAction select {
+	flex-grow: 1;
+	padding: 5px;
+	margin-right: 10px;
+}
+
+.categoryAction .arrow {
+	margin: 0 10px;
+	font-weight: bold;
+}

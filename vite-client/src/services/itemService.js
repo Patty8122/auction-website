@@ -28,6 +28,51 @@ const getCategories = async () => {
   }
 };
 
+const getCategoryByName = async (categoryName) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}category-by-name/${categoryName}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching category by name:', error);
+    throw error;
+  }
+};
+
+const changeCategoryName = async (id, newName) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}category/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ category: newName }),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error changing category name:', error);
+    throw error;
+  }
+};
+
+const deleteCategory = async (id) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}category/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error deleting category:', error);
+    throw error;
+  }
+};
+
 const createCategory = async (categoryName) => {
   try {
     const response = await fetch(`${API_BASE_URL}category`, {
@@ -56,6 +101,19 @@ const getItems = async () => {
     return await response.json();
   } catch (error) {
     console.error('Error fetching items:', error);
+    throw error;
+  }
+}
+
+const getItemById = async (itemId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}items/${itemId}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching item:', error);
     throw error;
   }
 }
@@ -148,7 +206,11 @@ export const itemService = {
   getCategories,
   createCategory,
   getCategoryName,
+  getCategoryByName,
+  changeCategoryName,
+  deleteCategory,
   createItem,
+  getItemById,
   searchItems,
   removeItem,
   editItem

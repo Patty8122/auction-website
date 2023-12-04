@@ -7,6 +7,9 @@ UI_SERVICE_URL = "http://ui-service:3001"
 def main():
     while True:
         # Scheduler will check every minute and mark auctions as active or ended
+        print("Scheduler is up !")
+        time.sleep(30)
+        
         try:
             url = f"{UI_SERVICE_URL}/auctions"
             response = requests.get(url)
@@ -17,7 +20,6 @@ def main():
             auctions_info = response.json()
             for auction in auctions_info:
                 auction_id = auction.get('id')
-                item_id = auction.get('item_id')
                 start_time_str = auction.get('start_time')
                 end_time_str = auction.get('end_time')
                 
@@ -33,7 +35,7 @@ def main():
 
                 elif current_time > end_time and auction.get('status') == 'active':
                     # The auction has ended
-                    url = f"{UI_SERVICE_URL}/end_auction/{auction_id}/{item_id}"
+                    url = f"{UI_SERVICE_URL}/end_auction/{auction_id}"
                     response = requests.post(url)
                     response.raise_for_status()
                     print(f"Auction {auction_id} has ended.")
@@ -41,8 +43,7 @@ def main():
         except Exception as e:
             print(f"Error in scheduler: {e}")
 
-        print("Scheduler is up !")
-        time.sleep(60)
+        
 
 if __name__ == "__main__":
     main()
