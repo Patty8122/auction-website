@@ -44,6 +44,7 @@ export class Container extends Component {
             closeModal={this.closeModal}
             onKeyDown={this.onKeyDown}
             onClickOutside={this.onClickOutside}
+            placeholders={this.props.placeholders}
           />
         ) : null}
       </React.Fragment>

@@ -8,10 +8,10 @@ from pydantic import BaseModel
 from sqlalchemy import DateTime
 
 class ItemIn(BaseModel):
-    created_at: str = str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    updated_at: str = str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    created_at: str = str(datetime.datetime.now())
+    updated_at: str = str(datetime.datetime.now())
     quantity: Optional[int] = 1
-    description: Optional[str] = 'No description provided'
+    title: Optional[str] = 'No title provided'
     shipping_cost: Optional[float] = 0.0
     category_id: int
     initial_bid_price: float
@@ -30,7 +30,7 @@ class Item(BaseModel):
     created_at: datetime.datetime 
     updated_at: datetime.datetime
     quantity: int
-    description: str
+    title: str
     shipping_cost: float
     category_id: int
     initial_bid_price: float
@@ -47,7 +47,7 @@ class Item(BaseModel):
         orm_mode = True
 
 class CategoryIn(BaseModel):
-    created_at: str = str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    created_at: str = str(datetime.datetime.now())
     category: str
 
 class Category(BaseModel):
