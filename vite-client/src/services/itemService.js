@@ -47,12 +47,6 @@ const createCategory = async (categoryName) => {
   }
 }
 
-<<<<<<< Updated upstream
-export const itemService = {
-  getMyItems,
-  getCategories,
-  createCategory,
-=======
 const getItems = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}items`);
@@ -89,39 +83,6 @@ const createItem = async (item, currentUserId) => {
     throw error;
   }
 
-}
-
-
-const getCategories = async () => { 
-  try {
-    const response = await fetch(`${API_BASE_URL}categories`)
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    throw error;
-  }
-};
-
-const createCategory = async (categoryName) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}category`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ category: categoryName }),
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return await response.json();
-  } catch (error) {
-    console.error('Error creating category:', error);
-    throw error;
-  }
 }
 
 const getCategoryName = async (categoryId) => {
@@ -191,5 +152,4 @@ export const itemService = {
   searchItems,
   removeItem,
   editItem
->>>>>>> Stashed changes
 };
