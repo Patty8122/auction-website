@@ -89,7 +89,7 @@ const AuctionCard = ({ auction }) => {
       </div>
       <div className={styles.cardBody}>
         <div className={styles.imageContainer}>
-          <img src={auction.image_url1} alt={auction.item_title} />
+          <img src={auction.photo_url1} alt={auction.item_title} />
         </div>
         <div className={styles.bidInfo}>
           <p className={styles.currentBid}>Current Bid: ${auction.current_bid}</p>
