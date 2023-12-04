@@ -435,6 +435,20 @@ def update_item(item_id: int, item_with_new_values: dict):
     
     return response.json()
 
+
+@app.put("/items_auction/{item_id}", response_model=dict)
+def update_item_auction(item_id: int):
+    try:
+        url = f"{ITEM_SERVICE_URL}/items_auction/{item_id}"
+        response = requests.put(url)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    
+    return response.json()
+
+
+
 @app.post("/watchlist", response_model=dict)
 async def create_watchlist(category_id: int, max_price: float, user_id: int):
     try:

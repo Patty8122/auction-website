@@ -392,7 +392,22 @@ def delete_item(item_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"ok": True, "message": "Item deleted"}
 
+@app.put("/items_auction/{item_id}", response_model=models.Item, status_code=200)
+def update_item_auction(item_id: int, db: Session = Depends(get_db)):
+    db_item = db.query(Item).filter(Item.id == item_id).first()
 
+    if db_item is None:
+        raise HTTPException(status_code=400, detail="Item does not exist")
+
+    # update item
+    db_item.listing_status = True
+    db_item.updated_at = str(
+        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    # commit changes
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+                
 @app.get("/items/{min_initial_bid_price}/{max_initial_bid_price}", response_model=List[models.Item], status_code=200)
 def get_items_by_price(min_initial_bid_price: float, max_initial_bid_price: float, db: Session = Depends(get_db)):
     if min_initial_bid_price is not None and max_initial_bid_price is not None:
