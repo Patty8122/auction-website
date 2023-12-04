@@ -303,6 +303,28 @@ def get_category_by_id(category_id: int):
         raise HTTPException(status_code=500)
     return response.json()
 
+@app.put("/category/{category_id}", response_model=dict)
+def change_category_name(category_id: int, category_data: dict):
+    url = f"{ITEM_SERVICE_URL}/category/{category_id}"
+    headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
+    try:
+        response = requests.put(url, headers=headers, json=category_data)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=response.status_code, detail=str(e))
+    return response.json()
+
+@app.delete("/category/{category_id}", response_model=dict)
+def delete_category(category_id: int):
+    url = f"{ITEM_SERVICE_URL}/category/{category_id}"
+    headers = {'Accept': 'application/json'}
+    try:
+        response = requests.delete(url, headers=headers)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=response.status_code, detail=str(e))
+    return {"message": "Category deleted successfully"}
+
 @app.get("/category-by-name/{category_name}", response_model=list[dict])
 def get_category_by_name(category_name: str):
     url = f"{ITEM_SERVICE_URL}/category-by-name/{category_name}"

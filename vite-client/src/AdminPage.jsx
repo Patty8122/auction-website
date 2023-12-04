@@ -40,8 +40,6 @@ const AdminPage = () => {
 
 	const handleAddCategory = async () => {
 		try {
-			const res = await itemService.getCategoryByName(newCategory);
-			console.log(res);
 			await itemService.createCategory(newCategory);
 			toast.success('Category created successfully');
 		} catch (error) {
@@ -54,14 +52,26 @@ const AdminPage = () => {
 		setSelectedCategory(e.target.value);
 	};
 
-	const handleModifyCategory = () => {
-		console.log(`Modifying category: ${selectedCategory}`);
-		// Implement logic to modify selected category
+	const handleModifyCategory = async () => {
+		try {
+			const res = await itemService.getCategoryByName(selectedCategory);
+			const category_id = res[0].id;
+			await itemService.changeCategoryName(category_id, newCategory);
+			toast.success('Category modified successfully');
+		} catch (error) {
+			toast.error('Could not modify category');
+		}
 	};
 
-	const handleRemoveCategory = () => {
-		console.log(`Removing category: ${selectedCategory}`);
-		// Implement logic to remove selected category
+	const handleRemoveCategory = async () => {
+		try {
+			const res = await itemService.getCategoryByName(selectedCategory);
+			const category_id = res[0].id;
+			itemService.deleteCategory(category_id);
+			toast.success('Category removed successfully');
+		} catch (error) {
+			toast.error('Could not remove category');
+		}
 	};
 
 	return (

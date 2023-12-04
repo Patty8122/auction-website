@@ -41,6 +41,38 @@ const getCategoryByName = async (categoryName) => {
   }
 };
 
+const changeCategoryName = async (id, newName) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}category/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ category: newName }),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error changing category name:', error);
+    throw error;
+  }
+};
+
+const deleteCategory = async (id) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}category/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error deleting category:', error);
+    throw error;
+  }
+};
+
 const createCategory = async (categoryName) => {
   try {
     const response = await fetch(`${API_BASE_URL}category`, {
@@ -175,6 +207,8 @@ export const itemService = {
   createCategory,
   getCategoryName,
   getCategoryByName,
+  changeCategoryName,
+  deleteCategory,
   createItem,
   getItemById,
   searchItems,
