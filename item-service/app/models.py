@@ -35,6 +35,7 @@ class Item(BaseModel):
     category_id: int
     initial_bid_price: float
     final_bid_price: Optional[float]
+    listing_status: bool
     seller_id: int
     buyer_id: Optional[int]
     photo_url1: Optional[str]
@@ -54,5 +55,18 @@ class Category(BaseModel):
     id: int
     created_at: datetime.datetime
     category: str
+    class Config:
+        orm_mode = True
+    
+class WatchlistIn(BaseModel):
+    user_id: int
+    category_id: Optional[int] = None
+    max_price: Optional[float] = None
+
+class Watchlist(BaseModel):
+    id: int
+    user_id: int
+    category_id: Optional[int] = None
+    max_price: Optional[float] = None
     class Config:
         orm_mode = True

@@ -13,7 +13,7 @@ from fastapi import Depends, FastAPI, HTTPException
 
 from . import models
 
-from sqlalchemy import DateTime, Float, Column, Integer, String, ForeignKey
+from sqlalchemy import DateTime, Float, Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -58,11 +58,22 @@ class Item(Base):
     final_bid_price = Column(Float, nullable=True)
     seller_id = Column(Integer, nullable=True)
     buyer_id = Column(Integer, nullable=True)
+    listing_status = Column(Boolean, nullable=True)
     photo_url1 = Column(String)
     photo_url2 = Column(String, nullable=True)
     photo_url3 = Column(String, nullable=True)
     photo_url4 = Column(String, nullable=True)
     photo_url5 = Column(String, nullable=True)
+
+class Watchlist(Base):
+    __tablename__ = "watchlists"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=False)
+    category_id = Column(Integer, ForeignKey("categories.id"))
+    max_price = Column(Float, nullable=True)
+    
+
 
 
     # category = relationship("Category", back_populates="items")
@@ -70,6 +81,7 @@ class Item(Base):
 
 def create_tables():
     Base.metadata.create_all(bind=engine)
+    # Base.metadata.upgrade(bind=engine)
 
 #################### END DATABASE ####################
 
@@ -77,10 +89,10 @@ def create_tables():
 app = FastAPI()
 
 
-@app.on_event("startup")
-def on_startup():
-    create_tables()
-    print("Tables created")
+# @app.on_event("startup")
+# def on_startup():
+#     create_tables()
+#     print("Tables created")
 
 
 @app.get("/test")
@@ -199,6 +211,106 @@ async def delete_category(category_id: int, db: Session = Depends(get_db)):
 
     return {"message": "Category deleted successfully"}
 
+@app.post("/watchlist", response_model=models.Watchlist, status_code=201)
+async def create_watchlist(category_id: int, max_price: float, user_id: int, db: Session = Depends(get_db)):
+    if db is None:
+        raise HTTPException(status_code=404, detail="Database not found")
+
+    watchlist = models.WatchlistIn(
+        user_id=user_id,
+        category_id=category_id,
+        max_price=max_price)
+    
+
+    db_watchlist = Watchlist(
+        user_id=watchlist.user_id,
+        category_id=watchlist.category_id,
+        max_price=watchlist.max_price)
+
+    db.add(db_watchlist)
+    db.commit()
+    db.refresh(db_watchlist)
+
+    return db_watchlist
+
+@app.get("/watchlists/{user_id}", response_model=List[models.Watchlist], status_code=200)
+async def get_watchlist(user_id: int, db: Session = Depends(get_db)):
+    stmt = select(Watchlist).where(Watchlist.user_id == user_id)
+    db_watchlist = db.execute(stmt).scalars().all()
+    return db_watchlist
+
+
+@app.get("/watchlist/{watchlist_id}", response_model=models.Watchlist, status_code=200)
+async def get_watchlist(watchlist_id: int, db: Session = Depends(get_db)):
+    stmt = select(Watchlist).where(Watchlist.id == watchlist_id)
+    db_watchlist = db.execute(stmt).scalar()
+    return db_watchlist
+
+
+@app.delete("/watchlist", status_code=200)
+async def delete_watchlist(user_id: int, category_id: int, db: Session = Depends(get_db)):
+    db_watchlist = db.query(Watchlist).filter(Watchlist.user_id == user_id).filter(Watchlist.category_id == category_id).first()
+
+    if db_watchlist is None:
+        raise HTTPException(status_code=400, detail="Watchlist does not exist")
+
+    db.delete(db_watchlist)
+    db.commit()
+    return {"ok": True, "message": "Watchlist deleted"}
+
+@app.put("/watchlist", response_model=models.Watchlist, status_code=200)
+async def update_watchlist(category_id: int, user_id: int, max_price: float, db: Session = Depends(get_db)):
+
+    db_watchlist = db.query(Watchlist).filter(Watchlist.user_id == user_id).filter(Watchlist.category_id == category_id).first()
+
+    if db_watchlist is None:
+        raise HTTPException(status_code=400, detail="Watchlist does not exist")
+
+    db_watchlist.max_price = max_price
+    db.commit()
+    db.refresh(db_watchlist)
+    return db_watchlist
+
+async def fetch_watchlist(db_watchlist, db):
+    for watchlist in db_watchlist:
+        yield [watchlist.user_id, watchlist.category_id, watchlist.max_price]
+
+
+from sqlalchemy import and_
+
+
+
+@app.get("/watchlist_receive", response_model=list, status_code=200)
+async def get_watchlist_receive(item_id: int, db: Session = Depends(get_db)):
+    # get item
+    stmt = select(Item).where(Item.id == item_id)
+    db_item = db.execute(stmt).scalar()
+
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    # get if any watchlist matches
+    stmt = (
+        select(Watchlist)
+        .where(Watchlist.category_id == db_item.category_id)
+        .where(and_(Watchlist.max_price >= (db_item.initial_bid_price + db_item.shipping_cost), Watchlist.category_id == db_item.category_id))
+    )
+    db_watchlist = db.execute(stmt).scalars().all()
+
+    # return all the user_ids
+    return [watchlist[0] async for watchlist in fetch_watchlist(db_watchlist, db)]
+
+
+@app.get("/watchlist_receive/{user_id}", response_model=list, status_code=200)
+async def get_watchlist_receive(user_id: int, db: Session = Depends(get_db)):
+    # get item
+    stmt = select(Watchlist).where(Watchlist.user_id == user_id)
+    db_watchlist = db.execute(stmt).scalars().all()
+
+    # return all the user_ids
+    return [{"category_id": watchlist[1], "max_price": watchlist[2]} async for watchlist in fetch_watchlist(db_watchlist, db)]
+
+
 @app.post("/items", response_model=Union[models.Item, None], status_code=201)
 def create_item_user(item: models.ItemIn, user_id: int, db: Session = Depends(get_db)):
     item_with_new_values = Item(
@@ -300,6 +412,17 @@ def get_items_by_price(min_initial_bid_price: float, max_initial_bid_price: floa
         return items
 
     return []
+
+@app.get("/watchlist_items", response_model=Union[List[models.Item], None], status_code=200)
+async def get_watchlist_items(watchlist_id: int, db: Session = Depends(get_db)):
+    stmt = select(Watchlist).where(Watchlist.id == watchlist_id)
+    watchlist = db.execute(stmt).scalar()
+
+    stmt = select(Item) \
+        .where(Item.category_id == watchlist.category_id) \
+            .where(and_(Item.initial_bid_price <= watchlist.max_price, Item.category_id == watchlist.category_id))
+    items = db.execute(stmt).scalars().all()
+    return items
 
 
 @app.put("/items_edit/{item_id}", response_model=models.Item, status_code=200)
