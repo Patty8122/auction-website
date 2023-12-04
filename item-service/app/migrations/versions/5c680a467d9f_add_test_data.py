@@ -89,6 +89,50 @@ def upgrade():
             {'title': 'Board Game Collection', 'shipping_cost': 8.00, 'category_id': 9, 'initial_bid_price': 30.00, 'seller_id': 4},
         ]
     )
+
+    watchlists_table = sa.Table(
+        'watchlists',
+        sa.MetaData(),
+        autoload_with=op.get_bind().engine
+    )
+
+    op.bulk_insert(
+        watchlists_table,
+        [
+            {'user_id': 1, 'category_id': 2, 'max_price': 100.00},
+            {'user_id': 1, 'category_id': 4, 'max_price': 50.00},
+            {'user_id': 1, 'category_id': 11, 'max_price': 500.00},
+            {'user_id': 1, 'category_id': 8, 'max_price': 200.00},
+            {'user_id': 1, 'category_id': 10, 'max_price': 200.00},
+            {'user_id': 1, 'category_id': 9, 'max_price': 100.00},
+            {'user_id': 2, 'category_id': 2, 'max_price': 200.00},
+            {'user_id': 2, 'category_id': 4, 'max_price': 100.00},
+            {'user_id': 2, 'category_id': 11, 'max_price': 100.00},
+            {'user_id': 2, 'category_id': 8, 'max_price': 500.00},
+            {'user_id': 2, 'category_id': 10, 'max_price': 50.00},
+            {'user_id': 2, 'category_id': 9, 'max_price': 200.00},
+            {'user_id': 3, 'category_id': 2, 'max_price': 100.00},
+            {'user_id': 3, 'category_id': 4, 'max_price': 500.00},
+            {'user_id': 3, 'category_id': 11, 'max_price': 200.00},
+            {'user_id': 3, 'category_id': 8, 'max_price': 100.00},
+            {'user_id': 3, 'category_id': 10, 'max_price': 100.00},
+            {'user_id': 3, 'category_id': 9, 'max_price': 50.00},
+            {'user_id': 4, 'category_id': 2, 'max_price': 500.00},
+            {'user_id': 4, 'category_id': 4, 'max_price': 100.00},
+            {'user_id': 4, 'category_id': 11, 'max_price': 50.00},
+            {'user_id': 4, 'category_id': 8, 'max_price': 200.00},
+            {'user_id': 4, 'category_id': 10, 'max_price': 200.00},
+            {'user_id': 4, 'category_id': 9, 'max_price': 100.00},
+            {'user_id': 5, 'category_id': 2, 'max_price': 1000.00},
+            {'user_id': 5, 'category_id': 4, 'max_price': 20.00},
+            {'user_id': 5, 'category_id': 11, 'max_price': 100.00},
+            {'user_id': 5, 'category_id': 8, 'max_price': 500.00},
+            {'user_id': 5, 'category_id': 10, 'max_price': 500.00},
+            {'user_id': 5, 'category_id': 9, 'max_price': 20.00},
+        ]
+    )
+
+    
     # ### end Alembic commands ###
 
 

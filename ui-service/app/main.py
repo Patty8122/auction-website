@@ -435,6 +435,90 @@ def update_item(item_id: int, item_with_new_values: dict):
     
     return response.json()
 
+@app.post("/watchlist", response_model=dict)
+async def create_watchlist(category_id: int, max_price: float, user_id: int):
+    try:
+        url = f"{ITEM_SERVICE_URL}/watchlist"
+        response = requests.post(url, params={"category_id": category_id, "max_price": max_price, "user_id": user_id})
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    
+    return response.json()
+
+@app.get("/watchlists/{user_id}", response_model=list)
+async def get_watchlist(user_id: int):
+    try:
+        url = f"{ITEM_SERVICE_URL}/watchlists/{user_id}"
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    return response.json()
+
+@app.get("/watchlist/{watchlist_id}", response_model=dict)
+async def get_watchlist(watchlist_id: int):
+    try:
+        url = f"{ITEM_SERVICE_URL}/watchlist/{watchlist_id}"
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    return response.json()
+
+@app.delete("/watchlist", status_code=200)
+async def delete_watchlist(user_id: int, category_id: int):
+    try:
+        url = f"{ITEM_SERVICE_URL}/watchlist"
+        response = requests.delete(url, params={"user_id": user_id, "category_id": category_id})
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    
+    return response.content
+
+@app.put("/watchlist", response_model=dict)
+async def update_watchlist(category_id: int, max_price: float, user_id: int):
+    try:
+        url = f"{ITEM_SERVICE_URL}/watchlist"
+        response = requests.put(url, params={"category_id": category_id, "max_price": max_price, "user_id": user_id})
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    
+    return response.json()
+
+@app.get("/watchlist_receive", response_model=list)
+async def get_watchlist_receive(item_id: int):
+    try:
+        url = f"{ITEM_SERVICE_URL}/watchlist_receive"
+        response = requests.get(url, params={"item_id": item_id})
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    return response.json()
+
+@app.get("/watchlist_receive/{user_id}", response_model=list)
+async def get_watchlist_receive(user_id: int):
+    try:
+        url = f"{ITEM_SERVICE_URL}/watchlist_receive/{user_id}"
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    return response.json()
+
+
+@app.get("/watchlist_items", response_model=list)
+async def get_watchlist_items(watchlist_id: int):
+    try:
+        url = f"{ITEM_SERVICE_URL}/watchlist_items"
+        response = requests.get(url, params={"watchlist_id": watchlist_id})
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(response.content))
+    return response.json()
+
 ############## NOTIFICATION SERVICE APIs ####################
 
 class EmailReq(BaseModel):
