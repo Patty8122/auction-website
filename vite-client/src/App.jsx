@@ -22,41 +22,77 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
 
-          <Route path="/admin" element={<AdminPage />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute adminOnly={true}>
+                <AdminPage />
+              </ProtectedRoute>
+            }
+          />
 
-          <Route path="/" element={<ProtectedRoute />} >
-            <Route path="/cart" element={
-              <>
-                <Navbar />
-                <TestPage />
-              </>
-            } />
+          <Route
+            path="/cart"
+            element={
+              <ProtectedRoute>
+                <>
+                  <Navbar />
+                  <TestPage />
+                </>
+              </ProtectedRoute>
+            }
+          />
 
-            <Route path="/explore" element={
-              <>
-                <Navbar />
-                <ExplorePage />
-              </>
-            } />
-            <Route path="/buy" element={
-              <>
-                <Navbar />
-                <BuyPage />
-              </>
-            } />
-            <Route path="/sell" element={
-              <>
-                <Navbar />
-                <SellerPage />
-              </>
-            } />
-            <Route path="/profile" element={
-              <>
-                <Navbar />
-                <ProfilePage />
-              </>
-            } />
-          </Route>
+          <Route
+            path="/explore"
+            element={
+              <ProtectedRoute>
+                <>
+                  <Navbar />
+                  <ExplorePage />
+                </>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/buy"
+            element={
+              <ProtectedRoute>
+                <>
+                  <Navbar />
+                  <BuyPage />
+                </>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/sell"
+            element={
+              <ProtectedRoute>
+                <>
+                  <Navbar />
+                  <SellerPage />
+                </>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <>
+                  <Navbar />
+                  <ProfilePage />
+                </>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="*" element={<h1>404 - Page not found</h1>} />
+
         </Routes>
       </BrowserRouter>
       <ToastContainer

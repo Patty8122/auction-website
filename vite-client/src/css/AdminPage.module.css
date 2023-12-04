@@ -1,0 +1,26 @@
+.adminPage {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 20px;
+}
+
+.userBlockCard,
+.categoryCard,
+.auctionsCard {
+	margin-bottom: 20px;
+	padding: 15px;
+	width: 700px;
+}
+
+.userBlockCard input,
+.categoryCard input,
+.categoryCard select {
+	padding: 5px;
+	margin-right: 10px;
+}
+
+.auctionsCard ul {
+	list-style: none;
+	padding: 0;
+}
