@@ -60,6 +60,19 @@ const getItems = async () => {
   }
 }
 
+const getItemById = async (itemId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}items/${itemId}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching item:', error);
+    throw error;
+  }
+}
+
 const createItem = async (item, currentUserId) => {
   try {
     if (!currentUserId) {
@@ -149,6 +162,7 @@ export const itemService = {
   createCategory,
   getCategoryName,
   createItem,
+  getItemById,
   searchItems,
   removeItem,
   editItem

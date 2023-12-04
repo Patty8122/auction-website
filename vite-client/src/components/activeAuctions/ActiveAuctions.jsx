@@ -38,6 +38,9 @@ const ActiveAuctions = () => {
             console.log(winningBid);
             auction.current_bid = winningBid.bid_amount;
           }
+
+          const enrichedAuctions = await auctionService.enrichAuctions(auctions);
+          console.log(enrichedAuctions);
           setActiveAuctions(auctions);
         } catch (error) {
           console.error('Error fetching auctions:', error);
