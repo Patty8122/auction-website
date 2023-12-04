@@ -87,6 +87,7 @@ const AuctionCard = ({ auction }) => {
       <div className={styles.auctionInfo}>
         <p><strong>{auction.id}</strong></p>
         <p className={styles.currentBid}><strong>Current Bid:</strong> ${auction.current_bid}</p>
+        <p className={styles.bidIncrement}><strong>Bid Increment:</strong> ${auction.bid_increment}</p>
       </div>
       <div className={styles.bidSection}>
         <input 

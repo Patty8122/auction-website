@@ -158,7 +158,7 @@ async def get_bids(auction_id: int):
 
     return response.json()
 
-@app.get("/auctions/{auction_id}/current-bid", response_model=list)
+@app.get("/auctions/{auction_id}/current-bid", response_model=dict)
 async def get_current_bid(auction_id: int):
     try:
         url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/current-bid"
