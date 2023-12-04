@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 from typing import Optional
 import requests
@@ -117,15 +117,25 @@ async def create_auction(auction: AuctionCreate):
     
     return response.json()
 
+
 @app.get("/auctions", response_model=list)
-async def get_auctions():
+async def get_auctions(startDateTime: str = Query(None), endDateTime: str = Query(None), seller_id: int = Query(None)):
     try:
+        params = {}
+        if startDateTime:
+            params['startDateTime'] = startDateTime
+        if endDateTime:
+            params['endDateTime'] = endDateTime
+        if seller_id is not None:
+            params['seller_id'] = seller_id
+
         url = f"{AUCTION_SERVICE_BASE_URL}/auctions"
-        response = requests.get(url)
+        response = requests.get(url, params=params)
         response.raise_for_status()
     except requests.RequestException as e:
-        raise HTTPException(status_code=500, detail=str(response.content))
+        raise HTTPException(status_code=500, detail=str(response.content) if response else str(e))
     return response.json()
+
 
 @app.get("/auctions/{auction_id}", response_model=dict)
 async def get_auction_by_id(auction_id: int):
@@ -135,6 +145,18 @@ async def get_auction_by_id(auction_id: int):
         response.raise_for_status()
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(response.content))
+    
+    return response.json()
+
+@app.put("/auctions/{auction_id}/status", response_model=dict)
+async def update_auction_status(auction_id: int, status: str):
+    try:
+        url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/status"
+        response = requests.put(url, json={"status": status})
+        response.raise_for_status()
+    except requests.RequestException as e:
+        detail = str(e.response.content) if e.response else str(e)
+        raise HTTPException(status_code=500, detail=detail)
     
     return response.json()
 
@@ -279,6 +301,39 @@ def get_category_by_id(category_id: int):
         response.raise_for_status()
     except requests.RequestException as e:
         raise HTTPException(status_code=500)
+    return response.json()
+
+@app.put("/category/{category_id}", response_model=dict)
+def change_category_name(category_id: int, category_data: dict):
+    url = f"{ITEM_SERVICE_URL}/category/{category_id}"
+    headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
+    try:
+        response = requests.put(url, headers=headers, json=category_data)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=response.status_code, detail=str(e))
+    return response.json()
+
+@app.delete("/category/{category_id}", response_model=dict)
+def delete_category(category_id: int):
+    url = f"{ITEM_SERVICE_URL}/category/{category_id}"
+    headers = {'Accept': 'application/json'}
+    try:
+        response = requests.delete(url, headers=headers)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=response.status_code, detail=str(e))
+    return {"message": "Category deleted successfully"}
+
+@app.get("/category-by-name/{category_name}", response_model=list[dict])
+def get_category_by_name(category_name: str):
+    url = f"{ITEM_SERVICE_URL}/category-by-name/{category_name}"
+    headers = {'Accept': 'application/json'}
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=response.status_code, detail=str(e))
     return response.json()
 
 @app.post("/items")

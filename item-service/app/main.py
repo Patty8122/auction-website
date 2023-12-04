@@ -18,7 +18,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import select
+from sqlalchemy import select, update, delete
 
 import re
 from fastapi import Query
@@ -101,6 +101,14 @@ async def create_category(category: models.CategoryIn, db: Session = Depends(get
     if db is None:
         raise HTTPException(status_code=404, detail="Database not found")
 
+    # Check if category already exists
+    existing_category = db.execute(
+        select(Category).where(Category.category == category.category)
+    ).scalar()
+
+    if existing_category:
+        raise HTTPException(status_code=400, detail="Category already exists")
+
     db_category = Category(
         created_at=category.created_at,
         category=category.category)
@@ -136,6 +144,60 @@ async def get_category(category_id: int, db: Session = Depends(get_db)):
 
     return db_category
 
+@app.get("/category-by-name/{category_name}", response_model=list[dict], status_code=200)
+async def get_categories_by_name(category_name: str, db: Session = Depends(get_db)):
+    stmt = select(Category).where(Category.category == category_name)
+    result = db.execute(stmt)
+    db_categories = result.scalars().all()
+
+    if not db_categories:
+        raise HTTPException(status_code=404, detail="No categories found with this name")
+
+    return [{"id": category.id, "category": category.category} for category in db_categories]
+
+@app.put("/category/{category_id}", response_model=models.Category, status_code=200)
+async def update_category(category_id: int, new_category_data: models.CategoryIn, db: Session = Depends(get_db)):
+    # Check if new category name already exists
+    existing_category = db.execute(
+        select(Category).where(Category.category == new_category_data.category)
+    ).scalar()
+    if existing_category:
+        raise HTTPException(status_code=400, detail="Category name already exists")
+
+    # Update the category
+    db.execute(
+        update(Category)
+        .where(Category.id == category_id)
+        .values(category=new_category_data.category)
+    )
+    db.commit()
+
+    updated_category = db.execute(
+        select(Category).where(Category.id == category_id)
+    ).scalar()
+
+    if not updated_category:
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    return updated_category
+
+@app.delete("/category/{category_id}", status_code=200)
+async def delete_category(category_id: int, db: Session = Depends(get_db)):
+    # Check if category exists
+    existing_category = db.execute(
+        select(Category).where(Category.id == category_id)
+    ).scalar()
+
+    if not existing_category:
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    # Delete the category
+    db.execute(
+        delete(Category).where(Category.id == category_id)
+    )
+    db.commit()
+
+    return {"message": "Category deleted successfully"}
 
 @app.post("/items", response_model=Union[models.Item, None], status_code=201)
 def create_item_user(item: models.ItemIn, user_id: int, db: Session = Depends(get_db)):

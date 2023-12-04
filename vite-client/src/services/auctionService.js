@@ -2,9 +2,12 @@ import { itemService } from './itemService';
 
 const API_BASE_URL = '/api/auctions';
 
-const getAuctions = async () => {
+const getAuctions = async (options = {}) => {
   try {
-    const response = await fetch(API_BASE_URL);
+    const queryParams = new URLSearchParams(options).toString();
+    const url = queryParams ? `${API_BASE_URL}?${queryParams}` : API_BASE_URL;
+
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -44,6 +47,33 @@ const getAuctionById = async (id) => {
   } catch (error) {
     console.error(`Error fetching auction with id ${id}:`, error);
     throw error;
+  }
+};
+
+const setAuctionStatus = async (id, status) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auctions/${id}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data.message === 'Auction status updated successfully') {
+      return { success: true, data };
+    } else {
+      return { success: false, error: 'Update was not successful' };
+    }
+
+  } catch (error) {
+    console.error(`Error updating status for auction with id ${id}:`, error);
+    throw new Error(`Error updating auction status: ${error.message}`);
   }
 };
 
@@ -149,4 +179,5 @@ export const auctionService = {
   getCurrentBid,
   getFinalBid,
   enrichAuctions,
+  setAuctionStatus,
 };

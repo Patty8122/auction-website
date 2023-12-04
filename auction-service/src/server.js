@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
+import moment from 'moment';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
 import swaggerUi from 'swagger-ui-express';
@@ -198,24 +199,30 @@ app.post('/auctions', validateAuction, async (req, res) => {
  */
 app.get('/auctions', async (req, res) => {
     try {
-        const { startDateTime, endDateTime } = req.query;
+        const { startDateTime, endDateTime, seller_id } = req.query;
 
         let queryText = 'SELECT * FROM auctions';
         const queryParams = [];
 
-        if (startDateTime || endDateTime) {
-            queryText += ' WHERE';
+        let conditions = [];
 
-            if (startDateTime) {
-                queryParams.push(startDateTime);
-                queryText += ` start_time >= $${queryParams.length}`;
-            }
+        if (startDateTime) {
+            queryParams.push(startDateTime);
+            conditions.push(`start_time >= $${queryParams.length}`);
+        }
 
-            if (endDateTime) {
-                if (queryParams.length) queryText += ' AND';
-                queryParams.push(endDateTime);
-                queryText += ` end_time <= $${queryParams.length}`;
-            }
+        if (endDateTime) {
+            queryParams.push(endDateTime);
+            conditions.push(`end_time <= $${queryParams.length}`);
+        }
+
+        if (seller_id) {
+            queryParams.push(seller_id);
+            conditions.push(`seller_id = $${queryParams.length}`);
+        }
+
+        if (conditions.length) {
+            queryText += ' WHERE ' + conditions.join(' AND ');
         }
 
         const result = await query(queryText, queryParams);
@@ -225,6 +232,7 @@ app.get('/auctions', async (req, res) => {
         res.status(500).send('Error retrieving auctions');
     }
 });
+
 
 /**
  * @swagger
@@ -335,7 +343,19 @@ app.put('/auctions/:id/status', async (req, res) => {
             return res.status(400).send('Status is required');
         }
 
-        const result = await query('UPDATE auctions SET status = $1 WHERE id = $2 RETURNING *', [status, id]);
+        let queryText;
+        let queryParams;
+
+        if (status === 'complete') {
+            const endTime = moment().add(2, 'seconds').format('YYYY-MM-DD HH:mm:ss');
+            queryText = 'UPDATE auctions SET status = $1, end_time = $2 WHERE id = $3 RETURNING *';
+            queryParams = [status, endTime, id];
+        } else {
+            queryText = 'UPDATE auctions SET status = $1 WHERE id = $2 RETURNING *';
+            queryParams = [status, id];
+        }
+
+        const result = await query(queryText, queryParams);
 
         if (result.rows.length > 0) {
             res.status(200).json({
