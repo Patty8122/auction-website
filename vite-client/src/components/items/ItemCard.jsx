@@ -2,17 +2,70 @@ import { Button, Card } from '@/components/ui';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useUser } from '@/hooks/user/useUser';
-import { itemService } from '@/services/itemService';
+import { itemService } from '@/services/itemService';   
+import { auctionService } from '@/services/auctionService';
 import Container from './Container';
+import ContainerBid from './ContainerBid';
+
 
 import styles from './ItemCard.module.css';
 
 const ItemCard = ({ item, category, ...props }) => {
     const { currentUser } = useUser();
     const [isDeleted, setIsDeleted] = useState(false);
+    
+    const convertToUTC = () => {
+   
+        // Convert the datetime to UTC string format
+        const utcString = new Date().toUTCString();
+    
+        return utcString;
+    }
+
+    const onBid = async (event, itemId) => {
+        event.preventDefault(event);
+        // itemid: 'Item Id',
+        // startDateTime: 'Start Date Time',
+        // endDateTime: 'End Date Time',
+        // startingPrice: 'Starting Price',
+        // sellerId: 'Seller Id',
+        // bidIncrement: 'Bid Increment',
+        const {itemid, startDateTime, endDateTime, startingPrice, sellerId, bidIncrement} = event.target;
+        console.log("event.target", event.target);
+        console.log("itemid", itemid.value);
+        console.log("startDateTime", startDateTime.value);
+        console.log("endDateTime", endDateTime.value);
+        console.log("startingPrice", startingPrice.value);
+        console.log("sellerId", sellerId.value);
+        console.log("bidIncrement", bidIncrement.value);
+
+        var auction = {}
+        if (itemid && itemid.value !== '') {
+            auction.item_id = parseInt(itemid.value);
+        }
+        if (startDateTime && startDateTime.value !== '') {
+            auction.start_date_time = startDateTime.value;
+        }
+        if (endDateTime && endDateTime.value !== '') {
+            auction.end_date_time = endDateTime.value;
+        }
+        if (startingPrice && startingPrice.value !== '') {
+            auction.starting_price = parseFloat(startingPrice.value);
+        }
+        if (sellerId && sellerId.value !== '') {
+            auction.seller_id = parseInt(sellerId.value);
+        }
+        if (bidIncrement && bidIncrement.value !== '') {
+            auction.bid_increment = parseFloat(bidIncrement.value);
+        }
+
+        console.log("auction", auction)
+        toast.success(`Bid item ${itemId}`);
+        // await itemService.bidItem(auction, itemId);
+        // await auctionService.createAuction(auction, itemId);
 
 
-
+    }
 
 
     const onEdit = async (event, item) => {
@@ -103,6 +156,16 @@ const ItemCard = ({ item, category, ...props }) => {
                     (   
                         <div>
                         <Container triggerText={'Edit Item'} onSubmit={(event) => onEdit(event, item)} placeholders={item}/>
+                        <ContainerBid triggerText={'Start Auction'} onSubmit={(event) => onBid(event, item.id)} placeholders={
+                            {
+                                itemid: item.id,
+                                startDateTime: convertToUTC(),
+                                endDateTime: convertToUTC(),
+                                startingPrice: item.initial_bid_price,
+                                sellerId: item.seller_id,
+                                bidIncrement: 5,
+                            }
+                        }/>
                         <Button onClick={() => onRemove(item.id)}>Remove</Button>
                         </div>
                     )}
