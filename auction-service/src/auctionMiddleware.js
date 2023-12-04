@@ -4,7 +4,7 @@ const fetchAuctionData = async (req, res, next) => {
     const auctionId = req.params.id;
 
     try {
-        const auctionResult = await query('SELECT start_time, end_time, status, current_bid, bid_increment FROM auctions WHERE id = $1', [auctionId]);
+        const auctionResult = await query('SELECT start_time, end_time, status, winning_bid_id, bid_increment FROM auctions WHERE id = $1', [auctionId]);
         if (auctionResult.rows.length === 0) {
             return res.status(404).send('Auction not found');
         }
