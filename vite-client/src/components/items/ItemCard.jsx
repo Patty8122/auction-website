@@ -14,15 +14,29 @@ const ItemCard = ({ item, category, ...props }) => {
     const { currentUser } = useUser();
     const [isDeleted, setIsDeleted] = useState(false);
     
-    const convertToUTC = () => {
-   
-        // Convert the datetime to UTC string format
-        const utcString = new Date().toUTCString();
+    const convertToUTC = (dateString) => {
+
+        if (!dateString) {
+            return null;
+        }
+        const inputDate = new Date(dateString);
+        
+        // Create a new date in UTC
+        const outputDate = new Date(Date.UTC(
+            inputDate.getUTCFullYear(),
+            inputDate.getUTCMonth(),
+            inputDate.getUTCDate(),
+            inputDate.getUTCHours(),
+            inputDate.getUTCMinutes()
+        ));
     
-        return utcString;
+        // Format the output date as a string
+        const formattedOutputDateTime = outputDate.toISOString().slice(0, 19).replace("T", " ");
+    
+        return formattedOutputDateTime;
     }
 
-    const onBid = async (event, itemId) => {
+    const onBid = async (event, item) => {
         event.preventDefault(event);
         // itemid: 'Item Id',
         // startDateTime: 'Start Date Time',
@@ -39,15 +53,23 @@ const ItemCard = ({ item, category, ...props }) => {
         console.log("sellerId", sellerId.value);
         console.log("bidIncrement", bidIncrement.value);
 
-        var auction = {}
+        var auction = {
+            "item_id": item.id,
+            "seller_id": item.seller_id,
+            "start_time": startDateTime.value,
+            "end_time": endDateTime.value,
+            "starting_price": item.initial_bid_price,
+            "status": "active",
+            "bid_increment": 5
+        }
         if (itemid && itemid.value !== '') {
             auction.item_id = parseInt(itemid.value);
         }
         if (startDateTime && startDateTime.value !== '') {
-            auction.start_date_time = startDateTime.value;
+            auction.start_time = convertToUTC(startDateTime.value)
         }
         if (endDateTime && endDateTime.value !== '') {
-            auction.end_date_time = endDateTime.value;
+            auction.end_time = convertToUTC(endDateTime.value)
         }
         if (startingPrice && startingPrice.value !== '') {
             auction.starting_price = parseFloat(startingPrice.value);
@@ -60,9 +82,9 @@ const ItemCard = ({ item, category, ...props }) => {
         }
 
         console.log("auction", auction)
-        toast.success(`Bid item ${itemId}`);
+        toast.success(`Bid item ${item.id}`);
         // await itemService.bidItem(auction, itemId);
-        // await auctionService.createAuction(auction, itemId);
+        await auctionService.createAuction(auction);
 
 
     }
@@ -156,7 +178,7 @@ const ItemCard = ({ item, category, ...props }) => {
                     (   
                         <div>
                         <Container triggerText={'Edit Item'} onSubmit={(event) => onEdit(event, item)} placeholders={item}/>
-                        <ContainerBid triggerText={'Start Auction'} onSubmit={(event) => onBid(event, item.id)} placeholders={
+                        <ContainerBid triggerText={'Start Auction'} onSubmit={(event) => onBid(event, item)} placeholders={
                             {
                                 itemid: item.id,
                                 startDateTime: convertToUTC(),
