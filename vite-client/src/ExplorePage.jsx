@@ -18,6 +18,16 @@ const ExplorePage = () => {
     const fetchAuctions = async () => {
       try {
         const auctions = await auctionService.getAuctions();
+        for (let auction of auctions) {
+          auction.current_bid = 0;
+          try {
+            const winningBid = await auctionService.getCurrentBid(auction.id);
+            auction.current_bid = winningBid.bid_amount;
+          } catch (error) {
+            console.error('Error fetching current bid:', error);
+          }
+        }
+
         const enrichedAuctions = await auctionService.enrichAuctions(auctions);
         let filteredAuctions = enrichedAuctions;
 
