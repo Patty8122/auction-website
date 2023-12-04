@@ -52,12 +52,12 @@ const getAuctionById = async (id) => {
 
 const setAuctionStatus = async (id, status) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/auctions/${id}/status`, {
+    const response = await fetch(`${API_BASE_URL}/${id}/status`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ "status": status })
     });
 
     if (!response.ok) {
@@ -76,6 +76,27 @@ const setAuctionStatus = async (id, status) => {
     throw new Error(`Error updating auction status: ${error.message}`);
   }
 };
+
+const endAuction = async (id) => {
+  try {
+    const response = await fetch(`/api/end_auction/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Error ending auction with id ${id}:`, error);
+    throw error;
+  }
+};
+
 
 const getAuctionsByUserId = async (userId) => {
   try {
@@ -180,4 +201,5 @@ export const auctionService = {
   getFinalBid,
   enrichAuctions,
   setAuctionStatus,
+  endAuction,
 };

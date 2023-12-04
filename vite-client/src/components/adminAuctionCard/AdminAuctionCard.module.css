@@ -1,0 +1,48 @@
+.auctionCard {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.cardHeader {
+  text-align: left;
+  width: 30%;
+}
+
+.cardBody {
+  display: flex;
+  width: 70%;
+}
+
+.bidInfo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+  
+  .currentBid {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 10px;
+  }
+  
+  .bidSection {
+    display: flex;
+    margin-bottom: 10px;
+  }
+  
+  .bidInput {
+    width: 60%;
+    margin-right: 5px;
+    margin-bottom: 0;
+    padding: 0px;
+  }
+  
+  .timeLeft {
+    margin-left: 10px;
+    margin-top: 20px;
+  }

@@ -654,11 +654,11 @@ async def end_auction(auction_id: int):
         print(f"{item_name=} {auction_id=}")
 
         # Get the final_bid for this auction
-        url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/final-bid"
+        url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/current-bid"
         response = requests.get(url)
         response.raise_for_status()
         response = response.json()
-        final_price = response.get("final_bid")
+        final_price = response.get("bid_amount")
         winner = response.get("user_id")
         
         # Get the Seller Email
@@ -686,7 +686,7 @@ async def end_auction(auction_id: int):
         
         # Update auction status to "ended"
         url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/status"
-        response = requests.put(url, json={"status": "ended"})
+        response = requests.put(url, json={"status": "complete"})
         response.raise_for_status()
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(response.content))
