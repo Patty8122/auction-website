@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Card, Button } from '@/components/ui';
 import { userService } from '@/services/userService';
+import { itemService } from '@/services/itemService';
 import { useUser } from '@/hooks/user/useUser';
 import styles from '@/css/AdminPage.module.css';
 
@@ -37,10 +38,17 @@ const AdminPage = () => {
 		setNewCategory(e.target.value);
 	};
 
-	const handleAddCategory = () => {
-		console.log(`Adding new category: ${newCategory}`);
-		// Implement logic to add new category
+	const handleAddCategory = async () => {
+		try {
+			const res = await itemService.getCategoryByName(newCategory);
+			console.log(res);
+			await itemService.createCategory(newCategory);
+			toast.success('Category created successfully');
+		} catch (error) {
+			toast.error('Could not create category');
+		}
 	};
+	
 
 	const handleSelectCategory = (e) => {
 		setSelectedCategory(e.target.value);
@@ -70,20 +78,44 @@ const AdminPage = () => {
 
 			<Card className={styles.categoryCard}>
 				<h3>Manage Categories</h3>
-				<div>
+
+				{/* Row for Add Category */}
+				<div className={styles.categoryAction}>
 					<input
 						type="text"
 						value={newCategory}
 						onChange={handleCategoryChange}
 						placeholder="New Category Name"
 					/>
-					<Button onClick={handleAddCategory}>Add Category</Button>
+					<Button onClick={handleAddCategory}>Create</Button>
 				</div>
-				<div>
-					<select value={selectedCategory} onChange={handleSelectCategory}>
-						{/* Populate categories here */}
-					</select>
+
+				{/* Row for Modify Category */}
+				<div className={styles.categoryAction}>
+					<input
+						type="text"
+						value={selectedCategory}
+						placeholder="Current Category Name"
+						onChange={handleSelectCategory} // or another appropriate handler
+					/>
+					<span className={styles.arrow}>→</span>
+					<input
+						type="text"
+						value={newCategory}
+						placeholder="New Category Name"
+						onChange={handleCategoryChange}
+					/>
 					<Button onClick={handleModifyCategory}>Modify</Button>
+				</div>
+
+				{/* Row for Remove Category */}
+				<div className={styles.categoryAction}>
+					<input
+						type="text"
+						value={selectedCategory}
+						onChange={handleSelectCategory}
+						placeholder="Category to Remove"
+					/>
 					<Button onClick={handleRemoveCategory}>Remove</Button>
 				</div>
 			</Card>

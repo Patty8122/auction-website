@@ -28,6 +28,19 @@ const getCategories = async () => {
   }
 };
 
+const getCategoryByName = async (categoryName) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}category-by-name/${categoryName}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching category by name:', error);
+    throw error;
+  }
+};
+
 const createCategory = async (categoryName) => {
   try {
     const response = await fetch(`${API_BASE_URL}category`, {
@@ -161,6 +174,7 @@ export const itemService = {
   getCategories,
   createCategory,
   getCategoryName,
+  getCategoryByName,
   createItem,
   getItemById,
   searchItems,

@@ -29,3 +29,27 @@
 	list-style: none;
 	padding: 0;
 }
+
+.categoryCard {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+}
+
+.categoryAction {
+	display: flex;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.categoryAction input,
+.categoryAction select {
+	flex-grow: 1;
+	padding: 5px;
+	margin-right: 10px;
+}
+
+.categoryAction .arrow {
+	margin: 0 10px;
+	font-weight: bold;
+}

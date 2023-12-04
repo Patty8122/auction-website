@@ -101,6 +101,14 @@ async def create_category(category: models.CategoryIn, db: Session = Depends(get
     if db is None:
         raise HTTPException(status_code=404, detail="Database not found")
 
+    # Check if category already exists
+    existing_category = db.execute(
+        select(Category).where(Category.category == category.category)
+    ).scalar()
+
+    if existing_category:
+        raise HTTPException(status_code=400, detail="Category already exists")
+
     db_category = Category(
         created_at=category.created_at,
         category=category.category)
@@ -136,6 +144,16 @@ async def get_category(category_id: int, db: Session = Depends(get_db)):
 
     return db_category
 
+@app.get("/category-by-name/{category_name}", response_model=list[dict], status_code=200)
+async def get_categories_by_name(category_name: str, db: Session = Depends(get_db)):
+    stmt = select(Category).where(Category.category == category_name)
+    result = db.execute(stmt)
+    db_categories = result.scalars().all()
+
+    if not db_categories:
+        raise HTTPException(status_code=404, detail="No categories found with this name")
+
+    return [{"id": category.id, "category": category.category} for category in db_categories]
 
 @app.post("/items", response_model=Union[models.Item, None], status_code=201)
 def create_item_user(item: models.ItemIn, user_id: int, db: Session = Depends(get_db)):
