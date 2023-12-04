@@ -57,10 +57,12 @@ const App = () => {
   return (
     <div>
         {currentUser && currentUser.user_type == 'customer' && (
-          <div>
-            <Container triggerText={'Create Item'} onSubmit={onSubmit} />
+          <div >
+            <div style={{margin: '2rem auto', width: 'fit-content'}}>
+              <Container triggerText={'Create Item'} onSubmit={onSubmit} />
+            </div>
             <MyItems />
-            <MyActiveAuctions />
+            {/* <MyActiveAuctions /> */}
           </div>
         )}
     </div>
