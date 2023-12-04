@@ -421,7 +421,7 @@ app.post('/auctions/:id/bids', fetchAuctionData, validateBid, async (req, res) =
     try {
         // Ensure the auction is active
         const auction = await query('SELECT * FROM auctions WHERE id = $1', [auctionId]);
-        if (!auction.rows.length || auction.rows[0].status !== 'active') {
+        if (!auction.rows.length || (auction.rows[0].status !== 'active' && auction.rows[0].status !== 'pending')) {
             return res.status(400).send('Auction is not active');
         }
 
