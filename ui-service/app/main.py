@@ -399,7 +399,7 @@ def send_message_to_queue(message):
     print(f"Message sent to '{queue_name}': {message}")
     
 @app.post("/email")
-async def post_to_email_queue(data: EmailReq):
+def post_to_email_queue(data: EmailReq):
     try:
         send_message_to_queue(data.model_dump_json())
         return {"message": "Data posted to the queue successfully."}
@@ -425,36 +425,57 @@ async def start_auction(auction_id: int):
 
     print(f"Auction {auction_id} Started from ui-service!")
 
-@app.post("/end_auction/{auction_id}/{item_id}")
-async def end_auction(auction_id: int, item_id: int):
+@app.post("/end_auction/{auction_id}")
+async def end_auction(auction_id: int):
     # Tasks to do when auction ends
     try:
+        # Get the auction details
+        url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}"
+        response = requests.get(url)
+        response.raise_for_status()
+        response = response.json()
+        seller_id = response.get("seller_id")
+        item_id = response.get("item_id")
+        print(f"{seller_id=} {item_id=}")
+        
         # Get item details
         url = f"{ITEM_SERVICE_URL}/items/{item_id}"
         response = requests.get(url)
         response.raise_for_status()
+        response = response.json()
+        item_name = response.get("title")
+        print(f"{item_name=} {auction_id=}")
 
         # Get the final_bid for this auction
-        url = f"{AUCTION_SERVICE_BASE_URL}/{auction_id}/final-bid"
+        url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/final-bid"
         response = requests.get(url)
         response.raise_for_status()
-        seller_id = response.get("seller_id")
+        response = response.json()
         final_price = response.get("final_bid")
+        winner = response.get("user_id")
         
         # Get the Seller Email
         response = requests.get(f"{USER_SERVICE_URL}/get_user/{seller_id}")
         response.raise_for_status()
+        response = response.json()
         email = response.get("email")
-        
+        print(f"Seller email: {email}")
         # Email the seller that auction ended and final price
-        post_to_email_queue({"to_address": email, 
-                             "subject":f"Auction Ended for Item {item_id}",
-                             "body":f"Good News! Your item {item_id} has been sold for ${final_price} !!!"})
-        response.raise_for_status()
+        post_to_email_queue(EmailReq(to_address=email,
+                             subject=f"Auction Ended for Item {item_name}",
+                             body=f"Good News! Your item {item_name} has been sold for ${final_price} !!!"))
         
         # Get the user details for the user that won
+        response = requests.get(f"{USER_SERVICE_URL}/get_user/{winner}")
+        response.raise_for_status()
+        response = response.json()
+        email = response.get("email")
+        print(f"Winner email: {email}")
         
         # Email the user that has won the auction with final price
+        post_to_email_queue(EmailReq(to_address=email, 
+                             subject=f"You Won ! Auction Ended for Item {item_name}",
+                             body=f"Congratulations! You won the auction for {item_name} for ${final_price} !!!"))
         
         # Update auction status to "ended"
         url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/status"
