@@ -18,11 +18,8 @@ const ProtectedRoute = ({ adminOnly = false, children }) => {
     }
 
     if (!adminOnly && currentUser.user_type === 'admin') {
-        console.log("Redirecting to admin page")
         return <Navigate to="/admin" replace />;
     }
-
-    console.log("Rendering protected route")
 
     return children;
 };

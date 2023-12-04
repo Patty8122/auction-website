@@ -113,8 +113,10 @@ def remove_comments(user_id: int):
 def delete_user(user_id: int):
     customer = Customer()
     try:
-        customer.delete_user(user_id)
-        return {"message": "User deleted successfully"}
+        deletion_successful = customer.delete_user(user_id)
+        if not deletion_successful:
+            return {"message": "User not found or could not be deleted", "status": "failed"}
+        return {"message": "User deleted successfully", "status": "success"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

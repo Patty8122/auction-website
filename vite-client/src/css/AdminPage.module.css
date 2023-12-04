@@ -5,6 +5,11 @@
 	padding: 20px;
 }
 
+.adminPage input {
+	margin-bottom: 0;
+	height: 32px;
+}
+
 .userBlockCard,
 .categoryCard,
 .auctionsCard {
