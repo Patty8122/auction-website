@@ -137,7 +137,7 @@ services:
   logging-service:
     build: ./logging-service
     environment:
-      - AMQP_URL=amqp://rabbit_mq?connection_attempts=10&retry_delay=10
+      - AMQP_URL=amqp://rabbit_mq?connection_attempts=10&retry_delay=10&heartbeat=0
       - MONGODB_HOST=mongodb_service
       - MONGODB_PORT=27017
     depends_on:

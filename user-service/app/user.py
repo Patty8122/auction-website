@@ -122,7 +122,7 @@ class Customer(User):
         return self.cursor.fetchall()
     
 
-    def update_user(self, user_id: int, status: int = None, email: str = None, seller_rating: str = None):
+    def update_user(self, user_id: int, email: str ):
         existing_user = self.get_user_by_id(user_id)
         if not existing_user:
             raise Exception("This user does not exist")
@@ -131,16 +131,17 @@ class Customer(User):
             if existing_user["status"] == -1:
                 raise Exception("Blocked users cannot be updated.")
 
-        set_clause = ", ".join(f"{field} = %s" for field, value in [('status', status), ('email', email), ('seller_rating', seller_rating)] if value is not None)
+        # set_clause = ", ".join(f"{field} = %s" for field, value in [('status', status), ('email', email), ('seller_rating', seller_rating)] if value is not None)
 
         update_query = f"""
             UPDATE {table_name} SET
-            {set_clause}
+            email = %s
             WHERE user_id = %s
         """
 
+
         # Build the parameter values for the query
-        query_params = [value for value in [status, email, seller_rating, user_id] if value is not None]
+        query_params = [email, user_id]
 
         # Execute the update query
         self.cursor.execute(update_query, query_params)

@@ -7,6 +7,7 @@ import datetime
 import pika
 import json
 import os
+import datetime
 
 app = FastAPI()
 
@@ -17,8 +18,8 @@ ITEM_SERVICE_URL = "http://item-service:3004"
 
 ############## USER SERVICE APIs ####################
 class User(BaseModel):
-    username: str
-    password: str
+    username: Optional[str] = None
+    password: Optional[str] = None
     email: Optional[str] = None
     status: Optional[int] = None
     seller_rating: Optional[str] = None
@@ -61,10 +62,10 @@ async def suspend_user(user_id: int):
     return {"message": f"User with id : {user_id} has been suspended"}
 
 @app.put("/update_user/{user_id}")
-async def update_user(user_id: int, user: User):
+async def update_user(user_id: int, email: str):
     try:
         
-        response = requests.put(f"{USER_SERVICE_URL}/update_user/{user_id}", params=user.model_dump())
+        response = requests.put(f"{USER_SERVICE_URL}/update_user/{user_id}?email={email}")
         response.raise_for_status()
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -146,7 +147,7 @@ async def get_auctions(startDateTime: str = Query(None), endDateTime: str = Quer
         response = requests.get(url, params=params)
         response.raise_for_status()
     except requests.RequestException as e:
-        raise HTTPException(status_code=500, detail=str(response.content) if response else str(e))
+        raise HTTPException(status_code=500, detail=str(response.content))
     return response.json()
 
 
@@ -256,6 +257,7 @@ class ItemIn(BaseModel):
     photo_url3: Optional[str] = None
     photo_url4: Optional[str] = None
     photo_url5: Optional[str] = None
+    # listing_status: Optional[bool] = False
 
 class Item(BaseModel):
     id: int
@@ -274,7 +276,7 @@ class Item(BaseModel):
     photo_url3: Optional[str]
     photo_url4: Optional[str]
     photo_url5: Optional[str]
-
+    listing_status: bool
 
 class DeleteItem(BaseModel):
     user_id: int
@@ -535,6 +537,8 @@ async def get_watchlist_items(watchlist_id: int):
 
 ############## NOTIFICATION SERVICE APIs ####################
 
+############## NOTIFICATION SERVICE APIs ####################
+
 class EmailReq(BaseModel):
     from_address: Optional[str] = "teambitmasters@gmail.com"
     to_address: str
@@ -567,7 +571,7 @@ def send_message_to_queue(message):
     print(f"Message sent to '{queue_name}': {message}")
     
 @app.post("/email")
-async def post_to_email_queue(data: EmailReq):
+def post_to_email_queue(data: EmailReq):
     try:
         send_message_to_queue(data.model_dump_json())
         return {"message": "Data posted to the queue successfully."}
@@ -575,7 +579,42 @@ async def post_to_email_queue(data: EmailReq):
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
     
+############## LOGGING SERVICE APIs ####################   
+
+# class LogReq(BaseModel):
+#     timestamp: datetime.datetime.now()
+#     service_name: Optional[str] = "ui-service"
+#     log_type: str
+#     message: str
     
+# connection2 = pika.BlockingConnection(url_params)
+# channel2 = connection2.channel()
+# # Declare the RabbitMQ queue
+# log_queue_name = 'logs_service_queue'
+# channel2.queue_declare(queue=log_queue_name, durable=True)
+
+# def send_message_to_log_queue(message):
+#     # Send the message to the RabbitMQ queue
+#     print("Sending message to queue")
+#     channel.basic_publish(
+#         exchange='',
+#         routing_key=log_queue_name,
+#         body=message,
+#         properties=pika.BasicProperties(
+#             delivery_mode=2,  # Make the message persistent
+#         )
+#     )
+#     print(f"Message sent to '{queue_name}': {message}")
+    
+# @app.post("/log")
+# def post_to_log_queue(data: LogReq):
+#     try:
+#         send_message_to_queue(data.model_dump_json())
+#         return {"message": "Data posted to the Log queue successfully."}
+#     except Exception as e:
+#         print(f"Error: {e}")
+#         raise HTTPException(status_code=500, detail="Internal Server Error")
+
 ############## MULTI SERVICE APIs ####################
 
 class AuctionStatus(BaseModel):
@@ -583,6 +622,7 @@ class AuctionStatus(BaseModel):
 
 @app.post("/start_auction/{auction_id}")
 async def start_auction(auction_id: int):
+    # Tasks to do when auction starts
     try:
         url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/status"
         response = requests.put(url, json={"status": "active"})
@@ -590,39 +630,59 @@ async def start_auction(auction_id: int):
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(response.content))
 
-    # Tasks to do when auction starts
     print(f"Auction {auction_id} Started from ui-service!")
 
-@app.post("/end_auction/{auction_id}/{item_id}")
-async def end_auction(auction_id: int, item_id: int):
-    
+@app.post("/end_auction/{auction_id}")
+async def end_auction(auction_id: int):
+    # Tasks to do when auction ends
     try:
+        # Get the auction details
+        url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}"
+        response = requests.get(url)
+        response.raise_for_status()
+        response = response.json()
+        seller_id = response.get("seller_id")
+        item_id = response.get("item_id")
+        print(f"{seller_id=} {item_id=}")
+        
         # Get item details
         url = f"{ITEM_SERVICE_URL}/items/{item_id}"
         response = requests.get(url)
         response.raise_for_status()
+        response = response.json()
+        item_name = response.get("title")
+        print(f"{item_name=} {auction_id=}")
 
         # Get the final_bid for this auction
-        url = f"{AUCTION_SERVICE_BASE_URL}/{auction_id}/final-bid"
+        url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/final-bid"
         response = requests.get(url)
         response.raise_for_status()
-        seller_id = response.get("seller_id")
+        response = response.json()
         final_price = response.get("final_bid")
+        winner = response.get("user_id")
         
         # Get the Seller Email
         response = requests.get(f"{USER_SERVICE_URL}/get_user/{seller_id}")
         response.raise_for_status()
+        response = response.json()
         email = response.get("email")
-        
+        print(f"Seller email: {email}")
         # Email the seller that auction ended and final price
-        post_to_email_queue({"to_address": email, 
-                             "subject":f"Auction Ended for Item {item_id}",
-                             "body":f"Good News! Your item {item_id} has been sold for ${final_price} !!!"})
-        response.raise_for_status()
+        post_to_email_queue(EmailReq(to_address=email,
+                             subject=f"Auction Ended for Item {item_name}",
+                             body=f"Good News! Your item {item_name} has been sold for ${final_price} !!!"))
         
         # Get the user details for the user that won
+        response = requests.get(f"{USER_SERVICE_URL}/get_user/{winner}")
+        response.raise_for_status()
+        response = response.json()
+        email = response.get("email")
+        print(f"Winner email: {email}")
         
         # Email the user that has won the auction with final price
+        post_to_email_queue(EmailReq(to_address=email, 
+                             subject=f"You Won ! Auction Ended for Item {item_name}",
+                             body=f"Congratulations! You won the auction for {item_name} for ${final_price} !!!"))
         
         # Update auction status to "ended"
         url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/status"
@@ -631,5 +691,4 @@ async def end_auction(auction_id: int, item_id: int):
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(response.content))
     
-    # Tasks to do when auction ends
     print(f"Auction {auction_id} Ended from ui-service!")
