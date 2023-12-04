@@ -40,10 +40,12 @@ async def delete_user(user_id: int):
     try:
         response = requests.delete(f"{USER_SERVICE_URL}/delete_user/{user_id}")
         response.raise_for_status()
+        data = response.json()
+
+        return {"message": data["message"], "status": data["status"]}
+
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(e))
-   
-    return {"message": f"User with id : {user_id} has been deleted"}
 
 # Endpoint to suspend a user
 @app.put("/suspend_user/{user_id}")

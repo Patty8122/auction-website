@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { Card, Button } from '@/components/ui';
+import { userService } from '@/services/userService';
 import { useUser } from '@/hooks/user/useUser';
 import styles from '@/css/AdminPage.module.css';
 
@@ -22,9 +24,13 @@ const AdminPage = () => {
 		setUserId(e.target.value);
 	};
 
-	const handleBlockUser = () => {
-		console.log(`Blocking user with ID: ${userId}`);
-		// Implement logic to block user
+	const handleBlockUser = async () => {
+		try {
+			await userService.deleteUser(userId);
+			toast.success('User blocked successfully');
+		} catch (error) {
+			toast.error('User does not exist')
+		}
 	};
 
 	const handleCategoryChange = (e) => {
@@ -59,7 +65,7 @@ const AdminPage = () => {
 					onChange={handleUserIdChange}
 					placeholder="Enter User ID"
 				/>
-				<Button onClick={handleBlockUser}>Block User</Button>
+				<Button onClick={handleBlockUser}>BLOCK</Button>
 			</Card>
 
 			<Card className={styles.categoryCard}>
