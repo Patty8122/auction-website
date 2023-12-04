@@ -3,6 +3,7 @@ import { useUser } from '@/hooks/user/useUser';
 import SearchAuctions from '@/components/searchAuctions/SearchAuctions';
 import SearchCard from './components/searchCard/SearchCard';
 import { auctionService } from '@/services/auctionService';
+import { itemService } from '@/services/itemService';
 import styles from './css/ExplorePage.module.css';
 
 const ExplorePage = () => {
@@ -16,23 +17,24 @@ const ExplorePage = () => {
 
     const fetchAuctions = async () => {
       try {
-        const auctions = await auctionService.getAuctions(searchCriteria);
-        const processedAuctions = [];
+        const auctions = await auctionService.getAuctions();
+        const enrichedAuctions = await auctionService.enrichAuctions(auctions);
+        let filteredAuctions = enrichedAuctions;
 
-        for (let auction of auctions) {
-          // Process for winning bid
-          if (auction.winning_bid_id) {
-            const winningBid = await auctionService.getCurrentBid(auction.id);
-            auction.current_bid = winningBid.bid_amount;
-          } else {
-            auction.current_bid = 0;
-          }
-          processedAuctions.push(auction);
+        if (searchCriteria.itemName) {
+          const matchingItems = await itemService.searchItems(searchCriteria.itemName);
+          const matchingTitles = matchingItems.map(item => item.title);
+
+          filteredAuctions = enrichedAuctions.filter(auction => 
+            matchingTitles.includes(auction.item_title));
         }
 
-        // Enrich auctions with additional details
-        const enrichedAuctions = await auctionService.enrichAuctions(processedAuctions);
-        setActiveAuctions(enrichedAuctions);
+        if (searchCriteria.category) {
+          filteredAuctions = filteredAuctions.filter(auction =>
+            auction.category.toLowerCase() === searchCriteria.category.toLowerCase());
+        }
+
+        setActiveAuctions(filteredAuctions);
       } catch (error) {
         console.error('Error fetching auctions:', error);
         setActiveAuctions([]);
