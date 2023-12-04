@@ -4,22 +4,14 @@ import { Card, Button } from '@/components/ui';
 import { userService } from '@/services/userService';
 import { itemService } from '@/services/itemService';
 import { useUser } from '@/hooks/user/useUser';
+import AdminAuctions from '@/components/adminAuctions/AdminAuctions';
 import styles from '@/css/AdminPage.module.css';
 
 const AdminPage = () => {
 	const [userId, setUserId] = useState('');
-	const [categories, setCategories] = useState([]);
 	const [newCategory, setNewCategory] = useState('');
 	const [selectedCategory, setSelectedCategory] = useState('');
-	const [inProgressAuctions, setInProgressAuctions] = useState([]);
 	const { logout } = useUser();
-
-	useEffect(() => {
-		// Fetch in-progress auctions sorted by soonest end time
-		// Replace with actual function call to fetch auctions
-		console.log("Fetching in-progress auctions");
-		// setInProgressAuctions(fetchedAuctions);
-	}, []);
 
 	const handleUserIdChange = (e) => {
 		setUserId(e.target.value);
@@ -130,17 +122,7 @@ const AdminPage = () => {
 				</div>
 			</Card>
 
-			<Card className={styles.auctionsCard}>
-				<h3>In-Progress Auctions</h3>
-				<ul>
-					{inProgressAuctions.map(auction => (
-						<li key={auction.id}>
-							{auction.item_title} - Ends: {auction.end_time}
-							{/* Additional auction details can be added here */}
-						</li>
-					))}
-				</ul>
-			</Card>
+			<AdminAuctions />
 
 			<Button onClick={logout}>Logout</Button>
 		</div>
