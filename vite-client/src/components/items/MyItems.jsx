@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import { itemService } from '@/services/itemService';
 import { useUser } from '@/hooks/user/useUser';
 import ItemCard from '@/components/items/ItemCard';
-import styles from './myItems.module.css';
+import styles from './MyItems.module.css';
 
 
 const MyItems = () => {

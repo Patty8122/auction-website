@@ -207,21 +207,12 @@ def delete_item(item_id: int, db: Session = Depends(get_db)):
     print("db_item: ", db_item)
 
     if db_item is None:
-<<<<<<< Updated upstream
-        raise HTTPException(status_code = 400, detail="Item does not exist")
-    
-    if db_item.seller_id != user_id and db_item.seller_id != 1: # 1 is admin
-        print("db_item.seller_id: ", db_item.seller_id, " user_id: ", user_id)
-        raise HTTPException(status_code = 400, detail="User does not own item")
-            
-=======
         raise HTTPException(status_code=400, detail="Item does not exist")
 
     # if db_item.seller_id != user_id and db_item.seller_id != 1:  # 1 is admin
     #     print("db_item.seller_id: ", db_item.seller_id, " user_id: ", user_id)
     #     raise HTTPException(status_code=400, detail="User does not own item")
 
->>>>>>> Stashed changes
     # delete item
     db.delete(db_item)
     db.commit()
@@ -322,13 +313,8 @@ async def search_items(search_term: str, db: Session = Depends(get_db)):
                                       categories_id[categories.index(category)])
             items = db.execute(stmt).scalars().all()
             return items
-<<<<<<< Updated upstream
-    
-    stmt = select(Item).where(Item.description.ilike(f"%{search_term}%"))
-=======
 
     stmt = select(Item).where(Item.title.ilike(f"%{search_term}%"))
->>>>>>> Stashed changes
     items = db.execute(stmt).scalars().all()
     if items:
         return items
