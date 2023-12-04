@@ -15,25 +15,35 @@ const SearchCard = ({ onSearch }) => {
   };
 
   const handleCategorySearch = () => {
-    onSearch({ category });
+    onSearch({ category, itemName: '' });
   };
 
   const handleItemNameSearch = () => {
-    onSearch({ itemName });
+    onSearch({ itemName, category: '' });
   };
 
   return (
     <Card className={styles.searchCard}>
       <div className={styles.searchField}>
         <label htmlFor="category">Category:</label>
-        <select id="category" value={category} onChange={handleCategoryChange} className={styles.input}>
-          {/* Categories options should be populated here */}
-        </select>
+        <input 
+          type="text" 
+          id="category" 
+          value={category} 
+          onChange={handleCategoryChange} 
+          className={styles.input} 
+        />
         <Button onClick={handleCategorySearch}>Search by Category</Button>
       </div>
       <div className={styles.searchField}>
         <label htmlFor="itemName">Item Name:</label>
-        <input type="text" id="itemName" value={itemName} onChange={handleItemNameChange} className={styles.input} />
+        <input 
+          type="text" 
+          id="itemName" 
+          value={itemName} 
+          onChange={handleItemNameChange} 
+          className={styles.input} 
+        />
         <Button onClick={handleItemNameSearch}>Search by Item Name</Button>
       </div>
     </Card>

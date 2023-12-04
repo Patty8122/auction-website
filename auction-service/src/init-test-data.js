@@ -31,8 +31,8 @@ const initTestData = async () => {
     // First check for existing data
     const auctions = await query('SELECT * FROM auctions');
     const bids = await query('SELECT * FROM bids');
-    if (auctions.length > 0 || bids.length > 0) {
-        console.log("Test data already initialized.");
+    if (auctions.rowCount > 0 || bids.rowCount > 0) {
+        console.log("Test data already initialized, skipping...");
         return;
     }
 

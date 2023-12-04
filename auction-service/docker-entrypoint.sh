@@ -2,7 +2,7 @@
 set -e
 
 # Run migrations
-#npm run migrate:down
+# npm run migrate:down
 npm run migrate
 
 # Populate test data
