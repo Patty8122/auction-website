@@ -17,8 +17,8 @@ ITEM_SERVICE_URL = "http://item-service:3004"
 
 ############## USER SERVICE APIs ####################
 class User(BaseModel):
-    username: str
-    password: str
+    username: Optional[str] = None
+    password: Optional[str] = None
     email: Optional[str] = None
     status: Optional[int] = None
     seller_rating: Optional[str] = None
@@ -61,10 +61,10 @@ async def suspend_user(user_id: int):
     return {"message": f"User with id : {user_id} has been suspended"}
 
 @app.put("/update_user/{user_id}")
-async def update_user(user_id: int, user: User):
+async def update_user(user_id: int, email: str):
     try:
         
-        response = requests.put(f"{USER_SERVICE_URL}/update_user/{user_id}", params=user.model_dump())
+        response = requests.put(f"{USER_SERVICE_URL}/update_user/{user_id}?email={email}")
         response.raise_for_status()
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(e))

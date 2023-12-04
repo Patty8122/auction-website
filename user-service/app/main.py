@@ -73,10 +73,10 @@ async def get_all_users():
         raise HTTPException(status_code=500, detail=str(e))
     
 @app.put("/update_user/{user_id}")
-def update_user(user_id: int, status: int = None, email: str = None, seller_rating: str = None):
+def update_user(user_id: int, email: str ):
     customer = Customer()
     try:
-        customer.update_user(user_id, status=status, email=email, seller_rating=seller_rating)
+        customer.update_user(user_id, email = email)
         return {"message": "User updated successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
