@@ -44,22 +44,23 @@ class Category(Base):
 class Item(Base):
     __tablename__ = "items"
 
-    id = Column(Integer, primary_key=True, index=True)
-    created_at = Column(String)
-    updated_at = Column(String)
-    quantity = Column(Integer)
-    description = Column(String)
+    id = Column(Integer, primary_key=True, index=True, nullable=True)
+    created_at = Column(String, nullable=True)
+    updated_at = Column(String, nullable=True)
+    quantity = Column(Integer, nullable=True)
+    title = Column(String)
     shipping_cost = Column(Float)
     category_id = Column(Integer, ForeignKey("categories.id"))
     initial_bid_price = Column(Float)
-    final_bid_price = Column(Float)
-    seller_id = Column(Integer)
-    buyer_id = Column(Integer)
+    final_bid_price = Column(Float, nullable=True)
+    seller_id = Column(Integer, nullable=True)
+    buyer_id = Column(Integer, nullable=True)
     photo_url1 = Column(String)
-    photo_url2 = Column(String)
-    photo_url3 = Column(String)
-    photo_url4 = Column(String)
-    photo_url5 = Column(String)
+    photo_url2 = Column(String, nullable=True)
+    photo_url3 = Column(String, nullable=True)
+    photo_url4 = Column(String, nullable=True)
+    photo_url5 = Column(String, nullable=True)
+
 
     # category = relationship("Category", back_populates="items")
 
@@ -188,7 +189,7 @@ def get_items(seller_id: int, db: Session = Depends(get_db)):
 
 
 @app.delete("/items", status_code=200)
-def delete_item(item_id: int, user_id: int, db: Session = Depends(get_db)):
+def delete_item(item_id: int, db: Session = Depends(get_db)):
     # does user own item?
     db_item = db.query(Item).filter(Item.id == item_id).first()
 
@@ -196,16 +197,25 @@ def delete_item(item_id: int, user_id: int, db: Session = Depends(get_db)):
     print("db_item: ", db_item)
 
     if db_item is None:
+<<<<<<< Updated upstream
         raise HTTPException(status_code = 400, detail="Item does not exist")
     
     if db_item.seller_id != user_id and db_item.seller_id != 1: # 1 is admin
         print("db_item.seller_id: ", db_item.seller_id, " user_id: ", user_id)
         raise HTTPException(status_code = 400, detail="User does not own item")
             
+=======
+        raise HTTPException(status_code=400, detail="Item does not exist")
+
+    # if db_item.seller_id != user_id and db_item.seller_id != 1:  # 1 is admin
+    #     print("db_item.seller_id: ", db_item.seller_id, " user_id: ", user_id)
+    #     raise HTTPException(status_code=400, detail="User does not own item")
+
+>>>>>>> Stashed changes
     # delete item
     db.delete(db_item)
     db.commit()
-    return f"Deleted Item with id : {item_id} by User with id : {user_id} Successfully!"
+    return {"ok": True, "message": "Item deleted"}
 
 
 @app.get("/items/{min_initial_bid_price}/{max_initial_bid_price}", response_model=List[models.Item], status_code=200)
@@ -243,8 +253,10 @@ def update_item(item_id: int, item_with_new_values: dict = Body(...),
     for key, value in item_with_new_values.items():
         if key == "category_id":
             db_item.category_id = value
-        elif key == "description":
-            db_item.description = value
+        elif key == "title":
+            db_item.title = value
+        elif key == "quantity":
+            db_item.quantity = value
         elif key == "shipping_cost":
             db_item.shipping_cost = value
         elif key == "initial_bid_price":
@@ -279,7 +291,7 @@ async def fetch_items(db):
 
 @app.get("/search/{search_term}", response_model=List[models.Item], status_code=200)
 async def search_items(search_term: str, db: Session = Depends(get_db)):
-    # find items with search term looking at description
+    # find items with search term looking at title
     categories = [category[1] async for category in fetch_categories(db)]
     categories_id = [category[0] async for category in fetch_categories(db)]
     categories = [category.lower() for category in categories]
@@ -296,14 +308,19 @@ async def search_items(search_term: str, db: Session = Depends(get_db)):
             stmt = select(Item).where(Item.category_id == categories_id[categories.index(category)])
             items = db.execute(stmt).scalars().all()
             return items
+<<<<<<< Updated upstream
     
     stmt = select(Item).where(Item.description.ilike(f"%{search_term}%"))
+=======
+
+    stmt = select(Item).where(Item.title.ilike(f"%{search_term}%"))
+>>>>>>> Stashed changes
     items = db.execute(stmt).scalars().all()
     if items:
         return items
 
     items = fetch_items(db)
-    items = [item async for item in items if fuzz.partial_ratio(search_term, item.description.lower().replace(" ", "")) >= 80]
+    items = [item async for item in items if fuzz.partial_ratio(search_term, item.title.lower().replace(" ", "")) >= 80]
     print(items)
     return items
 
