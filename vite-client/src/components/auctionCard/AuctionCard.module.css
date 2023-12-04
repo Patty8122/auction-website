@@ -19,7 +19,11 @@
 }
 
 .currentBid {
-    width: 160px;
+    width: 140px;
+}
+
+.bidIncrement {
+    width: 150px;
 }
 
 .timeLeft {

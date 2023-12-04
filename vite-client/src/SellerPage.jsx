@@ -1,69 +1,68 @@
 import React, { useEffect, useState } from 'react';
-import io from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { itemService } from '@/services/itemService';
 import { useUser } from '@/hooks/user/useUser';
 import Container from './components/items/Container';
+import MyItems from './components/items/MyItems';
+import SearchBar from './components/items/SearchBar';
+
 
 const App = () => {
   const { currentUser, logout, isLoading: isUserLoading } = useUser();
-  const [items, setItems] = useState([]);
-  const triggerText = 'Create Item';
+  
+  const refreshPage = () => {
+    window.location.reload();
+  }
+
   const onSubmit = (event) => {
     event.preventDefault(event);
-    console.log(event.target.name.value);
-    console.log(event.target.email.value);
+    if (event.target.title.value === '') {
+      toast.error('Please enter a title');
+      return;
+    } else if (event.target.category_id.value === '') {
+      toast.error('Please enter a category');
+      return;
+    } else if (event.target.shipping_cost.value === '') {
+      toast.error('Please enter a shipping cost');
+      return;
+    } else if (event.target.quantity.value === '') {
+      toast.error('Please enter a quantity');
+      return;
+    } else if (event.target.initial_bid_price.value === '') {
+      toast.error('Please enter an initial bid price');
+      return;
+    } 
+    const title = event.target.title.value;
+    const category_id = event.target.category_id.value;
+    const shippingCost = event.target.shipping_cost.value;
+    const quantity = event.target.quantity.value;
+    const initialBidPrice = event.target.initial_bid_price.value;
+    // const photo_url1 = event.target.photo_url1.value;
+    const photo_url1 = '';
+    const item =  {
+      "quantity": quantity,
+      "title": title,
+      "category_id": category_id,
+      "initial_bid_price": initialBidPrice,
+      "shipping_cost": shippingCost,
+      "seller_id": currentUser.user_id,
+      "photo_url1": photo_url1,
+    }
+    console.log("item", item);
+    console.log("currentUser", currentUser);
+    itemService.createItem(item, currentUser);
+    refreshPage();
   };
-  const navigate = useNavigate();
-
-const fetchItems = async () => {
-    if (currentUser) {
-    try {
-        const myItems = await itemService.getMyItems(currentUser.id);
-        setItems(myItems);
-        console.log('myItems:', myItems);
-    } catch (error) {
-        console.error('Error fetching items:', error);
-    }
-    }
-};
-
-const createItem = async () => {
-  // display form to create item as modal
-  // the form is a component
-  // the form has a submit button
-
-  
-
-
-  
-
-
-
-
-}
-
-//   useEffect(() => {
-//     const socket = io('http://localhost:3004');
-
-//     socket.on('connect', () => {
-//         console.log('Connected to socket');
-//         }
-//     );
-    
-
-
-//     return () => {
-//       socket.disconnect();
-//     };
-//   }, []);
-
 
   return (
     <div>
-      <h1>Home Page</h1>
-        <button onClick={() => fetchItems()}>Fetch Items</button>
-        <Container triggerText={triggerText} onSubmit={onSubmit} />
+        {currentUser && currentUser.user_type == 'customer' && (
+          <div>
+            <Container triggerText={'Create Item'} onSubmit={onSubmit} />
+            <MyItems />
+            <SearchBar />
+          </div>
+        )}
     </div>
   );
 

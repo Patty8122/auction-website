@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 import express from 'express';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
-import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import { query } from './db.js';
@@ -128,8 +127,8 @@ app.post('/auctions', validateAuction, async (req, res) => {
 
     try {
         const result = await query(
-            'INSERT INTO auctions (item_id, seller_id, start_time, end_time, starting_price, status, current_bid, bid_increment) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-            [itemId, sellerId, startDateTime, endDateTime, startingPrice, initialStatus, startingPrice, bidIncrement]
+            'INSERT INTO auctions (item_id, seller_id, start_time, end_time, starting_price, status, bid_increment) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+            [itemId, sellerId, startDateTime, endDateTime, startingPrice, initialStatus, bidIncrement]
         );
         res.status(201).json(result.rows[0]);
     } catch (error) {
@@ -346,7 +345,7 @@ app.put('/auctions/:id/status', async (req, res) => {
         } else {
             res.status(404).send('Auction not found');
         }
-       
+
     } catch (error) {
         console.error('Error updating auction status:', error);
         res.status(500).send('Error updating auction status');
@@ -400,12 +399,17 @@ app.post('/auctions/:id/bids', fetchAuctionData, validateBid, async (req, res) =
     const currentTime = new Date();
 
     try {
-        // Insert the bid and update the current bid in the auctions table
+        // Ensure the auction is active
+        const auction = await query('SELECT * FROM auctions WHERE id = $1', [auctionId]);
+        if (!auction.rows.length || auction.rows[0].status !== 'active') {
+            return res.status(400).send('Auction is not active');
+        }
+
+        // Insert the bid into the bids table
         const bidResult = await query(
             'INSERT INTO bids (auction_id, user_id, bid_amount, bid_time) VALUES ($1, $2, $3, $4) RETURNING *',
             [auctionId, userId, bidAmount, currentTime]
         );
-        await query('UPDATE auctions SET current_bid = $1 WHERE id = $2', [bidAmount, auctionId]);
 
         res.status(200).json(bidResult.rows[0]);
 
@@ -485,7 +489,7 @@ app.get('/auctions/:id/bids', async (req, res) => {
  * /auctions/{id}/current-bid:
  *   get:
  *     summary: Get the current highest bid for an auction
- *     description: Retrieve the current highest bid for a specified auction.
+ *     description: Retrieve the current highest bid for a specified auction. Returns the latest highest bid amount and the ID of the user who placed it.
  *     tags:
  *       - Bids
  *     parameters:
@@ -494,7 +498,7 @@ app.get('/auctions/:id/bids', async (req, res) => {
  *         required: true
  *         description: Unique ID of the auction
  *         schema:
- *           type: string
+ *           type: integer
  *     responses:
  *       200:
  *         description: Current highest bid retrieved successfully.
@@ -503,28 +507,34 @@ app.get('/auctions/:id/bids', async (req, res) => {
  *             schema:
  *               type: object
  *               properties:
- *                 seller_id:
- *                   type: number
+ *                 user_id:
+ *                   type: integer
  *                   description: The ID of the user who placed the current highest bid.
- *                 current_bid:
+ *                 bid_amount:
  *                   type: number
  *                   description: The current highest bid amount.
  *       404:
- *         description: Auction not found.
+ *         description: Auction not found or no bids placed yet.
  */
 app.get('/auctions/:id/current-bid', async (req, res) => {
     const auctionId = req.params.id;
+    console.log('auctionId:', auctionId);
 
     try {
-        const result = await query('SELECT seller_id, current_bid FROM auctions WHERE id = $1', [auctionId]);
+        // Fetch the current highest bid from the bids table
+        const result = await query(
+            'SELECT user_id, bid_amount FROM bids WHERE auction_id = $1 ORDER BY bid_amount DESC, bid_time DESC LIMIT 1',
+            [auctionId]
+        );
+
         if (result.rows.length === 0) {
-            return res.status(404).send('Auction not found');
+            return res.status(404).send('Auction not found or no bids placed yet');
         }
 
-        const auction = result.rows[0];
+        const highestBid = result.rows[0];
         res.status(200).json({
-            seller_id: auction.seller_id,
-            current_bid: auction.current_bid
+            user_id: highestBid.user_id,
+            bid_amount: highestBid.bid_amount
         });
     } catch (error) {
         console.error('Error fetching current bid:', error);
@@ -546,7 +556,7 @@ app.get('/auctions/:id/current-bid', async (req, res) => {
  *         required: true
  *         description: Unique ID of the auction
  *         schema:
- *           type: string
+ *           type: integer
  *     responses:
  *       200:
  *         description: Final bid retrieved successfully.
@@ -555,8 +565,8 @@ app.get('/auctions/:id/current-bid', async (req, res) => {
  *             schema:
  *               type: object
  *               properties:
- *                 seller_id:
- *                   type: number
+ *                 user_id:
+ *                   type: integer
  *                   description: The ID of the user who placed the final winning bid.
  *                 final_bid:
  *                   type: number
@@ -570,19 +580,26 @@ app.get('/auctions/:id/final-bid', async (req, res) => {
     const auctionId = req.params.id;
 
     try {
-        const result = await query('SELECT seller_id, current_bid, end_time FROM auctions WHERE id = $1', [auctionId]);
-        if (result.rows.length === 0) {
+        // First, check if the auction exists and is over
+        const auctionResult = await query('SELECT winning_bid_id, end_time FROM auctions WHERE id = $1', [auctionId]);
+        if (auctionResult.rows.length === 0) {
             return res.status(404).send('Auction not found');
         }
-
-        const auction = result.rows[0];
+        const auction = auctionResult.rows[0];
         if (new Date() < new Date(auction.end_time)) {
             return res.status(400).send('Auction is still active');
         }
 
+        // Fetch the final winning bid using winning_bid_id
+        const bidResult = await query('SELECT user_id, bid_amount FROM bids WHERE id = $1', [auction.winning_bid_id]);
+        if (bidResult.rows.length === 0) {
+            return res.status(404).send('Final bid not found');
+        }
+
+        const finalBid = bidResult.rows[0];
         res.status(200).json({
-            seller_id: auction.seller_id,
-            final_bid: auction.current_bid
+            user_id: finalBid.user_id,
+            final_bid: finalBid.bid_amount
         });
     } catch (error) {
         console.error('Error fetching final bid:', error);

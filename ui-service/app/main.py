@@ -158,7 +158,7 @@ async def get_bids(auction_id: int):
 
     return response.json()
 
-@app.get("/auctions/{auction_id}/current-bid", response_model=list)
+@app.get("/auctions/{auction_id}/current-bid", response_model=dict)
 async def get_current_bid(auction_id: int):
     try:
         url = f"{AUCTION_SERVICE_BASE_URL}/auctions/{auction_id}/current-bid"
@@ -203,12 +203,29 @@ class Category(BaseModel):
 class CategoryCreate(BaseModel):
     category: str
 
+class ItemIn(BaseModel):
+    created_at: str = str(datetime.datetime.now())
+    updated_at: str = str(datetime.datetime.now())
+    quantity: Optional[int] = 1
+    title: Optional[str] = 'No title provided'
+    shipping_cost: Optional[float] = 0.0
+    category_id: int
+    initial_bid_price: float
+    final_bid_price: Optional[float] = None
+    seller_id: Optional[int] = None
+    buyer_id: Optional[int] = None
+    photo_url1: Optional[str] = None
+    photo_url2: Optional[str] = None
+    photo_url3: Optional[str] = None
+    photo_url4: Optional[str] = None
+    photo_url5: Optional[str] = None
+
 class Item(BaseModel):
     id: int
     created_at: datetime.datetime 
     updated_at: datetime.datetime
     quantity: int
-    description: str
+    title: str
     shipping_cost: float
     category_id: int
     initial_bid_price: float
@@ -263,7 +280,7 @@ def get_category_by_id(category_id: int):
     return response.json()
 
 @app.post("/items")
-async def create_item(item: Item, user_id: int):
+async def create_item(item: ItemIn, user_id: int):
     url = f"{ITEM_SERVICE_URL}/items"
     try:
         response = requests.post(url + f"?user_id={user_id}", json=item.model_dump())
@@ -305,9 +322,9 @@ def get_item_by_seller_id(seller_id: int):
     return response.json()
 
 @app.delete("/items")
-async def delete_item_by_id(deleteItem: DeleteItem):
+async def delete_item_by_id(item_id: int):
     try:
-        response = requests.delete(f"{ITEM_SERVICE_URL}/items", params=deleteItem.model_dump())
+        response = requests.delete(f"{ITEM_SERVICE_URL}/items", params={"item_id": item_id})
         response.raise_for_status()
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(response.content))

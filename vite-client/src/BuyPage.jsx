@@ -1,24 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { useUser } from '@/hooks/user/useUser';
-import { Button } from '@/components/ui';
 import ActiveAuctions from '@/components/activeAuctions/ActiveAuctions';
-import AddItem from '@/components/addItem/AddItem';
 import Watchlist from './components/watchlist/Watchlist';
 import styles from './css/BuyPage.module.css';
 
 const BuyPage = () => {
-  const { currentUser, logout, isLoading: isUserLoading } = useUser();
-  const [activeAuctions, setActiveAuctions] = useState([]);
-  const navigate = useNavigate();
-
-  const handleAddItem = (itemName, initialBid) => {
-    const newItem = { id: activeAuctions.length + 1, name: itemName, currentBid: initialBid };
-    setActiveAuctions([...activeAuctions, newItem]);
-
-    // TODO - Send new item to backend
-    // and move this logic to itemSection or some other component
-  };
+  const { currentUser } = useUser();
 
   return (
     <div className={styles.app}>

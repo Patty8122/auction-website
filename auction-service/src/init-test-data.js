@@ -15,10 +15,10 @@ const createAuctions = async () => {
 const placeBids = async () => {
     // Assuming the first two auctions have IDs 1 and 2
     const bidsData = [
-        { auction_id: 1, user_id: 1, bid_amount: 0 },
-        { auction_id: 1, user_id: 2, bid_amount: 0 },
-        { auction_id: 2, user_id: 1, bid_amount: 0 },
-        { auction_id: 2, user_id: 2, bid_amount: 0 }
+        { auction_id: 1, user_id: 1, bid_amount: 20 },
+        { auction_id: 1, user_id: 2, bid_amount: 30 },
+        { auction_id: 2, user_id: 1, bid_amount: 70 },
+        { auction_id: 2, user_id: 2, bid_amount: 80 }
     ];
 
     for (const bid of bidsData) {
@@ -28,6 +28,14 @@ const placeBids = async () => {
 };
 
 const initTestData = async () => {
+    // First check for existing data
+    const auctions = await query('SELECT * FROM auctions');
+    const bids = await query('SELECT * FROM bids');
+    if (auctions.length > 0 || bids.length > 0) {
+        console.log("Test data already initialized.");
+        return;
+    }
+
     try {
         await createAuctions();
         await placeBids();

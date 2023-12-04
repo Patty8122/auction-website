@@ -86,6 +86,14 @@
 }
 
 .watchlistCard p {
+	margin-bottom: 0;
+}
+
+.watchlistItems p {
+	margin-bottom: 20px;
+}
+
+#notification {
 	margin-bottom: 20px;
 }
 

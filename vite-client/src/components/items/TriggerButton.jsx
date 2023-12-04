@@ -1,13 +1,14 @@
 import React from 'react';
+import { Button } from '@/components/ui';
 const Trigger = ({ triggerText, buttonRef, showModal }) => {
   return (
-    <button
+    <Button
       className="btn btn-lg btn-danger center modal-button"
       ref={buttonRef}
       onClick={showModal}
     >
       {triggerText}
-    </button>
+    </Button>
   );
 };
 export default Trigger;

@@ -30,7 +30,7 @@ def upgrade():
         sa.Column('created_at', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=True),
         sa.Column('updated_at', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=True),
         sa.Column('quantity', sa.Integer(), server_default=sa.text('1'), nullable=True),
-        sa.Column('description', sa.String(), server_default=sa.text("'No description provided'"), nullable=True),
+        sa.Column('title', sa.String(), server_default=sa.text("'No title provided'"), nullable=True),
         sa.Column('shipping_cost', sa.Float(), nullable=True),
         sa.Column('category_id', sa.Integer(), nullable=True),
         sa.Column('initial_bid_price', sa.Float(), nullable=False),

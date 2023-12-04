@@ -44,6 +44,7 @@ function App() {
             <Route path="/sell" element={
               <>
                 <Navbar />
+                <SellerPage />
               </>
             } />
             <Route path="/profile" element={
