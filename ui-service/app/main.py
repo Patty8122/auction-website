@@ -200,8 +200,6 @@ class Category(BaseModel):
     created_at: datetime.datetime
     category: str
 
-<<<<<<< Updated upstream
-=======
 class CategoryCreate(BaseModel):
     category: str
 
@@ -222,7 +220,6 @@ class ItemIn(BaseModel):
     photo_url4: Optional[str] = None
     photo_url5: Optional[str] = None
 
->>>>>>> Stashed changes
 class Item(BaseModel):
     id: int
     created_at: datetime.datetime 
