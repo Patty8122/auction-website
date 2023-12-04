@@ -33,22 +33,21 @@ def publish_log(log_content):
 
 def callback(ch, method, properties, body):
     
-    print("Starting processing")
+    try:
+        print("Starting processing")
 
-    # parse the message body which is a JSON string
-    log_content = json.loads(body.decode('utf-8'))
-    
-    print(f"Log content is: {log_content}")
+        # parse the message body which is a JSON string
+        log_content = json.loads(body.decode('utf-8'))
+        
+        print(f"Log content is: {log_content}")
 
-    # send_email(email_content['from_address'], email_content['to_address'], email_content['subject'],
-    #            email_content['body'], 'FROM_EMAIL', 'APP_PASSWORD')
+    	# publish the log content to mongodb
+        publish_log(log_content)
 
-	# publish the log content to mongodb
-    publish_log(log_content)
-
-    # Acknowledge message receipt
-    ch.basic_ack(delivery_tag=method.delivery_tag)
-    
+        # Acknowledge message receipt
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+    except Exception as e:
+        print(f"Log could not be sent to mongodb: Error: {e}")
 
 if __name__ == '__main__':
     # RabbitMQ configuration

@@ -23,6 +23,7 @@ class ItemIn(BaseModel):
     photo_url3: Optional[str] = None
     photo_url4: Optional[str] = None
     photo_url5: Optional[str] = None
+    listing_status: Optional[bool] = False
 
 
 class Item(BaseModel):
