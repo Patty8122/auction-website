@@ -2,7 +2,7 @@ import { Button, Card } from '@/components/ui';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useUser } from '@/hooks/user/useUser';
-import { itemService } from '@/services/itemService';   
+import { itemService } from '@/services/itemService';
 import { auctionService } from '@/services/auctionService';
 import Container from './Container';
 import ContainerBid from './ContainerBid';
@@ -13,14 +13,14 @@ import styles from './ItemCard.module.css';
 const ItemCard = ({ item, category, ...props }) => {
     const { currentUser } = useUser();
     const [isDeleted, setIsDeleted] = useState(false);
-    
+
     const convertToUTC = (dateString) => {
 
         if (!dateString) {
             return null;
         }
         const inputDate = new Date(dateString);
-        
+
         // Create a new date in UTC
         const outputDate = new Date(Date.UTC(
             inputDate.getUTCFullYear(),
@@ -29,10 +29,10 @@ const ItemCard = ({ item, category, ...props }) => {
             inputDate.getUTCHours(),
             inputDate.getUTCMinutes()
         ));
-    
+
         // Format the output date as a string
         const formattedOutputDateTime = outputDate.toISOString().slice(0, 19).replace("T", " ");
-    
+
         return formattedOutputDateTime;
     }
 
@@ -44,7 +44,7 @@ const ItemCard = ({ item, category, ...props }) => {
         // startingPrice: 'Starting Price',
         // sellerId: 'Seller Id',
         // bidIncrement: 'Bid Increment',
-        const {itemid, startDateTime, endDateTime, startingPrice, sellerId, bidIncrement} = event.target;
+        const { itemid, startDateTime, endDateTime, startingPrice, sellerId, bidIncrement } = event.target;
         console.log("event.target", event.target);
         console.log("itemid", itemid.value);
         console.log("startDateTime", startDateTime.value);
@@ -99,7 +99,7 @@ const ItemCard = ({ item, category, ...props }) => {
         // "shipping_cost": shippingCost,
         // "seller_id": currentUser.user_id,
         // "photo_url1": image_url1,
-        const { quantity, title, category_id, initial_bid_price, shipping_cost, photo_url1} = event.target;
+        const { quantity, title, category_id, initial_bid_price, shipping_cost, photo_url1 } = event.target;
 
         console.log("event.target", event.target);
         console.log("quantity", quantity.value);
@@ -133,68 +133,76 @@ const ItemCard = ({ item, category, ...props }) => {
         }
 
         console.log("updatedItem", updatedItem)
-        toast.success(`Updated item ${item.id}`);   
+        toast.success(`Updated item ${item.id}`);
         await itemService.editItem(updatedItem, item.id)
 
-      };
+    };
 
-    
-    
+
+
     const onRemove = async (itemId) => {
-        setIsDeleted(true); 
+        setIsDeleted(true);
         await itemService.removeItem(itemId);
         toast.success(`Remove item ${itemId}`);
     }
-    
+
 
     if (isDeleted) {
-        return null; 
+        return null;
     }
     return (
         <Card>
-        <div className={styles.itemCard}>
-            <div className={styles.itemImage}>
-                <img src={item.photo_url1} alt="item" />
-            </div>
-            <div className={styles.itemInfo}>
-                <div className={styles.category}>
-                    {category}
-                </div>
-                <div className={styles.itemtitle}>
-                    {item.title}
-                </div>
-                <div className={styles.itemPrice}>
-                    ${item.initial_bid_price}
-                </div>
-
-
-                { currentUser && currentUser.user_id && currentUser.user_id !== item.seller_id && (
-                    <div>
-                        <Button onClick={() => bid(item.id)}>Bid</Button>
+            <div className={styles.itemCard}>
+                <div className={styles.cardBody}>
+                    <div className={styles.imageContainer}>
+                        <img src={item.photo_url1} alt={item.title} />
                     </div>
-                )}
-
-                {currentUser && currentUser.user_id && currentUser.user_id === item.seller_id && 
-                    (   
-                        <div>
-                        <Container triggerText={'Edit Item'} onSubmit={(event) => onEdit(event, item)} placeholders={item}/>
-                        <ContainerBid triggerText={'Start Auction'} onSubmit={(event) => onBid(event, item)} placeholders={
-                            {
-                                itemid: item.id,
-                                startDateTime: convertToUTC(),
-                                endDateTime: convertToUTC(),
-                                startingPrice: item.initial_bid_price,
-                                sellerId: item.seller_id,
-                                bidIncrement: 5,
-                            }
-                        }/>
-                        <Button onClick={() => onRemove(item.id)}>Remove</Button>
+                    <div className={styles.itemInfo}>
+                        <div className={styles.category}>
+                            {category}
                         </div>
-                    )}
+                        <div className={styles.itemtitle}>
+                            {item.title}
+                        </div>
+                        <div className={styles.itemPrice}>
+                            ${item.initial_bid_price}
+                        </div>
+
+
+                        <div className="row">
+                            <div className="col-6">
+                                {currentUser && currentUser.user_id && currentUser.user_id !== item.seller_id && (
+                                    <div>
+                                        <Button onClick={() => bid(item.id)}>Bid</Button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {currentUser && currentUser.user_id && currentUser.user_id === item.seller_id &&
+                            (
+                                <div className="row">
+                                    <div className="col-6">
+                                        <Container triggerText={'Edit Item'} onSubmit={(event) => onEdit(event, item)} placeholders={item} />
+                                        <ContainerBid triggerText={'Start Auction'} onSubmit={(event) => onBid(event, item)} placeholders={
+                                            {
+                                                itemid: item.id,
+                                                startDateTime: convertToUTC(),
+                                                endDateTime: convertToUTC(),
+                                                startingPrice: item.initial_bid_price,
+                                                sellerId: item.seller_id,
+                                                bidIncrement: 5,
+                                            }
+                                        } />
+                                        <Button onClick={() => onRemove(item.id)}>Remove</Button>
+                                    </div>
+                                </div>
+                            )}
+                    </div>
+                </div>
             </div>
-        </div>
-    </Card>
-  );
+        </Card>
+    );
 
 }
 

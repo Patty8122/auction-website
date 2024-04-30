@@ -6,9 +6,11 @@ const getAuctions = async (options = {}) => {
   try {
     const queryParams = new URLSearchParams(options).toString();
     const url = queryParams ? `${API_BASE_URL}?${queryParams}` : API_BASE_URL;
+    console.log("url", url);
 
     const response = await fetch(url);
     if (!response.ok) {
+      console.log("response", response);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     return await response.json();
@@ -112,6 +114,8 @@ const getAuctionsByUserId = async (userId) => {
 }
 
 const placeBid = async (auctionId, bidData) => {
+  console.log("body", JSON.stringify(bidData));
+  
   try {
     const response = await fetch(`${API_BASE_URL}/${auctionId}/bids`, {
       method: 'POST',
@@ -120,7 +124,10 @@ const placeBid = async (auctionId, bidData) => {
       },
       body: JSON.stringify(bidData),
     });
+
+
     if (!response.ok) {
+      console.log("response", response);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     return await response.json();

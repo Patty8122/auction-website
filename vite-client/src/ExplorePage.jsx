@@ -53,7 +53,7 @@ const ExplorePage = () => {
 
     if (currentUser) {
       fetchAuctions();
-      intervalId = setInterval(fetchAuctions, 5000);
+      intervalId = setInterval(fetchAuctions, 1000);
     }
 
     return () => {

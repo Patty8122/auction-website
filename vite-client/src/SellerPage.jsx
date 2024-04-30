@@ -6,6 +6,7 @@ import Container from './components/items/Container';
 import MyItems from './components/items/MyItems';
 import SearchBar from './components/items/SearchBar';
 import MyActiveAuctions from './components/items/MyActiveAuctions';
+import { toast } from 'react-toastify';
 
 const App = () => {
   const { currentUser, logout, isLoading: isUserLoading } = useUser();
